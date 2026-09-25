@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "بلاعة — Balaa",
+    "slug": "balaa",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "balaa",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.balaa.prototype",
+      "infoPlist": {
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleLocalizations": ["ar", "en"],
+        "NSLocationWhenInUseUsageDescription": "نحتاج موقعك أثناء تصوير المشكلة لتحديد الحي المسؤول.",
+        "NSCameraUsageDescription": "التقط صورة حديثة للمشكلة لتوثيق البلاغ."
+      }
+    },
+    "android": {
+      "package": "org.balaa.prototype",
+      "permissions": ["CAMERA", "ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"],
+      "blockedPermissions": ["android.permission.RECORD_AUDIO"]
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "التقط صورة حديثة للمشكلة لتوثيق البلاغ.",
+          "microphonePermission": false,
+          "photosPermission": "اختر صورة لتجربة التطبيق في وضع التطوير فقط."
+        }
+      ],
+      [
+        "expo-location",
+        { "locationWhenInUsePermission": "نحتاج موقعك أثناء تصوير المشكلة لتحديد الحي المسؤول." }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

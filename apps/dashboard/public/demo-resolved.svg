@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+<defs><pattern id="road" width="32" height="32" patternUnits="userSpaceOnUse"><rect width="32" height="32" fill="#737b73"/><circle cx="8" cy="7" r="1" fill="#8e9689"/><circle cx="25" cy="23" r="1.3" fill="#626b64"/></pattern></defs>
+<rect width="960" height="600" fill="#d5d6c6"/><path d="M200 0H800L960 600H0Z" fill="url(#road)"/><path d="M670 0L760 600" stroke="#e5d9a1" stroke-width="10" stroke-dasharray="70 45"/><path d="M0 420L200 0M960 485L800 0" stroke="#eeecda" stroke-width="28"/>
+<ellipse cx="435" cy="359" rx="150" ry="72" fill="#636e64"/><ellipse cx="435" cy="359" rx="123" ry="53" fill="#89948a" stroke="#374e42" stroke-width="9"/><path d="M349 343h172M332 361h206M348 379h176M382 314v89M435 307v104M488 314v89" stroke="#475f50" stroke-width="6"/>
+<circle cx="800" cy="100" r="45" fill="#167765"/><path d="m776 99 17 17 33-36" stroke="#fff" stroke-width="8" fill="none"/>
+<rect x="28" y="516" width="660" height="54" rx="12" fill="#f5f5eb"/><text x="48" y="550" font-family="sans-serif" font-size="21" fill="#284e43">BALAA · DEMO RESOLUTION · NOT REAL-WORLD EVIDENCE</text></svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+<defs><pattern id="road" width="32" height="32" patternUnits="userSpaceOnUse"><rect width="32" height="32" fill="#737b73"/><circle cx="8" cy="7" r="1" fill="#8e9689"/><circle cx="25" cy="23" r="1.3" fill="#626b64"/></pattern></defs>
+<rect width="960" height="600" fill="#d5d6c6"/><path d="M200 0H800L960 600H0Z" fill="url(#road)"/><path d="M670 0L760 600" stroke="#e5d9a1" stroke-width="10" stroke-dasharray="70 45"/><path d="M0 420L200 0M960 485L800 0" stroke="#eeecda" stroke-width="28"/>
+<ellipse cx="435" cy="359" rx="153" ry="74" fill="#555f56"/><ellipse cx="435" cy="359" rx="125" ry="54" fill="#273c35"/><path d="M319 342l40-28 48 13 25-16 67 14 37 24" fill="none" stroke="#a4ab98" stroke-width="17"/><path d="M260 255h340M280 240v75M578 240v75" stroke="#dfb45a" stroke-width="14"/>
+<rect x="28" y="516" width="570" height="54" rx="12" fill="#f5f5eb"/><text x="48" y="550" font-family="sans-serif" font-size="21" fill="#284e43">BALAA · DEMO ILLUSTRATION · NOT A REAL REPORT</text></svg>

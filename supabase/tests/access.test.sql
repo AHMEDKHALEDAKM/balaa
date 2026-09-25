@@ -1,0 +1,18 @@
+begin;
+create extension if not exists pgtap with schema extensions;
+set search_path=public,extensions;
+select plan(12);
+select has_table('public','reports','Reports exist');
+select has_table('public','district_boundaries','Boundary model exists');
+select ok((select bool_and(c.relrowsecurity) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relkind='r'),'RLS on every public table');
+select ok(not has_table_privilege('anon','public.reports','SELECT'),'Guests cannot read base reports');
+select ok(not has_table_privilege('authenticated','public.reports','INSERT'),'Clients cannot insert base reports');
+select ok(not has_table_privilege('authenticated','public.reports','UPDATE'),'Clients cannot update base reports');
+select ok(has_table_privilege('anon','public.public_reports','SELECT'),'Public projection available');
+select ok(not exists(select 1 from information_schema.columns where table_schema='public' and table_name='public_reports' and column_name in ('user_id','provider_subject_id','email','phone')),'Public view has no account identifiers');
+select ok(not exists(select 1 from information_schema.columns where table_schema='public' and table_name='district_reports' and column_name='user_id'),'District view has no citizen UUID');
+select ok(not exists(select 1 from storage.buckets where id in ('report-originals','report-derivatives') and public),'Media buckets private');
+select ok(exists(select 1 from pg_indexes where schemaname='public' and tablename='district_boundaries' and indexdef ilike '%using gist%'),'Boundary spatial index exists');
+select ok(exists(select 1 from pg_indexes where schemaname='public' and tablename='reports' and indexdef ilike '%using gist%'),'Report distance spatial index exists');
+select * from finish();
+rollback;

@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "country": {
+    "code": "EG",
+    "nameAr": "مصر",
+    "nameEn": "Egypt"
+  },
+  "governorate": {
+    "slug": "cairo",
+    "nameAr": "القاهرة",
+    "nameEn": "Cairo"
+  },
+  "sourceUrl": "https://www.cairo.gov.eg/en/governorate-entities/areas/",
+  "sourceCheckedAt": "2026-09-25",
+  "sourceNote": "Names and area groupings transcribed from Cairo Governorate's public directory. Reference only: not operationally vetted, no official partnership. Boundaries and contacts require separate verification.",
+  "areas": [
+    {
+      "slug": "north",
+      "nameAr": "المنطقة الشمالية",
+      "nameEn": "Northern Area"
+    },
+    {
+      "slug": "east",
+      "nameAr": "المنطقة الشرقية",
+      "nameEn": "Eastern Area"
+    },
+    {
+      "slug": "west",
+      "nameAr": "المنطقة الغربية",
+      "nameEn": "Western Area"
+    },
+    {
+      "slug": "south",
+      "nameAr": "المنطقة الجنوبية",
+      "nameEn": "Southern Area"
+    }
+  ],
+  "districts": [
+    {
+      "slug": "shubra",
+      "nameAr": "شبرا",
+      "nameEn": "Shubra",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "zawya-hamra",
+      "nameAr": "الزاوية الحمراء",
+      "nameEn": "El Zawya El Hamra",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "hadayek-kobba",
+      "nameAr": "حدائق القبة",
+      "nameEn": "Hadayek El Kobba",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "rod-farag",
+      "nameAr": "روض الفرج",
+      "nameEn": "Rod El Farag",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "sharabeya",
+      "nameAr": "الشرابية",
+      "nameEn": "El Sharabeya",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "sahel",
+      "nameAr": "الساحل",
+      "nameEn": "El Sahel",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "zeitoun",
+      "nameAr": "الزيتون",
+      "nameEn": "El Zeitoun",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "ameria",
+      "nameAr": "الأميرية",
+      "nameEn": "El Ameria",
+      "areaSlug": "north",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "heliopolis",
+      "nameAr": "مصر الجديدة",
+      "nameEn": "Heliopolis",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "nozha",
+      "nameAr": "النزهة",
+      "nameEn": "El Nozha",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "east-nasr-city",
+      "nameAr": "شرق مدينة نصر",
+      "nameEn": "East Nasr City",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "west-nasr-city",
+      "nameAr": "غرب مدينة نصر",
+      "nameEn": "West Nasr City",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "salam-first",
+      "nameAr": "السلام أول",
+      "nameEn": "El Salam First",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "salam-second",
+      "nameAr": "السلام ثان",
+      "nameEn": "El Salam Second",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "matariya",
+      "nameAr": "المطرية",
+      "nameEn": "El Matariya",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "ain-shams",
+      "nameAr": "عين شمس",
+      "nameEn": "Ain Shams",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "marg",
+      "nameAr": "المرج",
+      "nameEn": "El Marg",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "manshiet-nasser",
+      "nameAr": "منشأة ناصر",
+      "nameEn": "Manshiet Nasser",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "waili",
+      "nameAr": "الوايلي",
+      "nameEn": "El Waili",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "central-cairo",
+      "nameAr": "وسط القاهرة",
+      "nameEn": "Central Cairo",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "bulaq",
+      "nameAr": "بولاق",
+      "nameEn": "Bulaq",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "west-cairo",
+      "nameAr": "غرب القاهرة",
+      "nameEn": "West Cairo",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "abdeen",
+      "nameAr": "عابدين",
+      "nameEn": "Abdeen",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "azbakeya",
+      "nameAr": "الأزبكية",
+      "nameEn": "El Azbakeya",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "moski",
+      "nameAr": "الموسكي",
+      "nameEn": "El Moski",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "bab-shaaria",
+      "nameAr": "باب الشعرية",
+      "nameEn": "Bab El Shaaria",
+      "areaSlug": "west",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "old-cairo",
+      "nameAr": "مصر القديمة",
+      "nameEn": "Old Cairo",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "khalifa",
+      "nameAr": "الخليفة",
+      "nameEn": "El Khalifa",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "mokattam",
+      "nameAr": "المقطم",
+      "nameEn": "El Mokattam",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "basatin",
+      "nameAr": "البساتين",
+      "nameEn": "El Basatin",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "dar-salam",
+      "nameAr": "دار السلام",
+      "nameEn": "Dar El Salam",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "sayeda-zeinab",
+      "nameAr": "السيدة زينب",
+      "nameEn": "El Sayeda Zeinab",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "tebbin",
+      "nameAr": "التبين",
+      "nameEn": "El Tebbin",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "helwan",
+      "nameAr": "حلوان",
+      "nameEn": "Helwan",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "maasara",
+      "nameAr": "المعصرة",
+      "nameEn": "El Maasara",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "maadi",
+      "nameAr": "المعادي",
+      "nameEn": "Maadi",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": true
+    },
+    {
+      "slug": "tora",
+      "nameAr": "طرة",
+      "nameEn": "Tora",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    },
+    {
+      "slug": "may-15",
+      "nameAr": "15 مايو",
+      "nameEn": "15th of May",
+      "areaSlug": "south",
+      "referenceVerified": false,
+      "enabled": false
+    }
+  ],
+  "demoDistricts": [
+    {
+      "slug": "nasr-city",
+      "nameAr": "مدينة نصر — نطاق تجريبي",
+      "nameEn": "Nasr City — DEMO area",
+      "areaSlug": "east",
+      "referenceVerified": false,
+      "enabled": true,
+      "note": "Synthetic demo alias, not an official district; East Nasr City and West Nasr City are separate reference districts."
+    }
+  ]
+}

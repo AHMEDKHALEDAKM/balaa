@@ -1,0 +1,25 @@
+{
+  "name": "@balaa/dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "predev": "node ../../scripts/sync-map-worker.mjs",
+    "prebuild": "node ../../scripts/sync-map-worker.mjs"
+  },
+  "dependencies": {
+    "@balaa/config": "*",
+    "@balaa/geo": "*",
+    "@balaa/types": "*",
+    "@balaa/ui": "*",
+    "lucide-react": "^0.577.0",
+    "maplibre-gl": "^6.11.2",
+    "next": "16.3.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "sharp": "^0.35.4"
+  }
+}

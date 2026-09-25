@@ -1,0 +1,1216 @@
+{
+  "schemaVersion": 1,
+  "mode": "test",
+  "sourceNote": "Synthetic test-only endpoints. No real government email addresses. Enabled demo endpoints route solely to local test outbox.",
+  "districts": [
+    {
+      "districtSlug": "shubra",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "shubra-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "shubra-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "shubra-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "shubra-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "shubra-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "zawya-hamra",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "zawya-hamra-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "zawya-hamra-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "zawya-hamra-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "zawya-hamra-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "zawya-hamra-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "hadayek-kobba",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "hadayek-kobba-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "hadayek-kobba-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "hadayek-kobba-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "hadayek-kobba-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "hadayek-kobba-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "rod-farag",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "rod-farag-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "rod-farag-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "rod-farag-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "rod-farag-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "rod-farag-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "sharabeya",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "sharabeya-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "sharabeya-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "sharabeya-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "sharabeya-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "sharabeya-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "sahel",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "sahel-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "sahel-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "sahel-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "sahel-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "sahel-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "zeitoun",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "zeitoun-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "zeitoun-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "zeitoun-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "zeitoun-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "zeitoun-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "ameria",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "ameria-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "ameria-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "ameria-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "ameria-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "ameria-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "heliopolis",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "heliopolis-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "heliopolis-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "heliopolis-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "heliopolis-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "heliopolis-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "nozha",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "nozha-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "nozha-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "nozha-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "nozha-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "nozha-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "east-nasr-city",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "east-nasr-city-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "east-nasr-city-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "east-nasr-city-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "east-nasr-city-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "east-nasr-city-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "west-nasr-city",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "west-nasr-city-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "west-nasr-city-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "west-nasr-city-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "west-nasr-city-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "west-nasr-city-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "salam-first",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "salam-first-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "salam-first-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "salam-first-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "salam-first-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "salam-first-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "salam-second",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "salam-second-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "salam-second-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "salam-second-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "salam-second-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "salam-second-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "matariya",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "matariya-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "matariya-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "matariya-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "matariya-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "matariya-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "ain-shams",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "ain-shams-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "ain-shams-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "ain-shams-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "ain-shams-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "ain-shams-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "marg",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "marg-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "marg-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "marg-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "marg-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "marg-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "manshiet-nasser",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "manshiet-nasser-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "manshiet-nasser-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "manshiet-nasser-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "manshiet-nasser-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "manshiet-nasser-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "waili",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "waili-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "waili-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "waili-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "waili-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "waili-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "central-cairo",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "central-cairo-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "central-cairo-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "central-cairo-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "central-cairo-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "central-cairo-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "bulaq",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "bulaq-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "bulaq-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "bulaq-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "bulaq-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "bulaq-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "west-cairo",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "west-cairo-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "west-cairo-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "west-cairo-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "west-cairo-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "west-cairo-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "abdeen",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "abdeen-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "abdeen-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "abdeen-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "abdeen-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "abdeen-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "azbakeya",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "azbakeya-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "azbakeya-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "azbakeya-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "azbakeya-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "azbakeya-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "moski",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "moski-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "moski-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "moski-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "moski-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "moski-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "bab-shaaria",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "bab-shaaria-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "bab-shaaria-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "bab-shaaria-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "bab-shaaria-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "bab-shaaria-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "old-cairo",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "old-cairo-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "old-cairo-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "old-cairo-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "old-cairo-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "old-cairo-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "khalifa",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "khalifa-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "khalifa-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "khalifa-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "khalifa-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "khalifa-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "mokattam",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "mokattam-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "mokattam-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "mokattam-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "mokattam-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "mokattam-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "basatin",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "basatin-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "basatin-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "basatin-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "basatin-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "basatin-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "dar-salam",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "dar-salam-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "dar-salam-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "dar-salam-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "dar-salam-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "dar-salam-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "sayeda-zeinab",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "sayeda-zeinab-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "sayeda-zeinab-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "sayeda-zeinab-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "sayeda-zeinab-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "sayeda-zeinab-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "tebbin",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "tebbin-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "tebbin-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "tebbin-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "tebbin-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "tebbin-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "helwan",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "helwan-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "helwan-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "helwan-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "helwan-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "helwan-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "maasara",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "maasara-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "maasara-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "maasara-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "maasara-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "maasara-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "maadi",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "maadi-primary@example.invalid",
+          "enabled": true
+        },
+        {
+          "type": "technology_center",
+          "email": "maadi-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "maadi-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "maadi-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "maadi-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "tora",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "tora-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "tora-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "tora-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "tora-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "tora-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "may-15",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "may-15-primary@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "technology_center",
+          "email": "may-15-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "may-15-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "may-15-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "may-15-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "districtSlug": "nasr-city",
+      "verified": false,
+      "endpoints": [
+        {
+          "type": "primary",
+          "email": "nasr-city-primary@example.invalid",
+          "enabled": true
+        },
+        {
+          "type": "technology_center",
+          "email": "nasr-city-technology-center@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "operations",
+          "email": "nasr-city-operations@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "area",
+          "email": "nasr-city-area@example.invalid",
+          "enabled": false
+        },
+        {
+          "type": "escalation",
+          "email": "nasr-city-escalation@example.invalid",
+          "enabled": false
+        }
+      ]
+    }
+  ]
+}

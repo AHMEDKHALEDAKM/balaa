@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "name": "Cairo synthetic demonstration boundaries — NOT official",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "districtSlug": "maadi",
+        "nameAr": "المعادي — حدود تجريبية",
+        "nameEn": "Maadi — synthetic DEMO only",
+        "version": "synthetic-demo-v1",
+        "isSynthetic": true,
+        "active": true,
+        "sourceNote": "Hand-authored rectangular fixture. NOT an administrative boundary. Only demonstrates PostGIS routing.",
+        "license": "CC0-1.0"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [31.24, 29.94],
+              [31.29, 29.94],
+              [31.29, 29.99],
+              [31.24, 29.99],
+              [31.24, 29.94]
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "districtSlug": "nasr-city",
+        "nameAr": "مدينة نصر — حدود تجريبية",
+        "nameEn": "Nasr City — synthetic DEMO only",
+        "version": "synthetic-demo-v1",
+        "isSynthetic": true,
+        "active": true,
+        "sourceNote": "Hand-authored rectangular fixture. NOT an administrative boundary. Only demonstrates PostGIS routing.",
+        "license": "CC0-1.0"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [31.32, 30.03],
+              [31.38, 30.03],
+              [31.38, 30.08],
+              [31.32, 30.08],
+              [31.32, 30.03]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

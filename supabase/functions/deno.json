@@ -1,0 +1,5 @@
+{
+  "compilerOptions": { "strict": true },
+  "fmt": { "lineWidth": 110, "singleQuote": true },
+  "lint": { "rules": { "tags": ["recommended"] } }
+}

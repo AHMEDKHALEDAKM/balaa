@@ -1,0 +1,12 @@
+node_modules
+.next
+.expo
+.balaa
+dist
+package-lock.json
+docs/PRD.md
+docs/BUILD-BRIEF.md
+supabase/seed/seed.sql
+
+apps/dashboard/public/vendor/maplibre
+**/next-env.d.ts

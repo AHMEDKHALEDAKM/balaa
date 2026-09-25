@@ -1,0 +1,45 @@
+{
+  "name": "balaa",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @balaa/dashboard",
+    "mobile": "npm run start --workspace @balaa/mobile",
+    "build": "npm run build --workspace @balaa/dashboard",
+    "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspaces --if-present",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build",
+    "test:api": "node scripts/smoke-api.ts",
+    "mobile:bundle": "npm run bundle --workspace @balaa/mobile",
+    "seed:generate": "node supabase/seed/generate-seed.ts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@pgsql/parser": "^1.5.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "eslint": "^9.39.0",
+    "prettier": "^3.9.9",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^5.0.1"
+  },
+  "overrides": {
+    "xcode": {
+      "uuid": "^11.1.1"
+    },
+    "uuid": "11.1.1"
+  },
+  "type": "module"
+}
