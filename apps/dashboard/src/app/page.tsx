@@ -19,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { Brand } from '../components/Brand';
-import { api, Category, Report, User } from '../components/model';
+import { api, Category, deviceDemo, Report, User } from '../components/model';
 import { EmptyState, ReportCard } from '../components/ReportCard';
 import PublicMap from '../components/PublicMap';
 import CreateReport from '../components/CreateReport';
@@ -145,7 +145,9 @@ export default function Home() {
       <div className="prototype-bar">
         <span>
           <span className="prototype-dot" />
-          {t('نسخة تجريبية مفتوحة المصدر')}
+          {deviceDemo
+            ? t('نسخة تجريبية · بلاغاتك محفوظة على هذا الجهاز فقط')
+            : t('نسخة تجريبية مفتوحة المصدر')}
         </span>
         <span>{t('مبادرة مستقلة · بدون تكامل أو اعتماد حكومي')}</span>
       </div>

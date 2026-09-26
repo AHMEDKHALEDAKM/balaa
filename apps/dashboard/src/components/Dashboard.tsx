@@ -22,7 +22,17 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { api, Category, fileData, Report, severities, Status, statuses, User } from './model';
+import {
+  api,
+  Category,
+  fileData,
+  Report,
+  severities,
+  Status,
+  statuses,
+  User,
+  withBase,
+} from './model';
 import { EmptyState, StatusBadge } from './ReportCard';
 import AbuseReview from './AbuseReview';
 import { useDialog } from './useDialog';
@@ -188,7 +198,7 @@ export default function Dashboard({
     setError('');
     try {
       const image = new Image();
-      image.src = '/demo-resolved.svg';
+      image.src = withBase('/demo-resolved.svg');
       await image.decode();
       const canvas = document.createElement('canvas');
       canvas.width = 960;
@@ -795,7 +805,12 @@ export default function Dashboard({
             <p>{selected.description || t('لم تُضف تفاصيل أخرى.')}</p>
             <div className="staff-coordinate">
               <span>{t('إحداثيات الموقع')}</span>
-              <a href={`/map?report=${selected.id}`} target="_blank" rel="noreferrer" dir="ltr">
+              <a
+                href={withBase(`/map?report=${selected.id}`)}
+                target="_blank"
+                rel="noreferrer"
+                dir="ltr"
+              >
                 {selected.latitude.toFixed(5)}, {selected.longitude.toFixed(5)}{' '}
                 <ArrowUpLeft size={14} />
               </a>

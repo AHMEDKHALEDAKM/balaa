@@ -10,3 +10,4 @@ supabase/seed/seed.sql
 
 apps/dashboard/public/vendor/maplibre
 **/next-env.d.ts
+apps/dashboard/out

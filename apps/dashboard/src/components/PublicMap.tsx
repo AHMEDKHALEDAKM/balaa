@@ -4,7 +4,7 @@ import { useLocale } from '@balaa/ui/locale';
 import { useEffect, useRef, useState } from 'react';
 import { LocateFixed, MapPin } from 'lucide-react';
 import type { Map as MapType, Marker } from 'maplibre-gl';
-import { Report } from './model';
+import { Report, withBase } from './model';
 export default function PublicMap({
   reports,
   onSelect,
@@ -32,7 +32,7 @@ export default function PublicMap({
     import('maplibre-gl')
       .then((maplibre) => {
         if (disposed || !node.current) return;
-        maplibre.setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
+        maplibre.setWorkerUrl(withBase('/vendor/maplibre/maplibre-gl-worker.mjs'));
         const instance = new maplibre.Map({
           container: node.current,
           locale: {

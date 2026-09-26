@@ -30,7 +30,22 @@ npm run dev
 
 You can also choose **Code → Download ZIP** on GitHub. That downloads source, not an APK or iPhone app.
 
-## 2. Try it on both phones first
+## 2. Phone demo on GitHub Pages (Android and iPhone, no app store)
+
+The quickest way to put Balaa on a phone. `npm run build:pages` builds the web app as plain files with a device-only backend (`apps/dashboard/src/components/localApi.ts`): it runs the same demo rules as the server, but keeps reports and photos in the phone's browser storage. Nothing is sent to any server, so each phone sees only the demo reports plus its own. Clearing the browser's site data resets it.
+
+1. Push to the `main` branch of a **public** GitHub repository (free Pages needs public).
+2. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. Do this once.
+3. The workflow `.github/workflows/pages.yml` builds and publishes on every push. Watch it under the **Actions** tab.
+4. Open `https://YOUR-USERNAME.github.io/REPOSITORY/` on the phone.
+   - **iPhone (Safari):** Share → **Add to Home Screen**.
+   - **Android (Chrome):** menu ⋮ → **Add to Home screen** / **Install app**.
+
+To try the same build on your computer: `npm run build:pages`, then serve `apps/dashboard/out` under `/balaa/` (the repository name). A different repository name needs `BALAA_BASE_PATH=/name`; the workflow sets it automatically.
+
+The district dashboard is included and uses the same on-device data, so one person can play both citizen and district staff on the same phone. Camera and GPS work because Pages uses HTTPS; real GPS outside the two demo areas is still rejected, so use **موقع المعادي التجريبي** to try it anywhere.
+
+## 3. Try the native app on both phones
 
 This is the shortest local test route, provided the installed Expo Go supports this project's Expo SDK 57. If Expo Go does not support that SDK, use a matching development build; do not change the SDK number without upgrading its dependencies together.
 
@@ -44,7 +59,7 @@ This is the shortest local test route, provided the installed Expo Go supports t
 
 In this development flow, the explicitly labeled synthetic Maadi location lets you test outside the fixture districts. Real GPS outside the supplied polygons is rejected. Switching **EN / العربية** changes interface language and saves the preference. Descriptions and notes remain in the language their author used.
 
-## 3. Prepare a backend for an installed standalone app
+## 4. Prepare a backend for an installed standalone app
 
 An installed app bundles its JavaScript and no longer needs Metro, but it still needs a running Balaa API for sign-in, maps, photos and reports.
 
@@ -52,7 +67,7 @@ For an app that works away from your computer, host the Next.js application on a
 
 Set the reachable HTTPS backend URL as `EXPO_PUBLIC_API_URL` in the EAS **preview** environment. It is a public URL, not a secret. Never include service-role credentials in an `EXPO_PUBLIC_*` variable. The build config deliberately rejects missing, localhost, reserved `.invalid` and non-HTTPS endpoints for EAS builds.
 
-## 4. Android: create an installable APK
+## 5. Android: create an installable APK
 
 You need an Expo account and a configured project. Run EAS commands from `apps/mobile`, while installing npm dependencies from the monorepo root:
 
@@ -70,7 +85,7 @@ The supplied `preview` profile creates an **APK**. When the build succeeds, open
 
 You may attach the APK to a GitHub Release so testers can download it. Keep signing keys and private configuration out of the repository and release attachments. Do not put your local `.balaa` report store in a release.
 
-## 5. iPhone: internal build or TestFlight
+## 6. iPhone: internal build or TestFlight
 
 An iPhone cannot install an Android APK. Normal iOS distribution requires Apple signing; EAS can perform cloud iOS builds even when your computer runs Windows.
 

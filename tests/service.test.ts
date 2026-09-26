@@ -8,12 +8,11 @@ import {
   confirmReport,
   dto,
   duplicateReports,
-  issueSession,
   moderateReport,
-  sessionUser,
   submitReport,
   transitionReport,
 } from '../apps/dashboard/src/server/service';
+import { issueSession, sessionUser } from '../apps/dashboard/src/server/session';
 const citizen: User = { id: 'citizen-a', role: 'citizen', verified: true, districtIds: [] };
 const agent: User = {
   id: 'agent-a',

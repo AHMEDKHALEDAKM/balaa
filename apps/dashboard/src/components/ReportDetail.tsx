@@ -3,7 +3,7 @@ import { useLocale } from '@balaa/ui/locale';
 
 import { useState } from 'react';
 import { X, MapPin, Users, ShieldCheck, Share2, Check, ArrowUpLeft } from 'lucide-react';
-import { api, Report, User, statuses, severities } from './model';
+import { api, deviceDemo, Report, User, statuses, severities, withBase } from './model';
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
 export default function ReportDetail({
@@ -34,7 +34,10 @@ export default function ReportDetail({
     }
   }
   async function share() {
-    const url = `${location.origin}/reports/${report.id}`;
+    // The phone demo has no per-report pages; its links reopen the report on the home page.
+    const url = deviceDemo
+      ? `${location.origin}${withBase('/')}?report=${report.publicId}`
+      : `${location.origin}/reports/${report.id}`;
     try {
       if (navigator.share) await navigator.share({ title: t('بلاعة · {0}', report.publicId), url });
       else {
@@ -153,7 +156,7 @@ export default function ReportDetail({
                 {t('المشكلة ما زالت موجودة')}
               </button>
             )}
-          <a className="button ghost" href={`/map?report=${report.id}`}>
+          <a className="button ghost" href={withBase(`/map?report=${report.id}`)}>
             <ArrowUpLeft size={17} />
             {t('الخريطة')}
           </a>

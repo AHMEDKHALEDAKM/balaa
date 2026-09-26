@@ -21,7 +21,8 @@
     "mobile:bundle": "npm run bundle --workspace @balaa/mobile",
     "seed:generate": "node supabase/seed/generate-seed.ts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build:pages": "node scripts/build-pages.mjs"
   },
   "devDependencies": {
     "@pgsql/parser": "^1.5.0",

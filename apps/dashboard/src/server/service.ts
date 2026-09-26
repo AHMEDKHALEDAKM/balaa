@@ -1,4 +1,3 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { identityProvider, DemoModerationProvider, notificationProvider } from '@balaa/config';
 import { distanceMeters, publicCoordinate, resolveDistrict, demoBoundaries } from '@balaa/geo';
 import {
@@ -11,7 +10,7 @@ import {
   type Role,
   type User,
 } from '@balaa/types';
-import { audit, type State, type StoredReport } from './store';
+import { audit, type State, type StoredReport } from './state';
 import districtContacts from '../../../../data/cairo-district-contacts.json';
 export class ApiError extends Error {
   constructor(
@@ -69,31 +68,11 @@ export function dto(state: State, report: StoredReport, staff = false): PublicRe
     ...(staff ? { identityVerified: true } : {}),
   };
 }
-export function hashToken(token: string) {
-  return createHash('sha256').update(token).digest('hex');
-}
-export function sessionUser(state: State, token: string | null) {
-  if (!token) return null;
-  const session = state.sessions.find(
-    (s) => s.hash === hashToken(token) && Date.parse(s.expiresAt) > Date.now(),
-  );
-  return session ? state.users.find((u) => u.id === session.userId) || null : null;
-}
-export function issueSession(state: State, user: User) {
-  const token = randomBytes(32).toString('base64url');
-  state.sessions = state.sessions.filter((s) => Date.parse(s.expiresAt) > Date.now());
-  state.sessions.push({
-    hash: hashToken(token),
-    userId: user.id,
-    expiresAt: new Date(Date.now() + 86400000).toISOString(),
-  });
-  return { user, token };
-}
 export async function mockLogin(state: State, current: User | null) {
   const user: User =
     current?.role === 'citizen'
       ? current
-      : { id: randomUUID(), role: 'citizen', verified: true, districtIds: [] };
+      : { id: crypto.randomUUID(), role: 'citizen', verified: true, districtIds: [] };
   const result = await identityProvider(process.env.AUTH_PROVIDER).verify(user.id);
   if (!state.users.some((u) => u.id === user.id)) state.users.push(user);
   state.identityVerifications.push({
@@ -103,7 +82,7 @@ export async function mockLogin(state: State, current: User | null) {
     verifiedAt: new Date().toISOString(),
   });
   audit(state, user.id, 'identity.mock_verified', user.id);
-  return issueSession(state, user);
+  return user;
 }
 export function rateLimit(state: State, key: string, limit: number, windowMs: number) {
   const now = Date.now();
@@ -157,7 +136,7 @@ async function notify(state: State, report: StoredReport) {
   const body = `${report.publicId}\n${category}\n${report.severity}\n${report.districtName}\n${report.capturedAt}\nالموقع العام: ${publicCoordinate(report.latitude)}, ${publicCoordinate(report.longitude)}\n/api/public/reports/${report.id}\n${report.imageUrl}\nنسخة تجريبية — لم يتم الاتصال بأي جهة حكومية.`;
   const delivered = await provider.send({ reportId: report.id, to: endpoint.email, subject, body });
   state.notifications.push({
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     reportId: report.id,
     to: delivered.destination,
     subject,
@@ -208,7 +187,7 @@ export async function submitReport(state: State, user: User | null, body: unknow
   const now = new Date().toISOString();
   const report: StoredReport = {
     ...input,
-    id: randomUUID(),
+    id: crypto.randomUUID(),
     publicId: `BLAA-${String(++state.sequence).padStart(6, '0')}`,
     userId: citizen.id,
     districtId: district.id,

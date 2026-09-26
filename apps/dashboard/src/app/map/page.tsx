@@ -7,7 +7,7 @@ import { ArrowRight } from 'lucide-react';
 import { Brand } from '../../components/Brand';
 import PublicMap from '../../components/PublicMap';
 import ReportDetail from '../../components/ReportDetail';
-import { api, Report } from '../../components/model';
+import { api, Report, withBase } from '../../components/model';
 export default function MapPage() {
   const { t } = useLocale();
   const [focus, setFocus] = useState<{ latitude: number; longitude: number }>();
@@ -49,10 +49,10 @@ export default function MapPage() {
       {!embedded && (
         <header>
           <LanguageSwitch />
-          <a href="/">
+          <a href={withBase('/')}>
             <Brand />
           </a>
-          <a className="button secondary" href="/">
+          <a className="button secondary" href={withBase('/')}>
             <ArrowRight size={16} />
             {t('الرئيسية')}
           </a>

@@ -30,6 +30,8 @@ export const english: Record<string, string> = {
     'An independent, open-source community platform to document road problems and track repairs. A prototype with no government integration.',
   الرئيسية: 'Home',
   'نسخة تجريبية مفتوحة المصدر': 'Open-source prototype',
+  'نسخة تجريبية · بلاغاتك محفوظة على هذا الجهاز فقط':
+    'Prototype · your reports are saved on this device only',
   'مبادرة مستقلة · بدون تكامل أو اعتماد حكومي':
     'Independent initiative · No government integration or endorsement',
   'بلاعة، الصفحة الرئيسية': 'Balaa home',
