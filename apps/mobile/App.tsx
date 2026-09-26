@@ -1,5 +1,8 @@
+import { useLocale, LocaleProvider, type Language } from '@balaa/ui/locale';
+import logo from './assets/balaa-logo.png';
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  Image,
   ActivityIndicator,
   AppState,
   BackHandler,
@@ -39,7 +42,6 @@ import {
 import {
   CaptureLocation,
   Category,
-  dateLabel,
   distanceMeters,
   District,
   Draft,
@@ -70,14 +72,30 @@ const flowBack: Partial<Record<Screen, Screen>> = {
 };
 
 export default function App() {
+  const [language, setLanguageState] = useState<Language>('ar');
+  useEffect(() => {
+    void SecureStore.getItemAsync('balaa.language')
+      .then((v) => {
+        if (v === 'en' || v === 'ar') setLanguageState(v);
+      })
+      .catch(() => {});
+  }, []);
+  function setLanguage(next: Language) {
+    setLanguageState(next);
+    void SecureStore.setItemAsync('balaa.language', next).catch(() => {});
+  }
   return (
     <SafeAreaProvider>
-      <BalaaApp />
+      <LocaleProvider language={language} setLanguage={setLanguage}>
+        <BalaaApp />
+      </LocaleProvider>
     </SafeAreaProvider>
   );
 }
 
 function BalaaApp() {
+  const { t, bilingual, dateLabel, locale, isArabic, language, setLanguage } = useLocale();
+  const styles = createStyles(isArabic);
   const [screen, setScreen] = useState<Screen>('splash');
   const [session, setSession] = useState<Session | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -113,7 +131,7 @@ function BalaaApp() {
     try {
       await action();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'حدث خطأ غير متوقع. حاول مرة أخرى.');
+      setError(reason instanceof Error ? reason.message : t('حدث خطأ غير متوقع. حاول مرة أخرى.'));
       if (reason instanceof ApiError && reason.status === 401) {
         setSession(null);
         setMyReports([]);
@@ -140,7 +158,7 @@ function BalaaApp() {
       const newer = result.reports.find((report) => report.id === selectedRef.current?.id);
       if (newer) {
         if (newer.status !== selectedRef.current.status)
-          setNotice(`تم تحديث حالة بلاغك: ${statusLabels[newer.status]}`);
+          setNotice(t('تم تحديث حالة بلاغك: {0}', t(statusLabels[newer.status])));
         setSelected(newer);
       }
     }
@@ -173,7 +191,7 @@ function BalaaApp() {
         await refreshPublic();
       } catch (reason) {
         if (alive) {
-          setError(reason instanceof Error ? reason.message : 'تعذر بدء التطبيق.');
+          setError(reason instanceof Error ? reason.message : t('تعذر بدء التطبيق.'));
           setScreen('home');
         }
       }
@@ -227,7 +245,7 @@ function BalaaApp() {
     setAuthStage('verifying');
     try {
       const result = await api<Session>('/api/auth/mock', { body: { role: 'citizen' } });
-      if (!result.user?.verified || !result.token) throw new Error('تعذر إنشاء هوية التجربة.');
+      if (!result.user?.verified || !result.token) throw new Error(t('تعذر إنشاء هوية التجربة.'));
       await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(result));
       setSession(result);
       setAuthStage('verified');
@@ -275,7 +293,7 @@ function BalaaApp() {
     const result = await api<{ district: District }>('/api/geo', {
       body: { latitude: location.latitude, longitude: location.longitude },
     });
-    if (!result.district) throw new Error('هذا الموقع خارج نطاق الأحياء التجريبية المدعومة.');
+    if (!result.district) throw new Error(t('هذا الموقع خارج نطاق الأحياء التجريبية المدعومة.'));
     return result.district;
   }
   async function captureLocation(photoDraft = draft, synthetic = false) {
@@ -285,14 +303,16 @@ function BalaaApp() {
       const permission = await Location.requestForegroundPermissionsAsync();
       if (!permission.granted)
         throw new Error(
-          'يلزم السماح بالموقع لتحديد الحي. يمكنك تفعيل الإذن من إعدادات الهاتف ثم إعادة المحاولة.',
+          t(
+            'يلزم السماح بالموقع لتحديد الحي. يمكنك تفعيل الإذن من إعدادات الهاتف ثم إعادة المحاولة.',
+          ),
         );
       if (!(await Location.hasServicesEnabledAsync()))
-        throw new Error('خدمة الموقع متوقفة. فعّل GPS في إعدادات الهاتف.');
+        throw new Error(t('خدمة الموقع متوقفة. فعّل GPS في إعدادات الهاتف.'));
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
       coordinates = position.coords;
       if (coordinates.accuracy === null)
-        throw new Error('لم نحصل على دقة الموقع. انتظر في مكان مفتوح وأعد المحاولة.');
+        throw new Error(t('لم نحصل على دقة الموقع. انتظر في مكان مفتوح وأعد المحاولة.'));
     }
     const location: CaptureLocation = {
       latitude: coordinates.latitude,
@@ -318,7 +338,7 @@ function BalaaApp() {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted)
         throw new Error(
-          'يلزم السماح بالكاميرا لتوثيق المشكلة بصورة حديثة. فعّل الإذن من إعدادات الهاتف.',
+          t('يلزم السماح بالكاميرا لتوثيق المشكلة بصورة حديثة. فعّل الإذن من إعدادات الهاتف.'),
         );
     }
     const result =
@@ -344,7 +364,7 @@ function BalaaApp() {
       image.width > 1280 ? [{ resize: { width: 1280 } }] : [],
       { compress: 0.72, format: ImageManipulator.SaveFormat.JPEG, base64: true },
     );
-    if (!resized.base64) throw new Error('تعذر تجهيز الصورة. التقطها مجددًا.');
+    if (!resized.base64) throw new Error(t('تعذر تجهيز الصورة. التقطها مجددًا.'));
     const next: Draft = {
       ...draft,
       photoUri: resized.uri,
@@ -374,13 +394,13 @@ function BalaaApp() {
         eastMeters / (111320 * Math.cos((draft.location.latitude * Math.PI) / 180)),
     };
     if (distanceMeters(location, draft.origin) > 50.1)
-      throw new Error('يمكن تصحيح مكان العلامة حتى 50 مترًا من موقع الالتقاط فقط.');
+      throw new Error(t('يمكن تصحيح مكان العلامة حتى 50 مترًا من موقع الالتقاط فقط.'));
     const district = await lookupDistrict(location);
     setDraft({ ...draft, location, district });
   }
   async function checkDuplicates() {
     if (!draft.location || !draft.district || !draft.categoryId || !session || !privacyAccepted)
-      throw new Error('أكمل الصورة والموقع والتصنيف ومراجعة الخصوصية أولًا.');
+      throw new Error(t('أكمل الصورة والموقع والتصنيف ومراجعة الخصوصية أولًا.'));
     const result = await api<{ reports: PublicReport[] }>('/api/reports/duplicates', {
       token: session.token,
       body: {
@@ -396,7 +416,7 @@ function BalaaApp() {
   }
   async function submitReport() {
     if (!session || !draft.location || !draft.district || !draft.dataUrl)
-      throw new Error('أكمل توثيق البلاغ أولًا.');
+      throw new Error(t('أكمل توثيق البلاغ أولًا.'));
     setSubmittingNew(true);
     try {
       const upload = await api<{ imageUrl: string }>('/api/media', {
@@ -404,7 +424,7 @@ function BalaaApp() {
         body: { dataUrl: draft.dataUrl, kind: 'before' },
       });
       const description = draft.syntheticLocation
-        ? `[موقع اصطناعي للتجربة] ${draft.description}`.slice(0, 500)
+        ? t('[موقع اصطناعي للتجربة] {0}', draft.description).slice(0, 500)
         : draft.description;
       const result = await api<{ report: PublicReport }>('/api/reports', {
         token: session.token,
@@ -431,7 +451,7 @@ function BalaaApp() {
     }
   }
   async function confirmDuplicate(report: PublicReport) {
-    if (!session) throw new Error('سجّل الدخول بحساب التجربة لتأكيد المشكلة.');
+    if (!session) throw new Error(t('سجّل الدخول بحساب التجربة لتأكيد المشكلة.'));
     const result = await api<{ report: PublicReport }>(
       `/api/reports/${encodeURIComponent(report.id)}/confirm`,
       { token: session.token, body: {} },
@@ -449,9 +469,13 @@ function BalaaApp() {
     if (screen === 'splash')
       return (
         <View style={styles.splash}>
-          <Text style={styles.splashMark}>ب</Text>
-          <Title>بلاعة</Title>
-          <Body>بلّغ. تابع. خلّي الطريق أأمن.</Body>
+          <Image
+            source={logo}
+            accessibilityLabel={t('بلاعة')}
+            style={{ width: 180, height: 180, borderRadius: 24 }}
+          />
+          <Title>{t('بلاعة')}</Title>
+          <Body>{t('بلّغ. تابع. خلّي الطريق أأمن.')}</Body>
           <ActivityIndicator color={colors.teal} size="large" />
         </View>
       );
@@ -470,18 +494,24 @@ function BalaaApp() {
             <View style={styles.pin}>
               <Text style={styles.pinText}>✓</Text>
             </View>
-            <Text style={styles.artCaption}>خطوة صغيرة. طريق أأمن.</Text>
+            <Text style={styles.artCaption}>{t('خطوة صغيرة. طريق أأمن.')}</Text>
           </View>
-          <Text style={styles.eyebrow}>بلاعة / القاهرة</Text>
-          <Title>عينك على الطريق،{'\n'}وإيدك في التغيير.</Title>
+          <Text style={styles.eyebrow}>{t('بلاعة / القاهرة')}</Text>
+          <Title>
+            {t('عينك على الطريق،')}
+            {'\n'}
+            {t('وإيدك في التغيير.')}
+          </Title>
           <Body>
-            صوّر المشكلة، وثّق مكانها، وتابع البلاغ حتى الحل. تفاصيل واضحة من أول صورة لآخر خطوة.
+            {t(
+              'صوّر المشكلة، وثّق مكانها، وتابع البلاغ حتى الحل. تفاصيل واضحة من أول صورة لآخر خطوة.',
+            )}
           </Body>
           <View style={styles.featureRow}>
             {[
-              ['01', 'صوّر'],
-              ['02', 'بلّغ'],
-              ['03', 'تابع'],
+              ['01', t('صوّر')],
+              ['02', t('بلّغ')],
+              ['03', t('تابع')],
             ]
               .reverse()
               .map(([number, text]) => (
@@ -492,11 +522,12 @@ function BalaaApp() {
               ))}
           </View>
           <Notice>
-            نسخة تجريبية مستقلة ومفتوحة المصدر. الهوية وحدود الأحياء والإشعارات محاكاة؛ لا يوجد
-            تكامل أو إرسال فعلي إلى جهة حكومية.
+            {t(
+              'نسخة تجريبية مستقلة ومفتوحة المصدر. الهوية وحدود الأحياء والإشعارات محاكاة؛ لا يوجد تكامل أو إرسال فعلي إلى جهة حكومية.',
+            )}
           </Notice>
           <Button
-            label="ابدأ من هنا"
+            label={t('ابدأ من هنا')}
             onPress={() =>
               void run(async () => {
                 await SecureStore.setItemAsync(ONBOARD_KEY, '1');
@@ -504,52 +535,55 @@ function BalaaApp() {
               })
             }
           />
-          <Text style={styles.quote}>«وتُميطُ الأذى عن الطريق صدقة»</Text>
+          <Text style={styles.quote}>{t('«وتُميطُ الأذى عن الطريق صدقة»')}</Text>
         </>
       );
     if (screen === 'home')
       return (
         <>
           <View style={styles.hero}>
-            <Text style={styles.heroEyebrow}>معًا، لطرق تستحقنا</Text>
+            <Text style={styles.heroEyebrow}>{t('معًا، لطرق تستحقنا')}</Text>
             <Text accessibilityRole="header" style={styles.heroTitle}>
-              بلّغ. تابع.{'\n'}خلّي الطريق أأمن.
+              {t('بلّغ. تابع.')}
+              {'\n'}
+              {t('خلّي الطريق أأمن.')}
             </Text>
-            <Text style={styles.heroText}>صورة من مكانك، تفرق في طريقنا كلنا.</Text>
+            <Text style={styles.heroText}>{t('صورة من مكانك، تفرق في طريقنا كلنا.')}</Text>
             <Pressable accessibilityRole="button" style={styles.heroButton} onPress={beginReport}>
-              <Text style={styles.heroButtonText}>＋ بلّغ عن مشكلة</Text>
+              <Text style={styles.heroButtonText}>{t('＋ بلّغ عن مشكلة')}</Text>
             </Pressable>
             <View style={styles.heroCircle} />
           </View>
           <View style={styles.stats}>
-            <Stat value={reports.length} label="بلاغات عامة" />
+            <Stat value={reports.length} label={t('بلاغات عامة')} />
             <Stat
               value={reports.filter((report) => report.status === 'in_progress').length}
-              label="جارٍ العمل"
+              label={t('جارٍ العمل')}
             />
             <Stat
               value={reports.filter((report) => report.status === 'resolved').length}
-              label="تم حلّها"
+              label={t('تم حلّها')}
             />
           </View>
           <View style={styles.sectionHeading}>
             <Pressable accessibilityRole="button" onPress={() => navigate('map')}>
-              <Text style={styles.textLink}>الخريطة كاملة ←</Text>
+              <Text style={styles.textLink}>{t('الخريطة كاملة ←')}</Text>
             </Pressable>
-            <Label>ما يحدث في شوارعنا</Label>
+            <Label>{t('ما يحدث في شوارعنا')}</Label>
           </View>
           <MapView onReport={(id) => void openReportById(id)} />
           <Notice>
-            بيانات ونتائج تجريبية في مناطق محددة من القاهرة. الأرقام للبلاغات العامة المحمّلة؛ لا
-            تعبّر عن إحصاءات حكومية.
+            {t(
+              'بيانات ونتائج تجريبية في مناطق محددة من القاهرة. الأرقام للبلاغات العامة المحمّلة؛ لا تعبّر عن إحصاءات حكومية.',
+            )}
           </Notice>
-          <Label>آخر البلاغات</Label>
+          <Label>{t('آخر البلاغات')}</Label>
           {reports.slice(0, 5).map((report) => (
             <ReportCard key={report.id} report={report} onPress={() => void openReport(report)} />
           ))}
           {!reports.length && (
             <Card>
-              <Body>لا توجد بلاغات عامة محمّلة بعد. اسحب لأسفل لتحديث البيانات.</Body>
+              <Body>{t('لا توجد بلاغات عامة محمّلة بعد. اسحب لأسفل لتحديث البيانات.')}</Body>
             </Card>
           )}
         </>
@@ -557,13 +591,15 @@ function BalaaApp() {
     if (screen === 'map')
       return (
         <>
-          <Text style={styles.eyebrow}>القاهرة / خريطة عامة</Text>
-          <Title>كل بلاغ له مكان.</Title>
-          <Body>استكشف المشكلات التي تمت مراجعتها. لا تُعرض أسماء المواطنين أو بيانات هويتهم.</Body>
+          <Text style={styles.eyebrow}>{t('القاهرة / خريطة عامة')}</Text>
+          <Title>{t('كل بلاغ له مكان.')}</Title>
+          <Body>
+            {t('استكشف المشكلات التي تمت مراجعتها. لا تُعرض أسماء المواطنين أو بيانات هويتهم.')}
+          </Body>
           <MapView full onReport={(id) => void openReportById(id)} />
-          <Notice>الخريطة تستخدم حدود أحياء اصطناعية لا تصلح للتوجيه الحكومي الفعلي.</Notice>
-          <Button label="بلّغ عن مشكلة" onPress={beginReport} />
-          <Label>البلاغات العامة</Label>
+          <Notice>{t('الخريطة تستخدم حدود أحياء اصطناعية لا تصلح للتوجيه الحكومي الفعلي.')}</Notice>
+          <Button label={t('بلّغ عن مشكلة')} onPress={beginReport} />
+          <Label>{t('البلاغات العامة')}</Label>
           {reports.map((report) => (
             <ReportCard key={report.id} report={report} onPress={() => void openReport(report)} />
           ))}
@@ -575,27 +611,33 @@ function BalaaApp() {
           <View style={styles.identityArt}>
             <Text style={styles.identityIcon}>{authStage === 'verified' ? '✓' : '◈'}</Text>
           </View>
-          <Text style={styles.eyebrow}>هوية تجريبية / بلا بيانات حساسة</Text>
-          <Title>{authStage === 'verified' ? 'تم التحقق من الهوية ✓' : 'التحقق من الهوية'}</Title>
+          <Text style={styles.eyebrow}>{t('هوية تجريبية / بلا بيانات حساسة')}</Text>
+          <Title>
+            {authStage === 'verified' ? t('تم التحقق من الهوية ✓') : t('التحقق من الهوية')}
+          </Title>
           <Body>
             {authStage === 'verified'
-              ? 'حساب التجربة جاهز. يمكنك الآن توثيق المشكلة ومتابعتها.'
-              : 'لضمان جدية البلاغات وحماية المنصة من إساءة الاستخدام، تتطلب البلاغات هوية رقمية موثقة.'}
+              ? t('حساب التجربة جاهز. يمكنك الآن توثيق المشكلة ومتابعتها.')
+              : t(
+                  'لضمان جدية البلاغات وحماية المنصة من إساءة الاستخدام، تتطلب البلاغات هوية رقمية موثقة.',
+                )}
           </Body>
           <Notice warning>
-            Demo / Prototype — محاكاة مستقلة لخدمة الهوية. لا يوجد اتصال بمصر الرقمية أو شراكة
-            حكومية. لا نطلب الرقم القومي أو كلمة مرور حكومية.
+            {t(
+              'Demo / Prototype — محاكاة مستقلة لخدمة الهوية. لا يوجد اتصال بمصر الرقمية أو شراكة حكومية. لا نطلب الرقم القومي أو كلمة مرور حكومية.',
+            )}
           </Notice>
           <Card>
-            <Label>خصوصيتك محفوظة</Label>
+            <Label>{t('خصوصيتك محفوظة')}</Label>
             <Body>
-              لا يظهر اسمك على الخريطة أو في رسائل البلاغات. نحتفظ بمعرّف تجريبي لمتابعة البلاغات
-              فقط.
+              {t(
+                'لا يظهر اسمك على الخريطة أو في رسائل البلاغات. نحتفظ بمعرّف تجريبي لمتابعة البلاغات فقط.',
+              )}
             </Body>
           </Card>
           {authStage === 'verified' ? (
             <Button
-              label={afterAuth === 'camera' ? 'صوّر المشكلة' : 'الانتقال إلى بلاغاتي'}
+              label={afterAuth === 'camera' ? t('صوّر المشكلة') : t('الانتقال إلى بلاغاتي')}
               onPress={() => {
                 navigate(afterAuth);
                 if (afterAuth === 'my-reports') void run(() => refreshMine());
@@ -604,13 +646,15 @@ function BalaaApp() {
           ) : (
             <Button
               label={
-                authStage === 'verifying' ? 'جارٍ التحقق من الهوية...' : 'متابعة عبر مصر الرقمية'
+                authStage === 'verifying'
+                  ? t('جارٍ التحقق من الهوية...')
+                  : t('متابعة عبر مصر الرقمية')
               }
               busy={busy}
               onPress={() => void run(authenticate)}
             />
           )}
-          <Button secondary label="تصفح بدون تسجيل" onPress={() => navigate('home')} />
+          <Button secondary label={t('تصفح بدون تسجيل')} onPress={() => navigate('home')} />
         </>
       );
     if (screen === 'camera')
@@ -618,57 +662,59 @@ function BalaaApp() {
         <>
           <StepHeader
             step={1}
-            title="صوّر المشكلة"
-            subtitle="صورة حديثة وواضحة تساعد على فهم المشكلة وتوثيقها."
+            title={t('صوّر المشكلة')}
+            subtitle={t('صورة حديثة وواضحة تساعد على فهم المشكلة وتوثيقها.')}
           />
           {draft.photoUri ? (
             <Photo
               uri={draft.photoUri}
-              label={draft.fixturePhoto ? 'صورة اختبار' : 'صورة المشكلة'}
+              label={draft.fixturePhoto ? t('صورة اختبار') : t('صورة المشكلة')}
             />
           ) : (
             <View style={styles.cameraPlaceholder}>
               <View style={styles.cameraShape}>
                 <View style={styles.cameraLens} />
               </View>
-              <Label>ابدأ بصورة من مكان المشكلة</Label>
-              <Body>اقترب بأمان، وخلي المشكلة واضحة في الكادر.</Body>
+              <Label>{t('ابدأ بصورة من مكان المشكلة')}</Label>
+              <Body>{t('اقترب بأمان، وخلي المشكلة واضحة في الكادر.')}</Body>
             </View>
           )}
           <Notice>
-            تجنّب تصوير الوجوه ولوحات السيارات والبيانات الشخصية. تأكد أنك في مكان آمن قبل استخدام
-            الكاميرا.
+            {t(
+              'تجنّب تصوير الوجوه ولوحات السيارات والبيانات الشخصية. تأكد أنك في مكان آمن قبل استخدام الكاميرا.',
+            )}
           </Notice>
           <Button
-            label={draft.photoUri ? 'التقاط صورة جديدة' : 'فتح الكاميرا'}
+            label={draft.photoUri ? t('التقاط صورة جديدة') : t('فتح الكاميرا')}
             busy={busy}
             onPress={() => void run(() => capturePhoto())}
           />
           {draft.photoUri && (
             <Button
               secondary
-              label="إعادة تحديد موقعي"
+              label={t('إعادة تحديد موقعي')}
               busy={busy}
               onPress={() => void run(() => captureLocation())}
             />
           )}
           {__DEV__ && (
             <Card>
-              <Label small>أدوات المطور — للاختبار فقط</Label>
+              <Label small>{t('أدوات المطور — للاختبار فقط')}</Label>
               <Body>
-                المسار الأساسي يلتقط صورة من الكاميرا. هذه الأدوات لتجربة المحاكي أو هاتف خارج
-                القاهرة.
+                {t(
+                  'المسار الأساسي يلتقط صورة من الكاميرا. هذه الأدوات لتجربة المحاكي أو هاتف خارج القاهرة.',
+                )}
               </Body>
               <Button
                 secondary
-                label="اختيار صورة للاختبار"
+                label={t('اختيار صورة للاختبار')}
                 disabled={busy}
                 onPress={() => void run(() => capturePhoto(true))}
               />
               {draft.photoUri && (
                 <Button
                   secondary
-                  label="استخدام موقع اصطناعي في المعادي"
+                  label={t('استخدام موقع اصطناعي في المعادي')}
                   disabled={busy}
                   onPress={() => void run(() => captureLocation(draft, true))}
                 />
@@ -677,7 +723,7 @@ function BalaaApp() {
           )}
           <Button
             secondary
-            label="فتح إعدادات الأذونات"
+            label={t('فتح إعدادات الأذونات')}
             onPress={() => void Linking.openSettings()}
           />
         </>
@@ -687,69 +733,75 @@ function BalaaApp() {
         <>
           <StepHeader
             step={2}
-            title="المشكلة هنا؟"
-            subtitle="راجع موقع الصورة والحي قبل المتابعة."
+            title={t('المشكلة هنا؟')}
+            subtitle={t('راجع موقع الصورة والحي قبل المتابعة.')}
           />
           <MapView latitude={draft.location?.latitude} longitude={draft.location?.longitude} />
           <Card>
             <View style={styles.sectionHeading}>
               <Text style={styles.locationIcon}>◎</Text>
-              <Label>{draft.district?.nameAr ?? 'لم يتحدد الحي'}</Label>
+              <Label>
+                {bilingual(draft.district?.nameAr, draft.district?.nameEn) || t('لم يتحدد الحي')}
+              </Label>
             </View>
-            <Body>القاهرة · التحديد بحدود تجريبية</Body>
+            <Body>{t('القاهرة · التحديد بحدود تجريبية')}</Body>
             <Text style={styles.coordinates}>
               {draft.location?.latitude.toFixed(6)}, {draft.location?.longitude.toFixed(6)}
             </Text>
-            <Body>دقة GPS: نحو {Math.round(draft.location?.gpsAccuracy ?? 0)} متر</Body>
+            <Body>
+              {t('دقة GPS: نحو')} {Math.round(draft.location?.gpsAccuracy ?? 0)} {t('متر')}
+            </Body>
             {draft.syntheticLocation && (
-              <Notice warning>موقع اصطناعي للاختبار، وليس موقع الهاتف الفعلي.</Notice>
+              <Notice warning>{t('موقع اصطناعي للاختبار، وليس موقع الهاتف الفعلي.')}</Notice>
             )}
           </Card>
           {(draft.location?.gpsAccuracy ?? 0) > 50 && (
             <Notice warning>
-              دقة الموقع ضعيفة. يفضّل إعادة تحديد موقعك من مكان مفتوح قبل الإرسال.
+              {t('دقة الموقع ضعيفة. يفضّل إعادة تحديد موقعك من مكان مفتوح قبل الإرسال.')}
             </Notice>
           )}
-          <Label>تصحيح العلامة عند الحاجة</Label>
+          <Label>{t('تصحيح العلامة عند الحاجة')}</Label>
           <Body>
-            تحريك 10 أمتار في كل مرة؛ بحد أقصى 50 مترًا من نقطة GPS. يتحدد الحي مجددًا مع كل تعديل.
+            {t(
+              'تحريك 10 أمتار في كل مرة؛ بحد أقصى 50 مترًا من نقطة GPS. يتحدد الحي مجددًا مع كل تعديل.',
+            )}
           </Body>
           <View style={styles.adjustControls}>
             <Button
               secondary
-              label="↑ شمال"
+              label={t('↑ شمال')}
               disabled={busy}
               onPress={() => void run(() => movePin(10, 0))}
             />
             <View style={styles.adjustRow}>
               <Button
                 secondary
-                label="← غرب"
+                label={t('← غرب')}
                 disabled={busy}
                 onPress={() => void run(() => movePin(0, -10))}
               />
               <Button
                 secondary
-                label="شرق →"
+                label={t('شرق →')}
                 disabled={busy}
                 onPress={() => void run(() => movePin(0, 10))}
               />
             </View>
             <Button
               secondary
-              label="↓ جنوب"
+              label={t('↓ جنوب')}
               disabled={busy}
               onPress={() => void run(() => movePin(-10, 0))}
             />
           </View>
           <Button
-            label="تأكيد المكان والمتابعة"
+            label={t('تأكيد المكان والمتابعة')}
             disabled={!draft.district || busy}
             onPress={() => navigate('details')}
           />
           <Button
             secondary
-            label="تحديد الموقع مجددًا"
+            label={t('تحديد الموقع مجددًا')}
             disabled={busy}
             onPress={() => void run(() => captureLocation())}
           />
@@ -760,8 +812,8 @@ function BalaaApp() {
         <>
           <StepHeader
             step={3}
-            title="إيه نوع المشكلة؟"
-            subtitle="اختار التصنيف الأقرب، وأضف التفاصيل اللي تساعد على حلها."
+            title={t('إيه نوع المشكلة؟')}
+            subtitle={t('اختار التصنيف الأقرب، وأضف التفاصيل اللي تساعد على حلها.')}
           />
           <View style={styles.categoryGrid}>
             {categories.map((item) => (
@@ -779,7 +831,7 @@ function BalaaApp() {
                     draft.categoryId === item.id && { color: colors.teal },
                   ]}
                 >
-                  {item.labelAr}
+                  {bilingual(item.labelAr, item.labelEn)}
                 </Text>
                 {draft.categoryId === item.id && <Text style={styles.checkmark}>✓</Text>}
               </Pressable>
@@ -788,12 +840,12 @@ function BalaaApp() {
           {!categories.length && (
             <Button
               secondary
-              label="تحميل التصنيفات"
+              label={t('تحميل التصنيفات')}
               busy={busy}
               onPress={() => void run(refreshPublic)}
             />
           )}
-          <Label>درجة الخطورة</Label>
+          <Label>{t('درجة الخطورة')}</Label>
           <View style={styles.severityRow}>
             {(['critical', 'dangerous', 'normal'] as Severity[]).map((value) => (
               <Pressable
@@ -810,27 +862,29 @@ function BalaaApp() {
                 <Text
                   style={[styles.severityLabel, value === 'critical' && { color: colors.danger }]}
                 >
-                  {severityLabels[value]}
+                  {t(severityLabels[value])}
                 </Text>
               </Pressable>
             ))}
           </View>
           {draft.severity === 'critical' && (
             <Notice warning>
-              هذا التطبيق التجريبي ليس قناة طوارئ. ابتعد عن الخطر، واستخدم قنوات الطوارئ المختصة عند
-              وجود تهديد فوري.
+              {t(
+                'هذا التطبيق التجريبي ليس قناة طوارئ. ابتعد عن الخطر، واستخدم قنوات الطوارئ المختصة عند وجود تهديد فوري.',
+              )}
             </Notice>
           )}
           <Label>
-            تفاصيل إضافية <Text style={styles.optional}>(اختياري)</Text>
+            {t('تفاصيل إضافية')}
+            <Text style={styles.optional}>{t('(اختياري)')}</Text>
           </Label>
           <TextInput
-            accessibilityLabel="تفاصيل المشكلة، بحد أقصى 500 حرف"
+            accessibilityLabel={t('تفاصيل المشكلة، بحد أقصى 500 حرف')}
             value={draft.description}
             onChangeText={(description) => setDraft({ ...draft, description })}
             multiline
             maxLength={draft.syntheticLocation ? 475 : 500}
-            placeholder="أضف تفاصيل تساعد على فهم المشكلة"
+            placeholder={t('أضف تفاصيل تساعد على فهم المشكلة')}
             placeholderTextColor={colors.muted}
             style={styles.textInput}
             textAlignVertical="top"
@@ -839,7 +893,7 @@ function BalaaApp() {
             {draft.description.length} / {draft.syntheticLocation ? 475 : 500}
           </Text>
           <Button
-            label="مراجعة البلاغ"
+            label={t('مراجعة البلاغ')}
             disabled={!draft.categoryId}
             onPress={() => navigate('review')}
           />
@@ -850,54 +904,64 @@ function BalaaApp() {
         <>
           <StepHeader
             step={4}
-            title="راجع بلاغك"
-            subtitle="تأكد من التفاصيل. بعد الإرسال تقدر تتابع كل خطوة."
+            title={t('راجع بلاغك')}
+            subtitle={t('تأكد من التفاصيل. بعد الإرسال تقدر تتابع كل خطوة.')}
           />
-          <Photo uri={draft.photoUri} label={draft.fixturePhoto ? 'صورة اختبار' : 'صورة البلاغ'} />
+          <Photo
+            uri={draft.photoUri}
+            label={draft.fixturePhoto ? t('صورة اختبار') : t('صورة البلاغ')}
+          />
           <Card>
-            <Detail label="المشكلة" value={category?.labelAr ?? '—'} />
-            <Detail label="الحي" value={draft.district?.nameAr ?? '—'} />
-            <Detail label="الخطورة" value={severityLabels[draft.severity]} />
             <Detail
-              label="وقت التصوير"
+              label={t('المشكلة')}
+              value={bilingual(category?.labelAr, category?.labelEn) || '—'}
+            />
+            <Detail
+              label={t('الحي')}
+              value={bilingual(draft.district?.nameAr, draft.district?.nameEn) || '—'}
+            />
+            <Detail label={t('الخطورة')} value={t(severityLabels[draft.severity])} />
+            <Detail
+              label={t('وقت التصوير')}
               value={
-                draft.location ? new Date(draft.location.capturedAt).toLocaleString('ar-EG') : '—'
+                draft.location ? new Date(draft.location.capturedAt).toLocaleString(locale) : '—'
               }
             />
             {draft.description && <Body>{draft.description}</Body>}
             {draft.syntheticLocation && (
               <Notice warning>
-                هذا البلاغ يستخدم موقعًا اصطناعيًا. سيُضاف هذا التوضيح لوصف البلاغ.
+                {t('هذا البلاغ يستخدم موقعًا اصطناعيًا. سيُضاف هذا التوضيح لوصف البلاغ.')}
               </Notice>
             )}
           </Card>
           <Notice>
-            تُراجع الصورة قبل نشر البلاغ. التوجيه إلى الأحياء محاكاة، وجميع الرسائل في صندوق اختبار
-            محلي.
+            {t(
+              'تُراجع الصورة قبل نشر البلاغ. التوجيه إلى الأحياء محاكاة، وجميع الرسائل في صندوق اختبار محلي.',
+            )}
           </Notice>
           <Pressable
             accessibilityRole="checkbox"
-            accessibilityLabel="راجعت الصورة وخلوها من بيانات شخصية"
+            accessibilityLabel={t('راجعت الصورة وخلوها من بيانات شخصية')}
             accessibilityState={{ checked: privacyAccepted }}
             onPress={() => setPrivacyAccepted(!privacyAccepted)}
             style={styles.consent}
           >
             <Text style={styles.consentText}>
-              راجعت الصورة، وتجنبت الوجوه ولوحات السيارات والبيانات الشخصية.
+              {t('راجعت الصورة، وتجنبت الوجوه ولوحات السيارات والبيانات الشخصية.')}
             </Text>
             <View style={[styles.checkbox, privacyAccepted && { backgroundColor: colors.teal }]}>
               <Text style={styles.checkboxTick}>{privacyAccepted ? '✓' : ''}</Text>
             </View>
           </Pressable>
           <Button
-            label={submittingNew ? 'جارٍ حفظ البلاغ...' : 'إرسال البلاغ التجريبي'}
+            label={submittingNew ? t('جارٍ حفظ البلاغ...') : t('إرسال البلاغ التجريبي')}
             busy={busy}
             disabled={!privacyAccepted}
             onPress={() => void run(checkDuplicates)}
           />
           <Button
             secondary
-            label="تعديل التفاصيل"
+            label={t('تعديل التفاصيل')}
             disabled={busy}
             onPress={() => navigate('details')}
           />
@@ -906,17 +970,18 @@ function BalaaApp() {
     if (screen === 'duplicates')
       return (
         <>
-          <Text style={styles.eyebrow}>قبل ما نضيف بلاغ جديد</Text>
-          <Title>المشكلة دي اتبلغ عنها؟</Title>
+          <Text style={styles.eyebrow}>{t('قبل ما نضيف بلاغ جديد')}</Text>
+          <Title>{t('المشكلة دي اتبلغ عنها؟')}</Title>
           <Body>
-            وجدنا بلاغًا مفتوحًا من نفس النوع في نطاق 30 مترًا. لو هي نفس المشكلة، تأكيدك يساعدنا
-            بدون تكرار البلاغ.
+            {t(
+              'وجدنا بلاغًا مفتوحًا من نفس النوع في نطاق 30 مترًا. لو هي نفس المشكلة، تأكيدك يساعدنا بدون تكرار البلاغ.',
+            )}
           </Body>
           {duplicates.map((report) => (
             <Card key={report.id}>
               <ReportCard report={report} onPress={() => void openReport(report)} />
               <Button
-                label="المشكلة ما زالت موجودة"
+                label={t('المشكلة ما زالت موجودة')}
                 busy={busy}
                 onPress={() => void run(() => confirmDuplicate(report))}
               />
@@ -924,7 +989,7 @@ function BalaaApp() {
           ))}
           <Button
             secondary
-            label="مشكلة مختلفة — إنشاء بلاغ مستقل"
+            label={t('مشكلة مختلفة — إنشاء بلاغ مستقل')}
             busy={busy}
             onPress={() => void run(submitReport)}
           />
@@ -937,29 +1002,31 @@ function BalaaApp() {
             <View style={styles.successCheck}>
               <Text style={styles.successIcon}>✓</Text>
             </View>
-            <Title>{confirmed ? 'تم تسجيل تأكيدك' : 'تم حفظ بلاغك ✓'}</Title>
+            <Title>{confirmed ? t('تم تسجيل تأكيدك') : t('تم حفظ بلاغك ✓')}</Title>
             <Body>
               {confirmed
-                ? 'تم ربط تأكيدك بالمشكلة الموجودة، ويمكنك متابعة حالتها.'
-                : 'خطوة اتوثّقت، وطريق أقرب للأمان.'}
+                ? t('تم ربط تأكيدك بالمشكلة الموجودة، ويمكنك متابعة حالتها.')
+                : t('خطوة اتوثّقت، وطريق أقرب للأمان.')}
             </Body>
             <Text selectable style={styles.publicId}>
               {selected.publicId}
             </Text>
             <StatusBadge status={selected.status} />
-            <Label>{selected.districtName}</Label>
+            <Label>{bilingual(selected.districtName, selected.districtNameEn)}</Label>
           </View>
           <Notice>
             {selected.moderationStatus === 'safe'
-              ? 'تم الحفظ في النظام التجريبي. أي إرسال للحي محاكاة في صندوق الاختبار فقط، ولم يُرسل بلاغ لجهة حكومية.'
-              : 'البلاغ محفوظ وتحت مراجعة المحتوى. لن يظهر للعامة أو يُرسل حتى انتهاء المراجعة.'}
+              ? t(
+                  'تم الحفظ في النظام التجريبي. أي إرسال للحي محاكاة في صندوق الاختبار فقط، ولم يُرسل بلاغ لجهة حكومية.',
+                )
+              : t('البلاغ محفوظ وتحت مراجعة المحتوى. لن يظهر للعامة أو يُرسل حتى انتهاء المراجعة.')}
           </Notice>
-          <Button label="متابعة البلاغ" onPress={() => navigate('report')} />
-          <Button secondary label="عرض الخريطة العامة" onPress={() => navigate('map')} />
+          <Button label={t('متابعة البلاغ')} onPress={() => navigate('report')} />
+          <Button secondary label={t('عرض الخريطة العامة')} onPress={() => navigate('map')} />
           {selected.moderationStatus === 'safe' && (
             <Button
               secondary
-              label="مشاركة رابط البلاغ"
+              label={t('مشاركة رابط البلاغ')}
               onPress={() => void shareReport(selected)}
             />
           )}
@@ -968,11 +1035,12 @@ function BalaaApp() {
     if (screen === 'my-reports')
       return (
         <>
-          <Text style={styles.eyebrow}>كل خطوة لها أثر</Text>
-          <Title>بلاغاتي</Title>
+          <Text style={styles.eyebrow}>{t('كل خطوة لها أثر')}</Text>
+          <Title>{t('بلاغاتي')}</Title>
           <Body>
-            تحديثات البلاغات تظهر هنا. نحدّث الحالة تلقائيًا أثناء فتح الصفحة، أو اسحب لأسفل
-            للتحديث.
+            {t(
+              'تحديثات البلاغات تظهر هنا. نحدّث الحالة تلقائيًا أثناء فتح الصفحة، أو اسحب لأسفل للتحديث.',
+            )}
           </Body>
           {myReports.length ? (
             myReports.map((report) => (
@@ -985,15 +1053,19 @@ function BalaaApp() {
             ))
           ) : (
             <Card>
-              <Label>لسه ما قدمتش بلاغ؟</Label>
-              <Body>أول صورة منك ممكن تساعد على إصلاح الطريق.</Body>
-              <Button label="قدّم أول بلاغ" onPress={beginReport} />
+              <Label>{t('لسه ما قدمتش بلاغ؟')}</Label>
+              <Body>{t('أول صورة منك ممكن تساعد على إصلاح الطريق.')}</Body>
+              <Button label={t('قدّم أول بلاغ')} onPress={beginReport} />
             </Card>
           )}
           <Notice>
-            أنت تستخدم حسابًا تجريبيًا. لا نرسل إشعارات نظام أو رسائل SMS في هذا الإصدار.
+            {t('أنت تستخدم حسابًا تجريبيًا. لا نرسل إشعارات نظام أو رسائل SMS في هذا الإصدار.')}
           </Notice>
-          <Button secondary label="تسجيل الخروج من حساب التجربة" onPress={() => void run(logout)} />
+          <Button
+            secondary
+            label={t('تسجيل الخروج من حساب التجربة')}
+            onPress={() => void run(logout)}
+          />
         </>
       );
     if (screen === 'report' && selected)
@@ -1005,39 +1077,47 @@ function BalaaApp() {
               {selected.publicId}
             </Text>
           </View>
-          <Title>{selected.categoryLabel}</Title>
+          <Title>{bilingual(selected.categoryLabel, selected.categoryLabelEn)}</Title>
           <Body>
-            {selected.districtName} · {dateLabel(selected.createdAt)}
+            {bilingual(selected.districtName, selected.districtNameEn)} ·{' '}
+            {dateLabel(selected.createdAt)}
           </Body>
-          <Photo uri={selected.imageUrl} token={session?.token} label="قبل الحل" />
+          <Photo uri={selected.imageUrl} token={session?.token} label={t('قبل الحل')} />
           {selected.description && <Body>{selected.description}</Body>}
           {selected.moderationStatus !== 'safe' && (
-            <Notice warning>هذا البلاغ قيد المراجعة، وتفاصيله هنا متاحة لصاحبه فقط.</Notice>
+            <Notice warning>{t('هذا البلاغ قيد المراجعة، وتفاصيله هنا متاحة لصاحبه فقط.')}</Notice>
           )}
           <Card>
-            <Detail label="الخطورة" value={severityLabels[selected.severity]} />
-            <Detail label="تأكيدات المشكلة" value={`${selected.confirmationCount} مواطن`} />
-            <Detail label="الحالة" value={statusLabels[selected.status]} />
+            <Detail label={t('الخطورة')} value={t(severityLabels[selected.severity])} />
+            <Detail
+              label={t('تأكيدات المشكلة')}
+              value={t('{0} مواطن', selected.confirmationCount)}
+            />
+            <Detail label={t('الحالة')} value={t(statusLabels[selected.status])} />
           </Card>
           {selected.resolutionImageUrl && (
             <>
-              <Photo uri={selected.resolutionImageUrl} token={session?.token} label="بعد الحل" />
+              <Photo
+                uri={selected.resolutionImageUrl}
+                token={session?.token}
+                label={t('بعد الحل')}
+              />
               {selected.resolutionNote && (
                 <Card>
-                  <Label>ملاحظة الحل</Label>
+                  <Label>{t('ملاحظة الحل')}</Label>
                   <Body>{selected.resolutionNote}</Body>
                 </Card>
               )}
             </>
           )}
-          <Label>رحلة البلاغ</Label>
+          <Label>{t('رحلة البلاغ')}</Label>
           <Card>
             {(selected.history ?? []).map((event, index) => (
               <View key={`${event.createdAt}-${index}`} style={styles.timelineRow}>
                 <View style={styles.timelineContent}>
-                  <Label small>{statusLabels[event.status] ?? event.status}</Label>
+                  <Label small>{t(statusLabels[event.status]) ?? event.status}</Label>
                   <Text style={styles.meta}>
-                    {new Date(event.createdAt).toLocaleString('ar-EG')}
+                    {new Date(event.createdAt).toLocaleString(locale)}
                   </Text>
                   {event.note && <Body>{event.note}</Body>}
                 </View>
@@ -1051,13 +1131,14 @@ function BalaaApp() {
             ))}
           </Card>
           <Notice>
-            الحالات الظاهرة تعكس سير عمل التجربة. «أُرسل» يعني صندوق اختبار فقط، ولا يؤكد وصول
-            البلاغ إلى حي حقيقي.
+            {t(
+              'الحالات الظاهرة تعكس سير عمل التجربة. «أُرسل» يعني صندوق اختبار فقط، ولا يؤكد وصول البلاغ إلى حي حقيقي.',
+            )}
           </Notice>
           <MapView latitude={selected.latitude} longitude={selected.longitude} />
           <Button
             secondary
-            label="تحديث الحالة"
+            label={t('تحديث الحالة')}
             busy={busy}
             onPress={() =>
               void run(async () => {
@@ -1072,17 +1153,27 @@ function BalaaApp() {
             }
           />
           {selected.moderationStatus === 'safe' && (
-            <Button secondary label="مشاركة البلاغ" onPress={() => void shareReport(selected)} />
+            <Button
+              secondary
+              label={t('مشاركة البلاغ')}
+              onPress={() => void shareReport(selected)}
+            />
           )}
         </>
       );
-    return <Button label="العودة للرئيسية" onPress={() => navigate('home')} />;
+    return <Button label={t('العودة للرئيسية')} onPress={() => navigate('home')} />;
   }
 
   async function shareReport(report: PublicReport) {
     await run(async () => {
       await Share.share({
-        message: `${report.publicId} — ${report.categoryLabel}\nنسخة بلاعة التجريبية\n${API_URL}/reports/${encodeURIComponent(report.id)}`,
+        message: t(
+          '{0} — {1}\nنسخة بلاعة التجريبية\n{2}/reports/{3}',
+          report.publicId,
+          bilingual(report.categoryLabel, report.categoryLabelEn),
+          API_URL,
+          encodeURIComponent(report.id),
+        ),
       });
     });
   }
@@ -1093,28 +1184,45 @@ function BalaaApp() {
       {screen !== 'splash' && (
         <View style={styles.header}>
           <View style={styles.headerLeft}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={isArabic ? 'Switch to English' : 'التبديل إلى العربية'}
+              onPress={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
+              style={{
+                minWidth: 48,
+                minHeight: 48,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: colors.teal, fontSize: 16, fontWeight: '700' }}>
+                {isArabic ? 'EN' : 'العربية'}
+              </Text>
+            </Pressable>
             <View style={styles.demoBadge}>
-              <Text style={styles.demoText}>نسخة تجريبية</Text>
+              <Text style={styles.demoText}>{t('نسخة تجريبية')}</Text>
             </View>
             {session && <View style={styles.onlineDot} />}
           </View>
           <View style={styles.brand}>
-            <Text style={styles.brandName}>بلاعة</Text>
-            <View style={styles.brandMark}>
-              <Text style={styles.brandLetter}>ب</Text>
-            </View>
+            <Text style={styles.brandName}>{t('بلاعة')}</Text>
+            <Image
+              source={logo}
+              accessibilityLabel={t('بلاعة')}
+              style={{ width: 56, height: 56, borderRadius: 10 }}
+            />
           </View>
         </View>
       )}
       {flowBack[screen] && !showNav && (
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="العودة"
+          accessibilityLabel={t('العودة')}
           disabled={busy}
           onPress={() => navigate(flowBack[screen]!)}
           style={styles.back}
         >
-          <Text style={styles.textLink}>رجوع →</Text>
+          <Text style={styles.textLink}>{t('رجوع →')}</Text>
         </Pressable>
       )}
       <KeyboardAvoidingView
@@ -1139,10 +1247,10 @@ function BalaaApp() {
         >
           {error ? (
             <View accessibilityRole="alert" style={styles.error}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.errorText}>{t(error)}</Text>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="إغلاق رسالة الخطأ"
+                accessibilityLabel={t('إغلاق رسالة الخطأ')}
                 onPress={() => setError('')}
                 style={styles.dismiss}
               >
@@ -1150,7 +1258,7 @@ function BalaaApp() {
               </Pressable>
             </View>
           ) : null}
-          {notice ? <Notice>{notice}</Notice> : null}
+          {notice ? <Notice>{t(notice)}</Notice> : null}
           {content()}
           <View style={{ height: 12 }} />
         </ScrollView>
@@ -1159,9 +1267,9 @@ function BalaaApp() {
         <SafeAreaView edges={['bottom']} style={styles.navSafe}>
           <View style={styles.nav}>
             {[
-              ['my-reports', 'بلاغاتي', '▤'],
-              ['map', 'الخريطة', '◎'],
-              ['home', 'الرئيسية', '⌂'],
+              ['my-reports', t('بلاغاتي'), '▤'],
+              ['map', t('الخريطة'), '◎'],
+              ['home', t('الرئيسية'), '⌂'],
             ].map(([id, label, icon]) => (
               <Pressable
                 key={id}
@@ -1181,7 +1289,7 @@ function BalaaApp() {
                     screen === id && { color: colors.teal, fontWeight: '700' },
                   ]}
                 >
-                  {label}
+                  {t(label)}
                 </Text>
               </Pressable>
             ))}
@@ -1193,18 +1301,22 @@ function BalaaApp() {
 }
 
 function Stat({ value, label }: { value: number; label: string }) {
+  const { t, locale, isArabic } = useLocale();
+  const styles = createStyles(isArabic);
   return (
     <View style={styles.stat}>
-      <Text style={styles.statValue}>{value.toLocaleString('ar-EG')}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statValue}>{value.toLocaleString(locale)}</Text>
+      <Text style={styles.statLabel}>{t(label)}</Text>
     </View>
   );
 }
 function Detail({ label, value }: { label: string; value: string }) {
+  const { t, isArabic } = useLocale();
+  const styles = createStyles(isArabic);
   return (
     <View style={styles.detailRow}>
       <Text style={styles.detailValue}>{value}</Text>
-      <Text style={styles.detailLabel}>{label}</Text>
+      <Text style={styles.detailLabel}>{t(label)}</Text>
     </View>
   );
 }
@@ -1218,325 +1330,387 @@ function categorySymbol(id: string) {
   return '▧';
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  safe: { flex: 1, backgroundColor: colors.sand },
-  page: { padding: 22, gap: 17, flexGrow: 1 },
-  header: {
-    paddingHorizontal: 22,
-    paddingVertical: 14,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-  },
-  headerLeft: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  brand: { flexDirection: 'row', alignItems: 'center', gap: 9 },
-  brandName: { fontSize: 26, fontWeight: '800', color: colors.ink },
-  brandMark: {
-    height: 36,
-    width: 36,
-    borderRadius: 12,
-    backgroundColor: colors.teal,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  brandLetter: { fontSize: 26, color: colors.white, lineHeight: 34, fontWeight: '800' },
-  demoBadge: {
-    backgroundColor: '#EBE9DD',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  demoText: { color: colors.muted, fontSize: 11, fontWeight: '600' },
-  onlineDot: { width: 7, height: 7, borderRadius: 5, backgroundColor: colors.teal },
-  back: { alignItems: 'flex-end', paddingHorizontal: 24, paddingTop: 12 },
-  textLink: { color: colors.teal, fontSize: 13, fontWeight: '700', lineHeight: 24 },
-  splash: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24 },
-  splashMark: { fontSize: 78, color: colors.teal, fontWeight: '800' },
-  onboardArt: {
-    height: 230,
-    borderRadius: 28,
-    backgroundColor: colors.mint,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  roadLine: {
-    position: 'absolute',
-    height: 340,
-    width: 20,
-    backgroundColor: '#F8F8EB',
-    transform: [{ rotate: '45deg' }],
-    left: 30,
-  },
-  drain: {
-    height: 136,
-    width: 136,
-    borderRadius: 70,
-    backgroundColor: colors.teal,
-    borderWidth: 7,
-    borderColor: '#AFC9BB',
-    transform: [{ rotate: '-20deg' }],
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  drainGrid: {
-    width: 92,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 7,
-    justifyContent: 'center',
-  },
-  drainBar: { height: 11, width: 22, backgroundColor: '#B7D4C5', borderRadius: 4 },
-  pin: {
-    position: 'absolute',
-    top: 31,
-    right: 80,
-    width: 42,
-    height: 42,
-    borderRadius: 22,
-    backgroundColor: colors.amber,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: colors.sand,
-  },
-  pinText: { fontWeight: '800', fontSize: 22, color: colors.ink },
-  artCaption: {
-    position: 'absolute',
-    bottom: 19,
-    color: colors.teal,
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  eyebrow: {
-    textAlign: 'right',
-    color: colors.teal,
-    fontSize: 12,
-    fontWeight: '700',
-    lineHeight: 20,
-  },
-  featureRow: { flexDirection: 'row', gap: 10 },
-  feature: {
-    flex: 1,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.line,
-    paddingVertical: 12,
-    borderRadius: 14,
-    backgroundColor: colors.white,
-  },
-  featureNumber: { fontSize: 12, fontWeight: '700', color: colors.teal },
-  quote: { color: colors.muted, textAlign: 'center', fontSize: 12, lineHeight: 23 },
-  hero: {
-    backgroundColor: colors.teal,
-    borderRadius: 25,
-    padding: 25,
-    gap: 12,
-    overflow: 'hidden',
-  },
-  heroEyebrow: { textAlign: 'right', color: '#B8D9C7', fontSize: 12, fontWeight: '600', zIndex: 1 },
-  heroTitle: {
-    textAlign: 'right',
-    writingDirection: 'rtl',
-    fontSize: 34,
-    fontWeight: '800',
-    color: colors.white,
-    lineHeight: 51,
-    zIndex: 1,
-  },
-  heroText: { textAlign: 'right', color: '#DAE9DE', fontSize: 13, lineHeight: 24, zIndex: 1 },
-  heroButton: {
-    backgroundColor: colors.amber,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    borderRadius: 14,
-    marginTop: 8,
-    zIndex: 1,
-  },
-  heroButtonText: { fontSize: 16, fontWeight: '800', color: colors.ink },
-  heroCircle: {
-    position: 'absolute',
-    height: 180,
-    width: 180,
-    borderRadius: 100,
-    borderWidth: 28,
-    borderColor: '#247E6A',
-    left: -75,
-    top: 40,
-    opacity: 0.6,
-  },
-  stats: {
-    flexDirection: 'row-reverse',
-    backgroundColor: colors.white,
-    borderRadius: 18,
-    borderColor: colors.line,
-    borderWidth: 1,
-    paddingVertical: 16,
-  },
-  stat: { flex: 1, alignItems: 'center', gap: 4 },
-  statValue: { fontSize: 27, fontWeight: '800', color: colors.teal },
-  statLabel: { fontSize: 11, color: colors.muted },
-  sectionHeading: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 12,
-  },
-  identityArt: {
-    height: 145,
-    borderRadius: 24,
-    backgroundColor: colors.mint,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  identityIcon: { fontSize: 67, color: colors.teal },
-  cameraPlaceholder: {
-    padding: 26,
-    height: 270,
-    borderRadius: 24,
-    backgroundColor: colors.mint,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 17,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#A5BCAC',
-  },
-  cameraShape: {
-    height: 60,
-    width: 78,
-    backgroundColor: colors.teal,
-    borderRadius: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cameraLens: { height: 34, width: 34, borderWidth: 5, borderColor: colors.mint, borderRadius: 20 },
-  coordinates: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.ink,
-    textAlign: 'right',
-    writingDirection: 'ltr',
-  },
-  locationIcon: { fontSize: 31, color: colors.teal },
-  adjustControls: { gap: 10, alignItems: 'center' },
-  adjustRow: { flexDirection: 'row', gap: 15 },
-  categoryGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 10 },
-  category: {
-    width: '48%',
-    minHeight: 103,
-    backgroundColor: colors.white,
-    borderColor: colors.line,
-    borderWidth: 1,
-    borderRadius: 17,
-    padding: 13,
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    gap: 7,
-  },
-  categorySelected: { borderColor: colors.teal, backgroundColor: colors.mint, borderWidth: 1.5 },
-  categoryIcon: { fontSize: 26, color: colors.teal },
-  categoryLabel: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.ink,
-    textAlign: 'right',
-    lineHeight: 21,
-  },
-  checkmark: { position: 'absolute', top: 10, left: 10, color: colors.teal, fontSize: 16 },
-  severityRow: { flexDirection: 'row', gap: 8 },
-  severity: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.white,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  severityDanger: { backgroundColor: '#FBE5DF', borderColor: colors.danger },
-  severityLabel: { fontSize: 13, fontWeight: '700', color: colors.teal },
-  optional: { fontWeight: '400', color: colors.muted, fontSize: 13 },
-  textInput: {
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 15,
-    padding: 17,
-    minHeight: 135,
-    color: colors.ink,
-    fontSize: 16,
-    lineHeight: 27,
-    writingDirection: 'rtl',
-    textAlign: 'right',
-  },
-  counter: { fontSize: 11, color: colors.muted, marginTop: -10, writingDirection: 'ltr' },
-  detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 15,
-  },
-  detailLabel: { fontSize: 13, color: colors.muted, textAlign: 'right', lineHeight: 25 },
-  detailValue: { fontSize: 14, fontWeight: '600', color: colors.ink, flex: 1, lineHeight: 25 },
-  consent: { flexDirection: 'row', gap: 12, alignItems: 'center', paddingVertical: 6 },
-  consentText: { flex: 1, fontSize: 13, lineHeight: 23, textAlign: 'right', color: colors.ink },
-  checkbox: {
-    width: 25,
-    height: 25,
-    borderColor: colors.teal,
-    borderWidth: 1.5,
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxTick: { color: colors.white, fontWeight: '700' },
-  success: { alignItems: 'center', gap: 17, paddingVertical: 20 },
-  successCheck: {
-    height: 90,
-    width: 90,
-    borderRadius: 45,
-    backgroundColor: colors.mint,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  successIcon: { fontSize: 46, color: colors.teal, fontWeight: '600' },
-  publicId: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: colors.teal,
-    writingDirection: 'ltr',
-    letterSpacing: 1,
-  },
-  reportCode: { fontSize: 14, fontWeight: '700', color: colors.muted, writingDirection: 'ltr' },
-  meta: { fontSize: 12, color: colors.muted, lineHeight: 22, textAlign: 'right' },
-  timelineRow: {
-    flexDirection: 'row',
-    gap: 13,
-    paddingBottom: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EDF0EA',
-  },
-  timelineContent: { flex: 1, gap: 3 },
-  timelineDot: { height: 12, width: 12, borderRadius: 6, backgroundColor: '#B1C9BA', marginTop: 7 },
-  error: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    padding: 14,
-    backgroundColor: '#FCE6DF',
-    borderRadius: 13,
-  },
-  errorText: { flex: 1, color: colors.danger, textAlign: 'right', fontSize: 13, lineHeight: 23 },
-  dismiss: { paddingHorizontal: 5, paddingVertical: 2 },
-  navSafe: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.line },
-  nav: { flexDirection: 'row', paddingHorizontal: 20, paddingTop: 7, paddingBottom: 6, gap: 10 },
-  navItem: { flex: 1, alignItems: 'center', paddingVertical: 6, gap: 2, borderRadius: 14 },
-  navSelected: { backgroundColor: '#EDF4EE' },
-  navIcon: { fontSize: 24, color: colors.muted, lineHeight: 28 },
-  navLabel: { fontSize: 11, color: colors.muted },
-});
+const createStyles = (isArabic: boolean) =>
+  StyleSheet.create({
+    flex: { flex: 1 },
+    safe: { flex: 1, backgroundColor: colors.sand },
+    page: { padding: 22, gap: 17, flexGrow: 1 },
+    header: {
+      paddingHorizontal: 22,
+      paddingVertical: 14,
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      borderBottomWidth: 1,
+      borderBottomColor: colors.line,
+    },
+    headerLeft: { flexDirection: isArabic ? 'row' : 'row-reverse', gap: 8, alignItems: 'center' },
+    brand: { flexDirection: isArabic ? 'row' : 'row-reverse', alignItems: 'center', gap: 9 },
+    brandName: { fontSize: 26, fontWeight: '800', color: colors.ink },
+    brandMark: {
+      height: 36,
+      width: 36,
+      borderRadius: 12,
+      backgroundColor: colors.teal,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    brandLetter: { fontSize: 26, color: colors.white, lineHeight: 34, fontWeight: '800' },
+    demoBadge: {
+      backgroundColor: '#EBE9DD',
+      paddingHorizontal: 10,
+      paddingVertical: 5,
+      borderRadius: 20,
+    },
+    demoText: { color: colors.muted, fontSize: 11, fontWeight: '600' },
+    onlineDot: { width: 7, height: 7, borderRadius: 5, backgroundColor: colors.teal },
+    back: {
+      alignItems: isArabic ? 'flex-end' : 'flex-start',
+      paddingHorizontal: 24,
+      paddingTop: 12,
+    },
+    textLink: { color: colors.teal, fontSize: 13, fontWeight: '700', lineHeight: 24 },
+    splash: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24 },
+    splashMark: { fontSize: 78, color: colors.teal, fontWeight: '800' },
+    onboardArt: {
+      height: 230,
+      borderRadius: 28,
+      backgroundColor: colors.mint,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    roadLine: {
+      position: 'absolute',
+      height: 340,
+      width: 20,
+      backgroundColor: '#F8F8EB',
+      transform: [{ rotate: '45deg' }],
+      left: 30,
+    },
+    drain: {
+      height: 136,
+      width: 136,
+      borderRadius: 70,
+      backgroundColor: colors.teal,
+      borderWidth: 7,
+      borderColor: '#AFC9BB',
+      transform: [{ rotate: '-20deg' }],
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    drainGrid: {
+      width: 92,
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      flexWrap: 'wrap',
+      gap: 7,
+      justifyContent: 'center',
+    },
+    drainBar: { height: 11, width: 22, backgroundColor: '#B7D4C5', borderRadius: 4 },
+    pin: {
+      position: 'absolute',
+      top: 31,
+      right: 80,
+      width: 42,
+      height: 42,
+      borderRadius: 22,
+      backgroundColor: colors.amber,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderWidth: 3,
+      borderColor: colors.sand,
+    },
+    pinText: { fontWeight: '800', fontSize: 22, color: colors.ink },
+    artCaption: {
+      position: 'absolute',
+      bottom: 19,
+      color: colors.teal,
+      fontSize: 12,
+      fontWeight: '700',
+    },
+    eyebrow: {
+      textAlign: isArabic ? 'right' : 'left',
+      color: colors.teal,
+      fontSize: 12,
+      fontWeight: '700',
+      lineHeight: 20,
+    },
+    featureRow: { flexDirection: isArabic ? 'row' : 'row-reverse', gap: 10 },
+    feature: {
+      flex: 1,
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: colors.line,
+      paddingVertical: 12,
+      borderRadius: 14,
+      backgroundColor: colors.white,
+    },
+    featureNumber: { fontSize: 12, fontWeight: '700', color: colors.teal },
+    quote: { color: colors.muted, textAlign: 'center', fontSize: 12, lineHeight: 23 },
+    hero: {
+      backgroundColor: colors.teal,
+      borderRadius: 25,
+      padding: 25,
+      gap: 12,
+      overflow: 'hidden',
+    },
+    heroEyebrow: {
+      textAlign: isArabic ? 'right' : 'left',
+      color: '#B8D9C7',
+      fontSize: 12,
+      fontWeight: '600',
+      zIndex: 1,
+    },
+    heroTitle: {
+      textAlign: isArabic ? 'right' : 'left',
+      writingDirection: isArabic ? 'rtl' : 'ltr',
+      fontSize: 34,
+      fontWeight: '800',
+      color: colors.white,
+      lineHeight: 51,
+      zIndex: 1,
+    },
+    heroText: {
+      textAlign: isArabic ? 'right' : 'left',
+      color: '#DAE9DE',
+      fontSize: 13,
+      lineHeight: 24,
+      zIndex: 1,
+    },
+    heroButton: {
+      backgroundColor: colors.amber,
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 15,
+      borderRadius: 14,
+      marginTop: 8,
+      zIndex: 1,
+    },
+    heroButtonText: { fontSize: 16, fontWeight: '800', color: colors.ink },
+    heroCircle: {
+      position: 'absolute',
+      height: 180,
+      width: 180,
+      borderRadius: 100,
+      borderWidth: 28,
+      borderColor: '#247E6A',
+      left: -75,
+      top: 40,
+      opacity: 0.6,
+    },
+    stats: {
+      flexDirection: isArabic ? 'row-reverse' : 'row',
+      backgroundColor: colors.white,
+      borderRadius: 18,
+      borderColor: colors.line,
+      borderWidth: 1,
+      paddingVertical: 16,
+    },
+    stat: { flex: 1, alignItems: 'center', gap: 4 },
+    statValue: { fontSize: 27, fontWeight: '800', color: colors.teal },
+    statLabel: { fontSize: 11, color: colors.muted },
+    sectionHeading: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 12,
+    },
+    identityArt: {
+      height: 145,
+      borderRadius: 24,
+      backgroundColor: colors.mint,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    identityIcon: { fontSize: 67, color: colors.teal },
+    cameraPlaceholder: {
+      padding: 26,
+      height: 270,
+      borderRadius: 24,
+      backgroundColor: colors.mint,
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 17,
+      borderWidth: 1,
+      borderStyle: 'dashed',
+      borderColor: '#A5BCAC',
+    },
+    cameraShape: {
+      height: 60,
+      width: 78,
+      backgroundColor: colors.teal,
+      borderRadius: 13,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    cameraLens: {
+      height: 34,
+      width: 34,
+      borderWidth: 5,
+      borderColor: colors.mint,
+      borderRadius: 20,
+    },
+    coordinates: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.ink,
+      textAlign: isArabic ? 'right' : 'left',
+      writingDirection: 'ltr',
+    },
+    locationIcon: { fontSize: 31, color: colors.teal },
+    adjustControls: { gap: 10, alignItems: 'center' },
+    adjustRow: { flexDirection: 'row', gap: 15 },
+    categoryGrid: { flexDirection: isArabic ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 10 },
+    category: {
+      width: '48%',
+      minHeight: 103,
+      backgroundColor: colors.white,
+      borderColor: colors.line,
+      borderWidth: 1,
+      borderRadius: 17,
+      padding: 13,
+      alignItems: isArabic ? 'flex-end' : 'flex-start',
+      justifyContent: 'center',
+      gap: 7,
+    },
+    categorySelected: { borderColor: colors.teal, backgroundColor: colors.mint, borderWidth: 1.5 },
+    categoryIcon: { fontSize: 26, color: colors.teal },
+    categoryLabel: {
+      fontSize: 13,
+      fontWeight: '600',
+      color: colors.ink,
+      textAlign: isArabic ? 'right' : 'left',
+      lineHeight: 21,
+    },
+    checkmark: { position: 'absolute', top: 10, left: 10, color: colors.teal, fontSize: 16 },
+    severityRow: { flexDirection: isArabic ? 'row' : 'row-reverse', gap: 8 },
+    severity: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.line,
+      backgroundColor: colors.white,
+      paddingVertical: 16,
+      borderRadius: 12,
+      alignItems: 'center',
+    },
+    severityDanger: { backgroundColor: '#FBE5DF', borderColor: colors.danger },
+    severityLabel: { fontSize: 13, fontWeight: '700', color: colors.teal },
+    optional: { fontWeight: '400', color: colors.muted, fontSize: 13 },
+    textInput: {
+      backgroundColor: colors.white,
+      borderWidth: 1,
+      borderColor: colors.line,
+      borderRadius: 15,
+      padding: 17,
+      minHeight: 135,
+      color: colors.ink,
+      fontSize: 16,
+      lineHeight: 27,
+      writingDirection: isArabic ? 'rtl' : 'ltr',
+      textAlign: isArabic ? 'right' : 'left',
+    },
+    counter: { fontSize: 11, color: colors.muted, marginTop: -10, writingDirection: 'ltr' },
+    detailRow: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      gap: 15,
+    },
+    detailLabel: {
+      fontSize: 13,
+      color: colors.muted,
+      textAlign: isArabic ? 'right' : 'left',
+      lineHeight: 25,
+    },
+    detailValue: { fontSize: 14, fontWeight: '600', color: colors.ink, flex: 1, lineHeight: 25 },
+    consent: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      gap: 12,
+      alignItems: 'center',
+      paddingVertical: 6,
+    },
+    consentText: {
+      flex: 1,
+      fontSize: 13,
+      lineHeight: 23,
+      textAlign: isArabic ? 'right' : 'left',
+      color: colors.ink,
+    },
+    checkbox: {
+      width: 25,
+      height: 25,
+      borderColor: colors.teal,
+      borderWidth: 1.5,
+      borderRadius: 6,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxTick: { color: colors.white, fontWeight: '700' },
+    success: { alignItems: 'center', gap: 17, paddingVertical: 20 },
+    successCheck: {
+      height: 90,
+      width: 90,
+      borderRadius: 45,
+      backgroundColor: colors.mint,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    successIcon: { fontSize: 46, color: colors.teal, fontWeight: '600' },
+    publicId: {
+      fontSize: 28,
+      fontWeight: '800',
+      color: colors.teal,
+      writingDirection: 'ltr',
+      letterSpacing: 1,
+    },
+    reportCode: { fontSize: 14, fontWeight: '700', color: colors.muted, writingDirection: 'ltr' },
+    meta: {
+      fontSize: 12,
+      color: colors.muted,
+      lineHeight: 22,
+      textAlign: isArabic ? 'right' : 'left',
+    },
+    timelineRow: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      gap: 13,
+      paddingBottom: 13,
+      borderBottomWidth: 1,
+      borderBottomColor: '#EDF0EA',
+    },
+    timelineContent: { flex: 1, gap: 3 },
+    timelineDot: {
+      height: 12,
+      width: 12,
+      borderRadius: 6,
+      backgroundColor: '#B1C9BA',
+      marginTop: 7,
+    },
+    error: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      alignItems: 'flex-start',
+      gap: 8,
+      padding: 14,
+      backgroundColor: '#FCE6DF',
+      borderRadius: 13,
+    },
+    errorText: {
+      flex: 1,
+      color: colors.danger,
+      textAlign: isArabic ? 'right' : 'left',
+      fontSize: 13,
+      lineHeight: 23,
+    },
+    dismiss: { paddingHorizontal: 5, paddingVertical: 2 },
+    navSafe: { backgroundColor: colors.white, borderTopWidth: 1, borderTopColor: colors.line },
+    nav: {
+      flexDirection: isArabic ? 'row' : 'row-reverse',
+      paddingHorizontal: 20,
+      paddingTop: 7,
+      paddingBottom: 6,
+      gap: 10,
+    },
+    navItem: { flex: 1, alignItems: 'center', paddingVertical: 6, gap: 2, borderRadius: 14 },
+    navSelected: { backgroundColor: '#EDF4EE' },
+    navIcon: { fontSize: 24, color: colors.muted, lineHeight: 28 },
+    navLabel: { fontSize: 11, color: colors.muted },
+  });

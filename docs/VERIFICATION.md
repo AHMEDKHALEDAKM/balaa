@@ -22,3 +22,15 @@ Verified on 25 September 2026 using Windows, Node.js 24.19.0 and npm 11.17.0.
 - Dependency audit at verification time: no high/critical findings; 10 moderate findings in the Expo build-tool dependency chain associated with nested `uuid` 7.0.3. Requested overrides have not displaced that nested installation. Review the current audit before release; no blanket clean-audit claim is made.
 
 See [SETUP.md](SETUP.md) for runtime instructions and [SECURITY.md](SECURITY.md) for deployment gates. Local demo data and generated bundles are excluded from the source archive.
+
+## Logo and bilingual update — 26 September 2026
+
+- Added the owner-supplied logo unchanged and a shared Arabic/English translation catalog for web and native interfaces.
+- 43 tests in five suites pass, including translation interpolation, Arabic grammar corrections, localized dates/numbers, and preservation of user content with configurable bilingual category labels.
+- Lint, strict TypeScript and optimized Next.js build pass.
+- Android and iOS Metro/Hermes exports pass with the new logo and localization modules (621 / 623 modules). This remains a bundle check, not a signed APK/IPA or physical-device test.
+- Browser checked: Arabic/English switching, saved selection on reload, English report steps through review, English district administration, Arabic corrected statuses/dates, and 390 x 844 layouts. Homepage and district dashboard document widths match the viewport in both languages; wide report tables scroll within their container.
+- EAS preview/production profiles and HTTPS endpoint validation supplied. No GitHub push, hosted deployment, Expo cloud build, Apple signing or store submission was performed.
+- iOS permission copy is configured in both Arabic and English; the OS chooses its display language. The uploaded Arabic wordmark, basemap labels and original report descriptions are intentionally not translated.
+
+See [GitHub and phone installation](GITHUB-AND-PHONE.md) for the remaining account/build steps and [Arabic review](BRAND-AND-LANGUAGES.md) for editorial changes.

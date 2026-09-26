@@ -32,9 +32,28 @@
       ],
       [
         "expo-location",
-        { "locationWhenInUsePermission": "نحتاج موقعك أثناء تصوير المشكلة لتحديد الحي المسؤول." }
+        {
+          "locationWhenInUsePermission": "نحتاج موقعك أثناء تصوير المشكلة لتحديد الحي المسؤول."
+        }
       ],
       "expo-secure-store"
-    ]
+    ],
+    "icon": "./assets/balaa-logo.png",
+    "locales": {
+      "ar": {
+        "ios": {
+          "NSCameraUsageDescription": "التقط صورة حديثة للمشكلة لتوثيق البلاغ.",
+          "NSLocationWhenInUseUsageDescription": "نحتاج موقعك أثناء تصوير المشكلة لتحديد الحي المسؤول.",
+          "NSPhotoLibraryUsageDescription": "اختر صورة لتجربة التطبيق في وضع التطوير فقط."
+        }
+      },
+      "en": {
+        "ios": {
+          "NSCameraUsageDescription": "Take a recent photo to document the road problem.",
+          "NSLocationWhenInUseUsageDescription": "Use your location while photographing the problem to identify the responsible district.",
+          "NSPhotoLibraryUsageDescription": "Choose a photo to test the app in development mode only."
+        }
+      }
+    }
   }
 }

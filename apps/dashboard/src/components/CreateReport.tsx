@@ -1,4 +1,6 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useRef, useState } from 'react';
 import {
   ArrowLeft,
@@ -32,6 +34,7 @@ export default function CreateReport({
   onClose: () => void;
   onSubmitted: (report: Report) => void;
 }) {
+  const { t, bilingual } = useLocale();
   useDialog(true, onClose);
   const [step, setStep] = useState(user?.role === 'citizen' ? 1 : 0);
   const [busy, setBusy] = useState(false);
@@ -75,11 +78,11 @@ export default function CreateReport({
   async function choose(file?: File) {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('اختر ملف صورة صالحًا.');
+      setError(t('اختر ملف صورة صالحًا.'));
       return;
     }
     if (file.size > 5 * 1000 * 1000) {
-      setError('حجم الصورة يجب ألا يتجاوز ٥ ميجابايت.');
+      setError(t('حجم الصورة يجب ألا يتجاوز ٥ ميجابايت.'));
       return;
     }
     await run(async () => {
@@ -151,7 +154,8 @@ export default function CreateReport({
         ? { latitude: 29.96, longitude: 31.26, gpsAccuracy: 8 }
         : await new Promise<{ latitude: number; longitude: number; gpsAccuracy: number }>(
             (resolve, reject) => {
-              if (!navigator.geolocation) return reject(new Error('المتصفح لا يدعم تحديد الموقع.'));
+              if (!navigator.geolocation)
+                return reject(new Error(t('المتصفح لا يدعم تحديد الموقع.')));
               navigator.geolocation.getCurrentPosition(
                 (pos) =>
                   resolve({
@@ -162,7 +166,7 @@ export default function CreateReport({
                 () =>
                   reject(
                     new Error(
-                      'تعذّر تحديد الموقع. اسمح بالوصول للموقع أو استخدم موقع العرض التجريبي.',
+                      t('تعذّر تحديد الموقع. اسمح بالوصول للموقع أو استخدم موقع العرض التجريبي.'),
                     ),
                   ),
                 { enableHighAccuracy: true, timeout: 15000 },
@@ -221,17 +225,17 @@ export default function CreateReport({
         aria-labelledby="wizard-title"
       >
         <div className="modal-top">
-          <span className="eyebrow">مساهمة صغيرة. طريق أأمن.</span>
-          <button className="icon-button" aria-label="إغلاق" onClick={onClose}>
+          <span className="eyebrow">{t('مساهمة صغيرة. طريق أأمن.')}</span>
+          <button className="icon-button" aria-label={t('إغلاق')} onClick={onClose}>
             <X size={21} />
           </button>
         </div>
         {step > 0 && step < 4 && (
           <div className="wizard-progress">
-            {['الصورة والموقع', 'تفاصيل المشكلة', 'مراجعة وإرسال'].map((label, index) => (
-              <div className={step >= index + 1 ? 'active' : ''} key={label}>
+            {[t('الصورة والموقع'), t('تفاصيل المشكلة'), t('مراجعة وإرسال')].map((label, index) => (
+              <div className={step >= index + 1 ? 'active' : ''} key={t(label)}>
                 <span>{step > index + 1 ? <Check size={13} /> : index + 1}</span>
-                <b>{label}</b>
+                <b>{t(label)}</b>
               </div>
             ))}
           </div>
@@ -241,31 +245,35 @@ export default function CreateReport({
             <span className="feature-icon large">
               <ShieldCheck size={36} />
             </span>
-            <span className="demo-pill">نسخة تجريبية · Demo</span>
-            <h2 id="wizard-title">صوتك موثوق. بياناتك خاصة.</h2>
+            <span className="demo-pill">{t('نسخة تجريبية · Demo')}</span>
+            <h2 id="wizard-title">{t('صوتك موثوق. بياناتك خاصة.')}</h2>
             <p>
-              توثيق الهوية يساعدنا في الحفاظ على جدية البلاغات. لا يظهر اسمك أو أي بيانات شخصية مع
-              بلاغك.
+              {t(
+                'توثيق الهوية يساعدنا في الحفاظ على جدية البلاغات. لا يظهر اسمك أو أي بيانات شخصية مع بلاغك.',
+              )}
             </p>
             <div className="notice">
               <ShieldCheck size={19} />
               <span>
-                هذه محاكاة لتسجيل الدخول، ولا تتصل بمصر الرقمية أو أي جهة حكومية. لا نطلب رقمك
-                القومي.
+                {t(
+                  'هذه محاكاة لتسجيل الدخول، ولا تتصل بمصر الرقمية أو أي جهة حكومية. لا نطلب رقمك القومي.',
+                )}
               </span>
             </div>
             <button className="button primary full" onClick={verify} disabled={busy}>
               {busy ? <LoaderCircle className="spin" size={19} /> : <ShieldCheck size={19} />}{' '}
-              {busy ? 'جارٍ التحقق التجريبي…' : 'متابعة عبر مصر الرقمية'}
+              {busy ? t('جارٍ التحقق التجريبي…') : t('متابعة عبر مصر الرقمية')}
               <ArrowLeft size={18} />
             </button>
-            <small>سيتم إنشاء حساب مواطن تجريبي داخل هذه النسخة.</small>
+            <small>{t('سيتم إنشاء حساب مواطن تجريبي داخل هذه النسخة.')}</small>
           </div>
         )}
         {step === 1 && (
           <>
-            <h2 id="wizard-title">صوّر المشكلة وحدّد مكانها</h2>
-            <p className="muted">صورة واضحة وموقع دقيق يساعدان في وصول البلاغ للحي الصحيح.</p>
+            <h2 id="wizard-title">{t('صوّر المشكلة وحدّد مكانها')}</h2>
+            <p className="muted">
+              {t('صورة واضحة وموقع دقيق يساعدان في وصول البلاغ للحي الصحيح.')}
+            </p>
             <input
               ref={camera}
               type="file"
@@ -284,14 +292,14 @@ export default function CreateReport({
             <div className={`photo-capture ${photo ? 'has-photo' : ''}`}>
               {photo ? (
                 <>
-                  <img src={photo} alt="صورة المشكلة الملتقطة" />
+                  <img src={photo} alt={t('صورة المشكلة الملتقطة')} />
                   <button
                     className="button light"
                     disabled={busy}
                     onClick={() => camera.current?.click()}
                   >
                     <Camera size={16} />
-                    تغيير الصورة
+                    {t('تغيير الصورة')}
                   </button>
                 </>
               ) : (
@@ -299,28 +307,28 @@ export default function CreateReport({
                   <span className="feature-icon">
                     <Camera size={29} />
                   </span>
-                  <h3>ابدأ بصورة للمشكلة</h3>
-                  <p>بدون وجوه أو لوحات سيارات قدر الإمكان.</p>
+                  <h3>{t('ابدأ بصورة للمشكلة')}</h3>
+                  <p>{t('بدون وجوه أو لوحات سيارات قدر الإمكان.')}</p>
                   <button
                     className="button primary"
                     disabled={busy}
                     onClick={() => camera.current?.click()}
                   >
                     <Camera size={18} />
-                    فتح الكاميرا
+                    {t('فتح الكاميرا')}
                   </button>
                 </>
               )}
             </div>
             <div className="dev-inputs">
-              <span>أدوات العرض التجريبي:</span>
+              <span>{t('أدوات العرض التجريبي:')}</span>
               <button disabled={busy} onClick={() => file.current?.click()}>
                 <Upload size={14} />
-                اختيار صورة
+                {t('اختيار صورة')}
               </button>
               <button disabled={busy} onClick={demoPhoto}>
                 <ImagePlus size={14} />
-                صورة تجريبية
+                {t('صورة تجريبية')}
               </button>
             </div>
             <div className="location-box">
@@ -329,11 +337,15 @@ export default function CreateReport({
                   <MapPin size={21} />
                 </span>
                 <div>
-                  <h3>{location ? location.district : 'أين توجد المشكلة؟'}</h3>
+                  <h3>{location ? t(location.district) : t('أين توجد المشكلة؟')}</h3>
                   <p>
                     {location
-                      ? `${location.demo ? 'موقع اصطناعي للعرض · ' : ''}دقة الموقع ${Math.round(location.gpsAccuracy)} م`
-                      : 'نحدد الحي تلقائيًا من إحداثيات الموقع.'}
+                      ? t(
+                          '{0}دقة الموقع {1} م',
+                          location.demo ? t('موقع اصطناعي للعرض · ') : '',
+                          Math.round(location.gpsAccuracy),
+                        )
+                      : t('نحدد الحي تلقائيًا من إحداثيات الموقع.')}
                   </p>
                 </div>
                 {location && <Check className="teal" size={22} />}
@@ -341,10 +353,10 @@ export default function CreateReport({
               <div className="location-actions">
                 <button className="button secondary" onClick={() => locate(false)} disabled={busy}>
                   <LocateFixed size={17} />
-                  تحديد موقعي
+                  {t('تحديد موقعي')}
                 </button>
                 <button className="text-button" onClick={() => locate(true)} disabled={busy}>
-                  موقع المعادي التجريبي
+                  {t('موقع المعادي التجريبي')}
                 </button>
               </div>
               {location && (
@@ -353,14 +365,16 @@ export default function CreateReport({
                 </span>
               )}
             </div>
-            <p className="microcopy">حدود الأحياء في العرض توضيحية وليست بيانات رسمية معتمدة.</p>
+            <p className="microcopy">
+              {t('حدود الأحياء في العرض توضيحية وليست بيانات رسمية معتمدة.')}
+            </p>
           </>
         )}
         {step === 2 && (
           <>
-            <h2 id="wizard-title">ما المشكلة التي لاحظتها؟</h2>
-            <p className="muted">اختر أقرب وصف. التفاصيل الإضافية اختيارية.</p>
-            <label className="field-label">نوع المشكلة</label>
+            <h2 id="wizard-title">{t('ما المشكلة التي لاحظتها؟')}</h2>
+            <p className="muted">{t('اختر أقرب وصف. التفاصيل الإضافية اختيارية.')}</p>
+            <label className="field-label">{t('نوع المشكلة')}</label>
             <div className="category-grid">
               {categories
                 .filter((category) => category.active)
@@ -373,11 +387,11 @@ export default function CreateReport({
                     <span className="choice-radio">
                       {categoryId === category.id && <Check size={12} />}
                     </span>
-                    {category.labelAr}
+                    {bilingual(category.labelAr, category.labelEn)}
                   </button>
                 ))}
             </div>
-            <label className="field-label">درجة الخطورة</label>
+            <label className="field-label">{t('درجة الخطورة')}</label>
             <div className="severity-options">
               {(['normal', 'dangerous', 'critical'] as const).map((value) => (
                 <button
@@ -390,50 +404,54 @@ export default function CreateReport({
                   ) : (
                     <span className="severity-dot" />
                   )}
-                  {severities[value]}
+                  {t(severities[value])}
                 </button>
               ))}
             </div>
             {severity === 'critical' && (
               <div className="notice warning">
-                هذه منصة متابعة تجريبية وليست قناة للطوارئ. ابتعد عن الخطر واطلب المساعدة العاجلة من
-                الجهة المختصة عند الحاجة.
+                {t(
+                  'هذه منصة متابعة تجريبية وليست قناة للطوارئ. ابتعد عن الخطر واطلب المساعدة العاجلة من الجهة المختصة عند الحاجة.',
+                )}
               </div>
             )}
             <label className="field-label" htmlFor="description">
-              تفاصيل تساعدنا <span>اختياري</span>
+              {t('تفاصيل تساعدنا')} <span>{t('اختياري')}</span>
             </label>
             <textarea
               id="description"
               rows={3}
               maxLength={500}
-              value={description}
+              value={t(description)}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="مثلًا: أمام مدخل الشارع، وتشكّل خطرًا على المارة…"
+              placeholder={t('مثلًا: أمام مدخل الشارع، وتشكّل خطرًا على المارة…')}
             />
             <span className="character-count">{description.length} / 500</span>
           </>
         )}
         {step === 3 && (
           <>
-            <h2 id="wizard-title">بلاغك جاهز للمراجعة</h2>
-            <p className="muted">تأكد من التفاصيل قبل الإرسال.</p>
+            <h2 id="wizard-title">{t('بلاغك جاهز للمراجعة')}</h2>
+            <p className="muted">{t('تأكد من التفاصيل قبل الإرسال.')}</p>
             <div className="review-card">
-              <img src={photo} alt="صورة البلاغ للمراجعة" />
+              <img src={photo} alt={t('صورة البلاغ للمراجعة')} />
               <div>
-                <h3>{category?.labelAr}</h3>
+                <h3>{bilingual(category?.labelAr, category?.labelEn)}</h3>
                 <p>
                   <MapPin size={15} />
-                  {location?.district}، القاهرة
+                  {t(location?.district)}
+                  {t('، القاهرة')}
                 </p>
-                <span className={`severity-tag severity-${severity}`}>{severities[severity]}</span>
+                <span className={`severity-tag severity-${severity}`}>
+                  {t(severities[severity])}
+                </span>
               </div>
             </div>
-            {description && <p className="review-description">{description}</p>}
+            {description && <p className="review-description">{t(description)}</p>}
             {duplicates.length > 0 && (
               <div className="duplicate-box">
-                <h3>يبدو أن المشكلة أُبلغ عنها بالفعل</h3>
-                <p>وجدنا بلاغًا من النوع نفسه في نطاق ٣٠ مترًا. يمكنك تأكيد استمراره.</p>
+                <h3>{t('يبدو أن المشكلة أُبلغ عنها بالفعل')}</h3>
+                <p>{t('وجدنا بلاغًا من النوع نفسه في نطاق ٣٠ مترًا. يمكنك تأكيد استمراره.')}</p>
                 {duplicates.map((report) => (
                   <div key={report.id}>
                     <span dir="ltr">{report.publicId}</span>
@@ -443,18 +461,19 @@ export default function CreateReport({
                       disabled={busy}
                       onClick={() => confirm(report)}
                     >
-                      المشكلة ما زالت موجودة
+                      {t('المشكلة ما زالت موجودة')}
                     </button>
                   </div>
                 ))}
-                <small>إذا كانت مشكلة مختلفة، يمكنك إرسال بلاغ مستقل.</small>
+                <small>{t('إذا كانت مشكلة مختلفة، يمكنك إرسال بلاغ مستقل.')}</small>
               </div>
             )}
             <div className="notice">
               <ShieldCheck size={21} />
               <span>
-                يُراجع البلاغ قبل إتاحته للعامة. تذهب إشعارات هذه النسخة لصندوق اختبار فقط، ولا
-                تُرسل لجهة حكومية.
+                {t(
+                  'يُراجع البلاغ قبل إتاحته للعامة. تذهب إشعارات هذه النسخة لصندوق اختبار فقط، ولا تُرسل لجهة حكومية.',
+                )}
               </span>
             </div>
           </>
@@ -464,39 +483,39 @@ export default function CreateReport({
             <span className="success-circle">
               <CheckCheck size={39} />
             </span>
-            <span className="eyebrow">خطوة أقرب لطريق أأمن</span>
-            <h2 id="wizard-title">تم تسجيل مساهمتك</h2>
+            <span className="eyebrow">{t('خطوة أقرب لطريق أأمن')}</span>
+            <h2 id="wizard-title">{t('تم تسجيل مساهمتك')}</h2>
             <p>
               {result.status === 'under_review'
-                ? 'بلاغك تحت المراجعة قبل ظهوره للعامة.'
-                : 'يمكنك الآن متابعة حالة البلاغ من حسابك.'}
+                ? t('بلاغك تحت المراجعة قبل ظهوره للعامة.')
+                : t('يمكنك الآن متابعة حالة البلاغ من حسابك.')}
             </p>
             <div className="submitted-id">
-              <span>رقم البلاغ</span>
+              <span>{t('رقم البلاغ')}</span>
               <strong dir="ltr">{result.publicId}</strong>
               <span>
                 <MapPin size={15} />
-                {result.districtName}
+                {bilingual(result.districtName, result.districtNameEn)}
               </span>
             </div>
             <div className="notice">
-              الإشعارات تجريبية ومحفوظة بصندوق الاختبار. لم يتم إرسال بلاغ إلى جهة حكومية.
+              {t('الإشعارات تجريبية ومحفوظة بصندوق الاختبار. لم يتم إرسال بلاغ إلى جهة حكومية.')}
             </div>
             <button className="button primary full" onClick={() => onSubmitted(result)}>
-              متابعة البلاغ
+              {t('متابعة البلاغ')}
               <ArrowLeft size={18} />
             </button>
           </div>
         )}
         {error && (
           <p className="form-error" role="alert">
-            {error}
+            {t(error)}
           </p>
         )}
         {busy && step > 0 && (
           <p className="loading-line" role="status">
             <LoaderCircle size={16} className="spin" />
-            جارٍ إتمام الطلب…
+            {t('جارٍ إتمام الطلب…')}
           </p>
         )}
         {step > 0 && step < 4 && (
@@ -507,7 +526,7 @@ export default function CreateReport({
               disabled={busy}
             >
               <ArrowRight size={17} />
-              {step === 1 ? 'إلغاء' : 'رجوع'}
+              {step === 1 ? t('إلغاء') : t('رجوع')}
             </button>
             <button
               className="button primary"
@@ -516,7 +535,7 @@ export default function CreateReport({
               }
               onClick={() => (step === 1 ? setStep(2) : step === 2 ? review() : submit())}
             >
-              {step === 3 ? 'إرسال البلاغ' : 'متابعة'}
+              {step === 3 ? t('إرسال البلاغ') : t('متابعة')}
               {step === 3 ? <Check size={18} /> : <ArrowLeft size={18} />}
             </button>
           </div>

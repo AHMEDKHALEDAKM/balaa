@@ -278,7 +278,7 @@ img {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  text-align: right;
+  text-align: start;
   font-size: 28px;
   font-weight: 800;
   line-height: 1.1;
@@ -337,7 +337,7 @@ img {
   border-radius: 2px 2px 0 0;
 }
 .header-actions {
-  margin-right: auto;
+  margin-inline-start: auto;
   display: flex;
   gap: 20px;
   align-items: center;
@@ -657,7 +657,7 @@ img {
   align-items: center;
   justify-content: center;
   gap: 18px;
-  border-right: 1px solid var(--line);
+  border-inline-start: 1px solid var(--line);
 }
 .impact-stat strong {
   font-size: 29px;
@@ -883,7 +883,7 @@ img {
   gap: 22px;
 }
 .report-card {
-  text-align: right;
+  text-align: start;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 14px;
@@ -1031,7 +1031,7 @@ img {
   color: #7b8c55;
 }
 .community-banner .button {
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .site-footer {
   max-width: 1250px;
@@ -1406,7 +1406,7 @@ img {
   gap: 13px;
 }
 .location-heading > svg:last-child {
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .location-heading h3 {
   font-size: 12px;
@@ -1432,7 +1432,7 @@ img {
 }
 .coordinate {
   display: block;
-  text-align: right;
+  text-align: start;
   font-size: 9px;
   color: var(--muted);
   margin-top: 11px;
@@ -1474,7 +1474,7 @@ img {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 11px;
-  text-align: right;
+  text-align: start;
   font-size: 10px;
   display: flex;
   align-items: center;
@@ -1627,7 +1627,7 @@ img {
   font-size: 9px;
   padding: 7px 10px;
   min-height: 30px;
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .duplicate-box > small {
   font-size: 9px;
@@ -1690,7 +1690,7 @@ img {
   letter-spacing: 2px;
 }
 .submitted-panel > .notice {
-  text-align: right;
+  text-align: start;
 }
 .form-error {
   background: #fff0eb;
@@ -2010,14 +2010,14 @@ img {
   border-radius: 10px;
   padding: 13px;
   margin: 5px 0;
-  text-align: right;
+  text-align: start;
 }
 .role-option:hover {
   border-color: var(--teal);
   background: #f6f9f1;
 }
 .role-option > svg:last-child {
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .role-option strong {
   font-size: 11px;
@@ -2042,7 +2042,7 @@ img {
   min-height: 690px;
 }
 .console-sidebar {
-  border-left: 1px solid var(--line);
+  border-inline-end: 1px solid var(--line);
   padding: 33px 22px;
   display: flex;
   flex-direction: column;
@@ -2076,7 +2076,7 @@ img {
   align-items: center;
   gap: 10px;
   padding: 12px 11px;
-  text-align: right;
+  text-align: start;
   border-radius: 8px;
 }
 .console-sidebar nav button.active {
@@ -2224,7 +2224,7 @@ img {
   width: 100%;
   border-collapse: collapse;
   white-space: nowrap;
-  text-align: right;
+  text-align: start;
 }
 .report-table th {
   font-size: 9px;
@@ -2269,7 +2269,7 @@ img {
   color: #9aa38f;
   display: block;
   margin-top: 6px;
-  text-align: right;
+  text-align: start;
   letter-spacing: 0.5px;
 }
 .report-table .table-date {
@@ -2431,7 +2431,7 @@ img {
   background: white;
   padding: 15px 23px;
   border-bottom: 1px solid #edf0e7;
-  text-align: right;
+  text-align: start;
 }
 .admin-category-row strong {
   font-size: 11px;
@@ -2447,11 +2447,11 @@ img {
 .active-category {
   font-size: 9px;
   color: var(--teal);
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .admin-category-row > .muted {
   font-size: 9px;
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 .admin-category-row > svg {
   color: #9fab92;
@@ -2499,7 +2499,7 @@ img {
 .outbox-item p {
   font-size: 10px;
   color: var(--muted);
-  text-align: right;
+  text-align: start;
   margin: 5px 0;
 }
 .outbox-item small {
@@ -2507,7 +2507,7 @@ img {
   color: #99a18e;
 }
 .outbox-item > svg {
-  margin-right: auto;
+  margin-inline-start: auto;
   color: #81a46e;
 }
 .standalone-map {
@@ -2788,7 +2788,7 @@ img {
     font-size: 7px;
   }
   .header-actions {
-    margin-right: auto;
+    margin-inline-start: auto;
     gap: 10px;
   }
   .header-report {
@@ -2967,7 +2967,7 @@ img {
     flex-wrap: wrap;
   }
   .site-footer > div:nth-child(2) {
-    margin-right: auto;
+    margin-inline-start: auto;
   }
   .site-footer > button {
     display: none;
@@ -4078,5 +4078,123 @@ select {
   }
   .console-heading h1 {
     font-size: 25px;
+  }
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+.language-switch {
+  min-width: 48px;
+  min-height: 44px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+html[dir='ltr'] .hero-title {
+  letter-spacing: -0.04em;
+  line-height: 1.12;
+}
+html[dir='ltr'] .hero-title span {
+  white-space: normal;
+}
+html[dir='ltr'] .lucide-arrow-left,
+html[dir='ltr'] .lucide-arrow-up-left,
+html[dir='ltr'] .lucide-chevron-left {
+  transform: scaleX(-1);
+}
+@media (max-width: 600px) {
+  .brand-logo {
+    width: 48px;
+    height: 48px;
+  }
+  .header-actions {
+    gap: 6px;
+  }
+  .language-switch {
+    font-size: 13px;
+  }
+  .brand-english {
+    display: none;
+  }
+}
+
+/* Allow translated phrases to wrap without widening the viewport. */
+.hero-copy,
+.hero-art,
+.console-main {
+  min-width: 0;
+}
+.hero-buttons {
+  flex-wrap: wrap;
+}
+.hero-trust > span {
+  min-width: 0;
+}
+html[dir='ltr'] .hero h1 {
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+}
+@media (max-width: 600px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero h1 {
+    font-size: clamp(32px, 9vw, 42px);
+  }
+  .hero-buttons {
+    gap: 8px;
+  }
+  .hero-buttons .button {
+    white-space: normal;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .main-nav {
+    overflow-x: auto;
+  }
+  .main-nav button {
+    flex-shrink: 0;
+  }
+  .map-legend {
+    flex-wrap: wrap;
+    max-width: calc(100% - 30px);
+    gap: 6px;
+    font-size: 11px;
+  }
+}
+.console-sidebar,
+.reports-panel,
+.admin-categories {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .console-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .console-sidebar nav {
+    max-width: 100%;
+  }
+  .console-main {
+    width: 100%;
+  }
+  .report-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+  }
+  .panel-heading,
+  .filter-tabs {
+    max-width: 100%;
   }
 }

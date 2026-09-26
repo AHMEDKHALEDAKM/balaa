@@ -1,4 +1,7 @@
 'use client';
+import { LanguageSwitch } from '../components/LanguageProvider';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useCallback, useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -16,7 +19,7 @@ import {
   X,
 } from 'lucide-react';
 import { Brand } from '../components/Brand';
-import { api, Category, number, Report, User } from '../components/model';
+import { api, Category, Report, User } from '../components/model';
 import { EmptyState, ReportCard } from '../components/ReportCard';
 import PublicMap from '../components/PublicMap';
 import CreateReport from '../components/CreateReport';
@@ -25,6 +28,7 @@ import Dashboard from '../components/Dashboard';
 
 type View = 'home' | 'map' | 'my' | 'dashboard';
 export default function Home() {
+  const { t, number } = useLocale();
   const [view, setView] = useState<View>('home');
   const [user, setUser] = useState<User | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
@@ -102,62 +106,63 @@ export default function Home() {
       <div className="prototype-bar">
         <span>
           <span className="prototype-dot" />
-          نسخة تجريبية مفتوحة المصدر
+          {t('نسخة تجريبية مفتوحة المصدر')}
         </span>
-        <span>مبادرة مستقلة · بدون تكامل أو اعتماد حكومي</span>
+        <span>{t('مبادرة مستقلة · بدون تكامل أو اعتماد حكومي')}</span>
       </div>
       <header className="site-header">
         <div className="header-inner">
           <button
             className="brand-button"
-            aria-label="بلاعة، الصفحة الرئيسية"
+            aria-label={t('بلاعة، الصفحة الرئيسية')}
             onClick={() => navigate('home')}
           >
             <Brand />
           </button>
-          <nav className="main-nav" aria-label="التنقل الرئيسي">
+          <nav className="main-nav" aria-label={t('التنقل الرئيسي')}>
             <button className={view === 'home' ? 'active' : ''} onClick={() => navigate('home')}>
-              الرئيسية
+              {t('الرئيسية')}
             </button>
             <button className={view === 'map' ? 'active' : ''} onClick={() => navigate('map')}>
-              خريطة البلاغات
+              {t('خريطة البلاغات')}
             </button>
             <button className={view === 'my' ? 'active' : ''} onClick={() => navigate('my')}>
-              بلاغاتي
+              {t('بلاغاتي')}
             </button>
             <button
               className={view === 'dashboard' ? 'active' : ''}
               onClick={() => navigate('dashboard')}
             >
-              لوحة الأحياء
+              {t('لوحة الأحياء')}
               <ArrowUpLeft size={13} />
             </button>
           </nav>
           <div className="header-actions">
+            <LanguageSwitch />
             {user ? (
-              <button className="account-button" onClick={logout} title="تسجيل الخروج">
-                <span className="account-avatar">{user.role === 'citizen' ? 'م' : 'ف'}</span>
-                <span>{user.role === 'citizen' ? 'مواطن تجريبي' : 'فريق العمل'}</span>
+              <button className="account-button" onClick={logout} title={t('تسجيل الخروج')}>
+                <span className="account-avatar">{user.role === 'citizen' ? t('م') : t('ف')}</span>
+                <span>{user.role === 'citizen' ? t('مواطن تجريبي') : t('فريق العمل')}</span>
                 <LogOut size={15} />
               </button>
             ) : (
               <span className="header-location">
                 <MapPin size={16} />
-                القاهرة
+                {t('القاهرة')}
               </span>
             )}
             <button className="button primary header-report" onClick={() => setCreate(true)}>
               <Plus size={18} />
-              بلّغ عن مشكلة
+              {t('بلّغ عن مشكلة')}
             </button>
           </div>
         </div>
       </header>
       {error && (
         <div className="global-error" role="alert">
-          {error}
+          {t(error)}
           <button className="text-button" onClick={refresh}>
-            إعادة المحاولة
+            {t('إعادة المحاولة')}
           </button>
         </div>
       )}
@@ -171,32 +176,32 @@ export default function Home() {
                 <div className="hero-copy">
                   <span className="hero-eyebrow">
                     <span />
-                    مع بعض، شوارعنا أأمن
+                    {t('مع بعض، شوارعنا أأمن')}
                   </span>
                   <h1>
-                    بلّغ. تابع.
+                    {t('بلّغ. تابع.')}
                     <br />
-                    خلّي الطريق <em>أأمن.</em>
+                    {t('خلّي الطريق')} <em>{t('أأمن.')}</em>
                   </h1>
                   <p>
-                    حفرة، بلاعة مفتوحة، أو مشكلة في الطريق؟
+                    {t('حفرة، بلاعة مفتوحة، أو مشكلة في الطريق؟')}
                     <br />
-                    صوّرها، حدّد مكانها، وتابع بلاغك لحد ما تتحل.
+                    {t('صوّرها، حدّد مكانها، وتابع بلاغك لحد ما تتحل.')}
                   </p>
                   <div className="hero-buttons">
                     <button className="button primary large" onClick={() => setCreate(true)}>
                       <Plus size={21} />
-                      بلّغ عن مشكلة
+                      {t('بلّغ عن مشكلة')}
                       <ArrowLeft size={19} />
                     </button>
                     <button className="button ghost" onClick={() => setOnboarding(true)}>
-                      إزاي بلاعة بتشتغل؟
+                      {t('إزاي بلاعة بتشتغل؟')}
                       <ArrowUpLeft size={17} />
                     </button>
                   </div>
                   <div className="hero-trust">
                     <ShieldCheck size={17} />
-                    <span>هويتك خاصة. وأثر مشاركتك للجميع.</span>
+                    <span>{t('هويتك خاصة. وأثر مشاركتك للجميع.')}</span>
                   </div>
                 </div>
                 <div className="hero-art" aria-hidden="true">
@@ -204,8 +209,8 @@ export default function Home() {
                   <div className="art-street street-one" />
                   <div className="art-street street-two" />
                   <div className="art-street street-three" />
-                  <span className="art-district-label label-one">المعادي</span>
-                  <span className="art-district-label label-two">شارع ٩</span>
+                  <span className="art-district-label label-one">{t('المعادي')}</span>
+                  <span className="art-district-label label-two">{t('شارع ٩')}</span>
                   <div className="art-pin pin-one">
                     <Brand compact />
                   </div>
@@ -220,13 +225,13 @@ export default function Home() {
                       <CheckCircle2 size={22} />
                     </div>
                     <span>
-                      <strong>التغيير بيبدأ ببلاغ</strong>
-                      <small>مشاركتك تصنع فرقًا في شارعك</small>
+                      <strong>{t('التغيير بيبدأ ببلاغ')}</strong>
+                      <small>{t('مشاركتك تصنع فرقًا في شارعك')}</small>
                     </span>
                   </div>
                   <div className="art-caption">
                     <span className="live-dot" />
-                    عين على الطريق، وخطوة نحو الحل
+                    {t('عين على الطريق، وخطوة نحو الحل')}
                   </div>
                   <svg className="art-route" viewBox="0 0 400 300" fill="none">
                     <path
@@ -238,11 +243,11 @@ export default function Home() {
                   </svg>
                 </div>
               </section>
-              <section className="impact-strip" aria-label="ملخص البلاغات">
+              <section className="impact-strip" aria-label={t('ملخص البلاغات')}>
                 <div className="impact-intro">
-                  <span className="eyebrow">مشاركة تتحول لأثر</span>
-                  <h2>كل بلاغ بيفرق.</h2>
-                  <span>إحصاءات بيانات العرض التجريبي</span>
+                  <span className="eyebrow">{t('مشاركة تتحول لأثر')}</span>
+                  <h2>{t('كل بلاغ بيفرق.')}</h2>
+                  <span>{t('إحصاءات بيانات العرض التجريبي')}</span>
                 </div>
                 <div className="impact-stat">
                   <span className="stat-icon">
@@ -250,7 +255,7 @@ export default function Home() {
                   </span>
                   <div>
                     <strong>{number(reports.length)}</strong>
-                    <span>بلاغ على المنصة</span>
+                    <span>{t('بلاغ على المنصة')}</span>
                   </div>
                 </div>
                 <div className="impact-stat">
@@ -259,7 +264,7 @@ export default function Home() {
                   </span>
                   <div>
                     <strong>{number(resolved)}</strong>
-                    <span>مشكلة تم حلها</span>
+                    <span>{t('مشكلة تم حلها')}</span>
                   </div>
                 </div>
                 <div className="impact-stat">
@@ -268,19 +273,19 @@ export default function Home() {
                   </span>
                   <div>
                     <strong>{number(progress)}</strong>
-                    <span>بلاغ جاري العمل عليه</span>
+                    <span>{t('بلاغ جاري العمل عليه')}</span>
                   </div>
                 </div>
               </section>
               <section className="nearby-section">
                 <div className="section-heading">
                   <div>
-                    <span className="eyebrow">اعرف اللي بيحصل حواليك</span>
-                    <h2>شارعك على الخريطة</h2>
-                    <p>شاهد المشكلات القريبة، وتابع التغيير خطوة بخطوة.</p>
+                    <span className="eyebrow">{t('اعرف اللي بيحصل حواليك')}</span>
+                    <h2>{t('شارعك على الخريطة')}</h2>
+                    <p>{t('شاهد المشكلات القريبة، وتابع التغيير خطوة بخطوة.')}</p>
                   </div>
                   <button className="button secondary" onClick={() => navigate('map')}>
-                    استكشف الخريطة
+                    {t('استكشف الخريطة')}
                     <ArrowUpLeft size={17} />
                   </button>
                 </div>
@@ -290,16 +295,16 @@ export default function Home() {
                     <span className="map-summary-icon">
                       <MapPin size={23} />
                     </span>
-                    <span className="eyebrow">نطاق النسخة الأولى</span>
-                    <h3>القاهرة، بداية الحكاية.</h3>
-                    <p>مساهمة بسيطة منك تساعد في توثيق المشكلة ومتابعة حلّها.</p>
+                    <span className="eyebrow">{t('نطاق النسخة الأولى')}</span>
+                    <h3>{t('القاهرة، بداية الحكاية.')}</h3>
+                    <p>{t('مساهمة بسيطة منك تساعد في توثيق المشكلة ومتابعة حلّها.')}</p>
                     <div className="summary-divider" />
                     <span className="summary-foot">
                       <ShieldCheck size={16} />
-                      بلاغات عامة بدون بيانات شخصية
+                      {t('بلاغات عامة بدون بيانات شخصية')}
                     </span>
                     <button className="text-button" onClick={() => navigate('map')}>
-                      عرض البلاغات
+                      {t('عرض البلاغات')}
                       <ArrowLeft size={16} />
                     </button>
                   </div>
@@ -308,18 +313,18 @@ export default function Home() {
               <section className="recent-section">
                 <div className="section-heading">
                   <div>
-                    <span className="eyebrow">من شوارعنا</span>
-                    <h2>آخر البلاغات</h2>
+                    <span className="eyebrow">{t('من شوارعنا')}</span>
+                    <h2>{t('آخر البلاغات')}</h2>
                   </div>
                   <button className="text-button" onClick={() => navigate('map')}>
-                    كل البلاغات
+                    {t('كل البلاغات')}
                     <ArrowLeft size={17} />
                   </button>
                 </div>
                 {loading ? (
                   <div className="loading-state">
                     <LoaderCircle className="spin" />
-                    جارٍ تحميل البلاغات…
+                    {t('جارٍ تحميل البلاغات…')}
                   </div>
                 ) : reports.length ? (
                   <div className="report-grid">
@@ -336,11 +341,11 @@ export default function Home() {
                   <Route size={28} />
                 </span>
                 <div>
-                  <h2>الطريق مسؤوليتنا كلنا.</h2>
-                  <p>«وتُميطُ الأذى عن الطريق صدقة»</p>
+                  <h2>{t('الطريق مسؤوليتنا كلنا.')}</h2>
+                  <p>{t('«وتُميطُ الأذى عن الطريق صدقة»')}</p>
                 </div>
                 <button className="button primary" onClick={() => setCreate(true)}>
-                  ابدأ بمشاركة
+                  {t('ابدأ بمشاركة')}
                   <ArrowLeft size={17} />
                 </button>
               </section>
@@ -349,37 +354,40 @@ export default function Home() {
           {view === 'map' && (
             <>
               <div className="page-heading">
-                <span className="eyebrow">المشهد من حولك</span>
-                <h1>خريطة البلاغات</h1>
-                <p>بلاغات موثقة، متابعة واضحة، وبيانات شخصية تظل خاصة.</p>
+                <span className="eyebrow">{t('المشهد من حولك')}</span>
+                <h1>{t('خريطة البلاغات')}</h1>
+                <p>{t('بلاغات موثقة، متابعة واضحة، وبيانات شخصية تظل خاصة.')}</p>
               </div>
               <div className="map-page-toolbar">
                 <div className="filter-tabs">
                   {[
-                    ['all', 'كل البلاغات'],
-                    ['open', 'بلاغات مفتوحة'],
-                    ['in_progress', 'جاري العمل'],
-                    ['resolved', 'تم الحل'],
+                    ['all', t('كل البلاغات')],
+                    ['open', t('بلاغات مفتوحة')],
+                    ['in_progress', t('جاري العمل')],
+                    ['resolved', t('تم الحل')],
                   ].map(([value, label]) => (
                     <button
                       key={value}
                       className={status === value ? 'active' : ''}
                       onClick={() => setStatus(value!)}
                     >
-                      {label}
+                      {t(label)}
                     </button>
                   ))}
                 </div>
                 <span>
                   <MapPin size={16} />
-                  القاهرة <b>{number(filtered.length)} بلاغ</b>
+                  {t('القاهرة')}
+                  <b>
+                    {number(filtered.length)} {t('بلاغ')}
+                  </b>
                 </span>
               </div>
               <PublicMap reports={filtered} onSelect={setSelected} />
               <div className="map-page-reports">
                 <div className="section-heading">
-                  <h2>البلاغات في هذا العرض</h2>
-                  <span className="muted">الإحداثيات العامة تقريبية</span>
+                  <h2>{t('البلاغات في هذا العرض')}</h2>
+                  <span className="muted">{t('الإحداثيات العامة تقريبية')}</span>
                 </div>
                 {filtered.length ? (
                   <div className="report-grid">
@@ -396,9 +404,9 @@ export default function Home() {
           {view === 'my' && (
             <>
               <div className="page-heading">
-                <span className="eyebrow">مشاركتك وأثرها</span>
-                <h1>بلاغاتي</h1>
-                <p>تابع كل خطوة من تسجيل البلاغ إلى توثيق الحل.</p>
+                <span className="eyebrow">{t('مشاركتك وأثرها')}</span>
+                <h1>{t('بلاغاتي')}</h1>
+                <p>{t('تابع كل خطوة من تسجيل البلاغ إلى توثيق الحل.')}</p>
               </div>
               {user?.role === 'citizen' ? (
                 mine.length ? (
@@ -410,12 +418,14 @@ export default function Home() {
                 ) : (
                   <div className="my-empty">
                     <EmptyState
-                      title="أول مساهمة تبدأ منك"
-                      description="لم تسجّل أي بلاغات بعد. لو لاحظت مشكلة في الطريق، وثّقها بصورة."
+                      title={t('أول مساهمة تبدأ منك')}
+                      description={t(
+                        'لم تسجّل أي بلاغات بعد. لو لاحظت مشكلة في الطريق، وثّقها بصورة.',
+                      )}
                     />
                     <button className="button primary" onClick={() => setCreate(true)}>
                       <Plus size={18} />
-                      إنشاء أول بلاغ
+                      {t('إنشاء أول بلاغ')}
                     </button>
                   </div>
                 )
@@ -424,13 +434,15 @@ export default function Home() {
                   <span className="feature-icon large">
                     <ShieldCheck size={35} />
                   </span>
-                  <h2>بلاغاتك في مكان واحد</h2>
-                  <p>استخدم حساب مواطن تجريبي لإنشاء بلاغاتك ومتابعتها.</p>
+                  <h2>{t('بلاغاتك في مكان واحد')}</h2>
+                  <p>{t('استخدم حساب مواطن تجريبي لإنشاء بلاغاتك ومتابعتها.')}</p>
                   <button className="button primary" onClick={() => setCreate(true)}>
-                    متابعة عبر مصر الرقمية
+                    {t('متابعة عبر مصر الرقمية')}
                     <ArrowLeft size={18} />
                   </button>
-                  <span className="microcopy">محاكاة مستقلة. لا يوجد اتصال بخدمة هوية حكومية.</span>
+                  <span className="microcopy">
+                    {t('محاكاة مستقلة. لا يوجد اتصال بخدمة هوية حكومية.')}
+                  </span>
                 </div>
               )}
             </>
@@ -440,14 +452,14 @@ export default function Home() {
       <footer className="site-footer">
         <div>
           <Brand />
-          <p>بنية مفتوحة لمشاركة تصنع طريقًا أأمن.</p>
+          <p>{t('بنية مفتوحة لمشاركة تصنع طريقًا أأمن.')}</p>
         </div>
         <div>
-          <span>بلاعة · مشروع مجتمعي مفتوح المصدر</span>
-          <small>نسخة تجريبية. الهوية والحدود والإشعارات للعرض فقط.</small>
+          <span>{t('بلاعة · مشروع مجتمعي مفتوح المصدر')}</span>
+          <small>{t('نسخة تجريبية. الهوية والحدود والإشعارات للعرض فقط.')}</small>
         </div>
         <button onClick={() => setOnboarding(true)}>
-          عن المبادرة
+          {t('عن المبادرة')}
           <ArrowUpLeft size={15} />
         </button>
       </footer>
@@ -488,30 +500,30 @@ export default function Home() {
               <Brand />
               <button
                 className="icon-button"
-                aria-label="إغلاق"
+                aria-label={t('إغلاق')}
                 onClick={() => setOnboarding(false)}
               >
                 <X size={20} />
               </button>
             </div>
             <h2 id="onboarding-title">
-              بلاغ بسيط.
+              {t('بلاغ بسيط.')}
               <br />
-              أثر نقدر نتابعه.
+              {t('أثر نقدر نتابعه.')}
             </h2>
-            <p>بلاعة مبادرة مستقلة لتوثيق مشكلات الطرق وتسهيل متابعتها.</p>
+            <p>{t('بلاعة مبادرة مستقلة لتوثيق مشكلات الطرق وتسهيل متابعتها.')}</p>
             <div className="onboarding-steps">
               {[
-                { icon: Plus, title: 'صوّر وبلّغ', text: 'صورة للمشكلة مع موقعها ونوعها.' },
+                { icon: Plus, title: t('صوّر وبلّغ'), text: t('صورة للمشكلة مع موقعها ونوعها.') },
                 {
                   icon: MapPin,
-                  title: 'نعرف الحي المختص',
-                  text: 'نربط الموقع بحدود الحي وننشئ رقم متابعة.',
+                  title: t('نعرف الحي المختص'),
+                  text: t('نربط الموقع بحدود الحي وننشئ رقم متابعة.'),
                 },
                 {
                   icon: CheckCircle2,
-                  title: 'تابع لحد الحل',
-                  text: 'حالة واضحة، وسجل متابعة، وصور قبل وبعد.',
+                  title: t('تابع لحد الحل'),
+                  text: t('حالة واضحة، وسجل متابعة، وصور قبل وبعد.'),
                 },
               ].map((item, index) => (
                 <div key={item.title}>
@@ -529,8 +541,9 @@ export default function Home() {
               ))}
             </div>
             <div className="notice">
-              النسخة الحالية تجربة مفتوحة المصدر: التحقق من الهوية محاكاة، وحدود الأحياء توضيحية،
-              والإشعارات محفوظة بصندوق اختبار.
+              {t(
+                'النسخة الحالية تجربة مفتوحة المصدر: التحقق من الهوية محاكاة، وحدود الأحياء توضيحية، والإشعارات محفوظة بصندوق اختبار.',
+              )}
             </div>
             <button
               className="button primary full"
@@ -539,7 +552,7 @@ export default function Home() {
                 setCreate(true);
               }}
             >
-              خلّي مشاركتك أول خطوة
+              {t('خلّي مشاركتك أول خطوة')}
               <ArrowLeft size={18} />
             </button>
           </section>

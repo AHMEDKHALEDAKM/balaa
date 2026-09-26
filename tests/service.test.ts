@@ -199,3 +199,13 @@ describe('Reports and access', () => {
     expect(sessionUser(state, token)).toBeNull();
   });
 });
+
+it('exposes bilingual configured labels and preserves original descriptions', async () => {
+  const report = await submitReport(state, citizen, input());
+  const stored = state.reports.find((r) => r.id === report.id)!;
+  state.categories.find((c) => c.id === stored.categoryId)!.labelEn = 'Custom category';
+  const result = dto(state, stored);
+  expect(result.categoryLabelEn).toBe('Custom category');
+  expect(result.description).toBe(stored.description);
+  expect(result.districtNameEn).toBe('Maadi');
+});

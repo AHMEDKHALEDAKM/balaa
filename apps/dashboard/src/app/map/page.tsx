@@ -1,4 +1,7 @@
 'use client';
+import { LanguageSwitch } from '../../components/LanguageProvider';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Brand } from '../../components/Brand';
@@ -6,6 +9,7 @@ import PublicMap from '../../components/PublicMap';
 import ReportDetail from '../../components/ReportDetail';
 import { api, Report } from '../../components/model';
 export default function MapPage() {
+  const { t } = useLocale();
   const [focus, setFocus] = useState<{ latitude: number; longitude: number }>();
   const [reports, setReports] = useState<Report[]>([]);
   const [selected, setSelected] = useState<Report | null>(null);
@@ -44,18 +48,19 @@ export default function MapPage() {
     <div className={`standalone-map ${embedded ? 'embedded' : ''}`}>
       {!embedded && (
         <header>
+          <LanguageSwitch />
           <a href="/">
             <Brand />
           </a>
           <a className="button secondary" href="/">
             <ArrowRight size={16} />
-            الرئيسية
+            {t('الرئيسية')}
           </a>
         </header>
       )}
       {error && (
         <div className="form-error" role="alert">
-          {error}
+          {t(error)}
         </div>
       )}
       <PublicMap focus={focus} reports={reports} onSelect={select} selectedId={selected?.id} />

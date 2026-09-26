@@ -1,9 +1,13 @@
 'use client';
+import { LanguageSwitch } from '../../../components/LanguageProvider';
+import { useLocale } from '@balaa/ui/locale';
+
 import { use, useCallback, useEffect, useState } from 'react';
 import { api, type Report, type User } from '../../../components/model';
 import ReportDetail from '../../../components/ReportDetail';
 import { Brand } from '../../../components/Brand';
 export default function PublicReportPage({ params }: { params: Promise<{ id: string }> }) {
+  const { t } = useLocale();
   const { id } = use(params);
   const [report, setReport] = useState<Report | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -27,14 +31,15 @@ export default function PublicReportPage({ params }: { params: Promise<{ id: str
   }, [refresh]);
   return (
     <main className="page-container">
+      <LanguageSwitch />
       <a href="/">
         <Brand />
       </a>
-      <p>نسخة تجريبية مستقلة — لا يوجد تكامل حكومي.</p>
+      <p>{t('نسخة تجريبية مستقلة — لا يوجد تكامل حكومي.')}</p>
       {error ? (
-        <p role="alert">{error}</p>
+        <p role="alert">{t(error)}</p>
       ) : !report ? (
-        <p role="status">جارٍ تحميل البلاغ…</p>
+        <p role="status">{t('جارٍ تحميل البلاغ…')}</p>
       ) : (
         <ReportDetail
           report={report}

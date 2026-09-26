@@ -39,8 +39,10 @@ export interface PublicReport {
   publicId: string;
   categoryId: string;
   categoryLabel: string;
+  categoryLabelEn?: string;
   districtId: string;
   districtName: string;
+  districtNameEn?: string;
   status: ReportStatus;
   moderationStatus: ModerationStatus;
   severity: Severity;

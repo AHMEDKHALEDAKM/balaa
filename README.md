@@ -2,7 +2,7 @@
 
 **بلّغ. تابع. خلّي الطريق أأمن.**
 
-Independent open-source civic-tech prototype for reporting and tracking road problems. Arabic RTL, Android first, with an iOS-compatible Expo app and responsive Next.js district dashboard.
+Independent open-source civic-tech prototype for reporting and tracking road problems. Arabic RTL and English LTR, Android first, with an iOS-compatible Expo app and responsive Next.js district dashboard.
 
 **This is an independent open-source civic-tech prototype. The current Digital Egypt login is a mock demonstration. No official government integration, partnership or endorsement is implied.** No national ID numbers are requested or stored. No messages are delivered to government addresses.
 
@@ -25,6 +25,12 @@ Open [localhost:3000](http://localhost:3000). No external credentials or Docker 
 6. Sign out, enter **مدير المنصة**, then inspect the test inbox, categories and account review. **مراجع المحتوى** demonstrates the moderation queue. A description containing `[flag]` is held for review.
 
 These buttons create local demo sessions; they are not a production staff authentication mechanism. Run only on a trusted development network.
+
+## Logo, languages and installing on a phone
+
+The supplied logo is included. Switch **EN / العربية** in the web or mobile header; your preference is saved. Arabic interface wording has been reviewed and corrected. Citizen-written descriptions are retained as submitted.
+
+[GitHub + Android/iPhone installation guide](docs/GITHUB-AND-PHONE.md) · [Brand and Arabic review](docs/BRAND-AND-LANGUAGES.md)
 
 ## Mobile
 

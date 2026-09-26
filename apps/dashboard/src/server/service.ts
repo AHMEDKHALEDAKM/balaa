@@ -1,6 +1,6 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { identityProvider, DemoModerationProvider, notificationProvider } from '@balaa/config';
-import { distanceMeters, publicCoordinate, resolveDistrict } from '@balaa/geo';
+import { distanceMeters, publicCoordinate, resolveDistrict, demoBoundaries } from '@balaa/geo';
 import {
   canTransition,
   openStatuses,
@@ -50,6 +50,8 @@ export function dto(state: State, report: StoredReport, staff = false): PublicRe
     categoryId: report.categoryId,
     categoryLabel:
       state.categories.find((c) => c.id === report.categoryId)?.labelAr || report.categoryId,
+    categoryLabelEn: state.categories.find((c) => c.id === report.categoryId)?.labelEn,
+    districtNameEn: demoBoundaries.find((d) => d.id === report.districtId)?.nameEn,
     districtId: report.districtId,
     districtName: report.districtName,
     status: report.status,

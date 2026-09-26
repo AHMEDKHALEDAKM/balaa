@@ -1,4 +1,6 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -20,18 +22,7 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import {
-  api,
-  Category,
-  date,
-  fileData,
-  number,
-  Report,
-  severities,
-  Status,
-  statuses,
-  User,
-} from './model';
+import { api, Category, fileData, Report, severities, Status, statuses, User } from './model';
 import { EmptyState, StatusBadge } from './ReportCard';
 import AbuseReview from './AbuseReview';
 import { useDialog } from './useDialog';
@@ -47,6 +38,7 @@ export default function Dashboard({
   onLogin: (user: User) => void;
   onRefresh: () => void;
 }) {
+  const { t, bilingual, date, number } = useLocale();
   const [backend, setBackend] = useState('demo');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -143,9 +135,9 @@ export default function Dashboard({
         note:
           note.trim() ||
           (status === 'acknowledged'
-            ? 'تم استلام البلاغ'
+            ? t('تم استلام البلاغ')
             : status === 'in_progress'
-              ? 'بدأ العمل على البلاغ'
+              ? t('بدأ العمل على البلاغ')
               : ''),
         imageUrl: resolution || undefined,
         duplicateOf: duplicateOf || undefined,
@@ -153,7 +145,7 @@ export default function Dashboard({
       setNote('');
       setAction(null);
       setResolution('');
-      setMessage('تم تحديث حالة البلاغ وتسجيل الإجراء.');
+      setMessage(t('تم تحديث حالة البلاغ وتسجيل الإجراء.'));
       await load();
       onRefresh();
     } catch (e) {
@@ -169,7 +161,7 @@ export default function Dashboard({
     try {
       await api(`/api/dashboard/reports/${selected.id}/notes`, { note });
       setNote('');
-      setMessage('تم حفظ الملاحظة الداخلية. لا تظهر للمواطنين.');
+      setMessage(t('تم حفظ الملاحظة الداخلية. لا تظهر للمواطنين.'));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -219,12 +211,12 @@ export default function Dashboard({
     try {
       await api(`/api/moderation/${selected.id}`, {
         decision,
-        note: note.trim() || 'تمت مراجعة المحتوى يدويًا',
+        note: note.trim() || t('تمت مراجعة المحتوى يدويًا'),
         ...(backend === 'supabase' ? { redactionConfirmed } : {}),
       });
       setSelected(null);
       setNote('');
-      setMessage('تم حفظ قرار المراجعة.');
+      setMessage(t('تم حفظ قرار المراجعة.'));
       await load();
       onRefresh();
     } catch (e) {
@@ -240,7 +232,7 @@ export default function Dashboard({
       await api('/api/admin/categories', { ...categoryForm, id: categoryForm.id || undefined });
       setCategoryForm({ id: '', labelAr: '', labelEn: '', icon: 'circle', active: true });
       onRefresh();
-      setMessage('تم حفظ التصنيف.');
+      setMessage(t('تم حفظ التصنيف.'));
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -259,7 +251,7 @@ export default function Dashboard({
           : filter === 'new'
             ? ['submitted', 'delivered'].includes(report.status)
             : report.status === filter) &&
-      `${report.publicId} ${report.categoryLabel} ${report.districtName}`
+      `${report.publicId} ${bilingual(report.categoryLabel, report.categoryLabelEn)} ${bilingual(report.districtName, report.districtNameEn)}`
         .toLowerCase()
         .includes(search.toLowerCase()),
   );
@@ -267,34 +259,36 @@ export default function Dashboard({
     return (
       <div className="staff-login">
         <div className="staff-login-story">
-          <span className="eyebrow">مساحة فرق الأحياء</span>
+          <span className="eyebrow">{t('مساحة فرق الأحياء')}</span>
           <h1>
-            كل بلاغ،
+            {t('كل بلاغ،')}
             <br />
-            <em>فرصة لتحسين الطريق.</em>
+            <em>{t('فرصة لتحسين الطريق.')}</em>
           </h1>
-          <p>تابع البلاغات الواردة، نسّق العمل، ووثّق الحل في مكان واحد.</p>
+          <p>{t('تابع البلاغات الواردة، نسّق العمل، ووثّق الحل في مكان واحد.')}</p>
           <div className="staff-feature">
             <ShieldCheck size={23} />
-            <span>صلاحيات محددة لكل حي</span>
+            <span>{t('صلاحيات محددة لكل حي')}</span>
           </div>
           <div className="staff-feature">
             <FileText size={23} />
-            <span>سجل واضح لكل إجراء</span>
+            <span>{t('سجل واضح لكل إجراء')}</span>
           </div>
           <div className="staff-feature">
             <CheckCircle2 size={23} />
-            <span>حلول موثقة بالصور</span>
+            <span>{t('حلول موثقة بالصور')}</span>
           </div>
-          <span className="staff-story-bottom">بلاعة / البنية التحتية للمشاركة المجتمعية</span>
+          <span className="staff-story-bottom">
+            {t('بلاعة / البنية التحتية للمشاركة المجتمعية')}
+          </span>
         </div>
         <div className="staff-login-card">
           <span className="feature-icon">
             <LayoutDashboard size={29} />
           </span>
-          <span className="demo-pill">دخول تجريبي</span>
-          <h2>مرحبًا بفريق العمل</h2>
-          <p>اختر دورًا لتجربة لوحة المتابعة. جميع الحسابات والبيانات هنا مخصصة للعرض.</p>
+          <span className="demo-pill">{t('دخول تجريبي')}</span>
+          <h2>{t('مرحبًا بفريق العمل')}</h2>
+          <p>{t('اختر دورًا لتجربة لوحة المتابعة. جميع الحسابات والبيانات هنا مخصصة للعرض.')}</p>
           <>
             {backend === 'supabase' && (
               <form
@@ -304,7 +298,7 @@ export default function Dashboard({
                 }}
               >
                 <label className="field-label" htmlFor="staff-email">
-                  البريد المسجل لدى Supabase
+                  {t('البريد المسجل لدى Supabase')}
                 </label>
                 <input
                   id="staff-email"
@@ -316,7 +310,7 @@ export default function Dashboard({
                   autoComplete="username"
                 />
                 <label className="field-label" htmlFor="staff-password">
-                  كلمة المرور
+                  {t('كلمة المرور')}
                 </label>
                 <input
                   id="staff-password"
@@ -327,7 +321,7 @@ export default function Dashboard({
                   autoComplete="current-password"
                 />
                 <button className="button primary full" disabled={loading}>
-                  دخول فريق العمل
+                  {t('دخول فريق العمل')}
                 </button>
               </form>
             )}
@@ -341,8 +335,8 @@ export default function Dashboard({
                   <MapPin size={20} />
                 </span>
                 <span>
-                  <strong>موظف حي المعادي</strong>
-                  <small>إدارة البلاغات المسندة لهذا الحي فقط</small>
+                  <strong>{t('موظف حي المعادي')}</strong>
+                  <small>{t('إدارة البلاغات المسندة لهذا الحي فقط')}</small>
                 </span>
                 <ArrowLeft size={18} />
               </button>
@@ -351,8 +345,8 @@ export default function Dashboard({
                   <ShieldCheck size={20} />
                 </span>
                 <span>
-                  <strong>مراجع المحتوى</strong>
-                  <small>مراجعة البلاغات قبل النشر</small>
+                  <strong>{t('مراجع المحتوى')}</strong>
+                  <small>{t('مراجعة البلاغات قبل النشر')}</small>
                 </span>
                 <ArrowLeft size={18} />
               </button>
@@ -365,19 +359,19 @@ export default function Dashboard({
                   <Settings2 size={20} />
                 </span>
                 <span>
-                  <strong>مدير المنصة</strong>
-                  <small>التصنيفات والمراجعة وصندوق الاختبار</small>
+                  <strong>{t('مدير المنصة')}</strong>
+                  <small>{t('التصنيفات والمراجعة وصندوق الاختبار')}</small>
                 </span>
                 <ArrowLeft size={18} />
               </button>
             </div>
           </>
           <div className="notice">
-            بيئة عرض مستقلة. لا تمثل بوابة حكومية أو وصولًا لأنظمة حقيقية.
+            {t('بيئة عرض مستقلة. لا تمثل بوابة حكومية أو وصولًا لأنظمة حقيقية.')}
           </div>
           {error && (
             <p role="alert" className="form-error">
-              {error}
+              {t(error)}
             </p>
           )}
         </div>
@@ -386,16 +380,16 @@ export default function Dashboard({
   return (
     <div className="console-layout">
       <aside className="console-sidebar">
-        <span className="sidebar-label">مساحة العمل</span>
+        <span className="sidebar-label">{t('مساحة العمل')}</span>
         <h3>
           {user.role === 'district_agent'
-            ? 'حي المعادي'
+            ? t('حي المعادي')
             : user.role === 'moderator'
-              ? 'مراجعة المحتوى'
-              : 'إدارة المنصة'}
+              ? t('مراجعة المحتوى')
+              : t('إدارة المنصة')}
         </h3>
         <span className="sidebar-role">
-          {user.role === 'district_agent' ? 'فريق متابعة البلاغات' : 'حساب تجريبي'}
+          {user.role === 'district_agent' ? t('فريق متابعة البلاغات') : t('حساب تجريبي')}
         </span>
         <nav>
           {user.role !== 'moderator' && (
@@ -407,7 +401,7 @@ export default function Dashboard({
               }}
             >
               <LayoutDashboard size={19} />
-              نظرة عامة
+              {t('نظرة عامة')}
             </button>
           )}
           {isModerator && (
@@ -419,7 +413,7 @@ export default function Dashboard({
               }}
             >
               <ShieldCheck size={19} />
-              مراجعة المحتوى
+              {t('مراجعة المحتوى')}
             </button>
           )}
           {isAdmin && (
@@ -429,88 +423,89 @@ export default function Dashboard({
                 onClick={() => setTab('categories')}
               >
                 <Settings2 size={19} />
-                التصنيفات
+                {t('التصنيفات')}
               </button>
               <button className={tab === 'outbox' ? 'active' : ''} onClick={() => setTab('outbox')}>
                 <Inbox size={19} />
-                صندوق الاختبار
+                {t('صندوق الاختبار')}
               </button>
               <button className={tab === 'abuse' ? 'active' : ''} onClick={() => setTab('abuse')}>
                 <ShieldCheck size={19} />
-                مراجعة الحسابات
+                {t('مراجعة الحسابات')}
               </button>
             </>
           )}
         </nav>
         <div className="sidebar-note">
           <ShieldCheck size={22} />
-          <p>خصوصية المواطن أولًا</p>
-          <small>لا تتضمن البلاغات بيانات الهوية الشخصية.</small>
+          <p>{t('خصوصية المواطن أولًا')}</p>
+          <small>{t('لا تتضمن البلاغات بيانات الهوية الشخصية.')}</small>
         </div>
       </aside>
       <div className="console-main">
         <div className="console-heading">
           <div>
-            <span className="eyebrow">لوحة متابعة الأحياء</span>
+            <span className="eyebrow">{t('لوحة متابعة الأحياء')}</span>
             <h1>
               {tab === 'reports'
-                ? 'من البلاغ إلى الحل'
+                ? t('من البلاغ إلى الحل')
                 : tab === 'moderation'
-                  ? 'مراجعة المحتوى'
+                  ? t('مراجعة المحتوى')
                   : tab === 'categories'
-                    ? 'تصنيفات المشكلات'
+                    ? t('تصنيفات المشكلات')
                     : tab === 'abuse'
-                      ? 'مراجعة الحسابات'
-                      : 'صندوق الإشعارات التجريبي'}
+                      ? t('مراجعة الحسابات')
+                      : t('صندوق الإشعارات التجريبي')}
             </h1>
             <p>
               {tab === 'reports'
-                ? 'صورة واضحة لما يحدث في الشارع، ومتابعة لكل خطوة.'
+                ? t('صورة واضحة لما يحدث في الشارع، ومتابعة لكل خطوة.')
                 : tab === 'moderation'
-                  ? 'راجع الصورة والتفاصيل قبل إتاحة البلاغ للعامة.'
+                  ? t('راجع الصورة والتفاصيل قبل إتاحة البلاغ للعامة.')
                   : tab === 'categories'
-                    ? 'تظهر التغييرات في تطبيق المواطن بدون تحديث التطبيق.'
-                    : 'جميع الإشعارات محفوظة محليًا. لا يُرسل بريد حقيقي.'}
+                    ? t('تظهر التغييرات في تطبيق المواطن بدون تحديث التطبيق.')
+                    : t('جميع الإشعارات محفوظة محليًا. لا يُرسل بريد حقيقي.')}
             </p>
           </div>
           <button className="button secondary" disabled={loading} onClick={load}>
-            {loading ? <LoaderCircle className="spin" size={16} /> : <Clock3 size={16} />}تحديث
+            {loading ? <LoaderCircle className="spin" size={16} /> : <Clock3 size={16} />}
+            {t('تحديث')}
           </button>
         </div>
         {error && (
           <p role="alert" className="form-error">
-            {error}
+            {t(error)}
           </p>
         )}
         {message && (
           <p role="status" className="success-notice">
             <Check size={16} />
-            {message}
+            {t(message)}
           </p>
         )}
         {tab === 'reports' && (
           <div className="dashboard-stats">
             <div>
-              <span>بلاغات مفتوحة</span>
+              <span>{t('بلاغات مفتوحة')}</span>
               <strong>{number(open.length)}</strong>
               <ClipboardList size={23} />
             </div>
             <div>
-              <span>جاري العمل عليها</span>
+              <span>{t('جاري العمل عليها')}</span>
               <strong>
                 {number(reports.filter((report) => report.status === 'in_progress').length)}
               </strong>
               <Clock3 size={23} />
             </div>
             <div>
-              <span>بلاغات تم حلها</span>
+              <span>{t('بلاغات تم حلها')}</span>
               <strong>
                 {number(reports.filter((report) => report.status === 'resolved').length)}
               </strong>
               <CheckCircle2 size={23} />
             </div>
             <div>
-              <span>ذات خطورة عالية</span>
+              <span>{t('ذات خطورة عالية')}</span>
               <strong>
                 {number(open.filter((report) => report.severity !== 'normal').length)}
               </strong>
@@ -522,35 +517,35 @@ export default function Dashboard({
           <div className="reports-panel">
             <div className="panel-heading">
               <h2>
-                {tab === 'moderation' ? 'قائمة المراجعة' : 'البلاغات الواردة'}{' '}
+                {tab === 'moderation' ? t('قائمة المراجعة') : t('البلاغات الواردة')}{' '}
                 <span>{number(reports.length)}</span>
               </h2>
               <label className="search-input">
                 <Search size={17} />
                 <input
-                  aria-label="بحث في البلاغات"
+                  aria-label={t('بحث في البلاغات')}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="ابحث برقم البلاغ أو نوع المشكلة"
+                  placeholder={t('ابحث برقم البلاغ أو نوع المشكلة')}
                 />
               </label>
             </div>
             {tab === 'reports' && (
               <div className="filter-tabs">
                 {[
-                  ['all', 'كل البلاغات'],
-                  ['open', 'مفتوحة'],
-                  ['new', 'جديدة'],
-                  ['in_progress', 'جاري العمل'],
-                  ['resolved', 'تم الحل'],
-                  ['high', 'خطورة عالية'],
+                  ['all', t('كل البلاغات')],
+                  ['open', t('مفتوحة')],
+                  ['new', t('جديدة')],
+                  ['in_progress', t('جاري العمل')],
+                  ['resolved', t('تم الحل')],
+                  ['high', t('خطورة عالية')],
                 ].map(([key, label]) => (
                   <button
                     className={filter === key ? 'active' : ''}
                     key={key}
                     onClick={() => setFilter(key!)}
                   >
-                    {label}
+                    {t(label)}
                   </button>
                 ))}
               </div>
@@ -559,11 +554,11 @@ export default function Dashboard({
               <table className="report-table">
                 <thead>
                   <tr>
-                    <th>البلاغ</th>
-                    <th>الحي</th>
-                    <th>الخطورة</th>
-                    <th>الحالة</th>
-                    <th>التاريخ</th>
+                    <th>{t('البلاغ')}</th>
+                    <th>{t('الحي')}</th>
+                    <th>{t('الخطورة')}</th>
+                    <th>{t('الحالة')}</th>
+                    <th>{t('التاريخ')}</th>
                     <th />
                   </tr>
                 </thead>
@@ -585,15 +580,17 @@ export default function Dashboard({
                         <div className="table-issue">
                           <img src={report.imageUrl} alt="" />
                           <span>
-                            <strong>{report.categoryLabel}</strong>
+                            <strong>
+                              {bilingual(report.categoryLabel, report.categoryLabelEn)}
+                            </strong>
                             <small dir="ltr">{report.publicId}</small>
                           </span>
                         </div>
                       </td>
-                      <td>{report.districtName}</td>
+                      <td>{bilingual(report.districtName, report.districtNameEn)}</td>
                       <td>
                         <span className={`severity-tag severity-${report.severity}`}>
-                          {severities[report.severity]}
+                          {t(severities[report.severity])}
                         </span>
                       </td>
                       <td>
@@ -601,7 +598,7 @@ export default function Dashboard({
                       </td>
                       <td className="table-date">{date(report.createdAt)}</td>
                       <td>
-                        <button className="icon-button" aria-label={`فتح ${report.publicId}`}>
+                        <button className="icon-button" aria-label={t('فتح {0}', report.publicId)}>
                           <ChevronLeft size={18} />
                         </button>
                       </td>
@@ -612,13 +609,15 @@ export default function Dashboard({
             </div>
             {!filtered.length && (
               <EmptyState
-                title={loading ? 'جارٍ تحميل البلاغات…' : 'لا توجد بلاغات مطابقة'}
-                description="جرّب تغيير عوامل التصفية أو العودة لاحقًا."
+                title={loading ? t('جارٍ تحميل البلاغات…') : t('لا توجد بلاغات مطابقة')}
+                description={t('جرّب تغيير عوامل التصفية أو العودة لاحقًا.')}
               />
             )}
             <div className="table-footer">
-              عرض {number(filtered.length)} من {number(reports.length)} بلاغ{' '}
-              <span>البيانات ضمن صلاحيات حسابك فقط</span>
+              {t('عرض')}
+              {number(filtered.length)} {t('من')}
+              {number(reports.length)} {t('بلاغ')}{' '}
+              <span>{t('البيانات ضمن صلاحيات حسابك فقط')}</span>
             </div>
           </div>
         )}
@@ -626,7 +625,7 @@ export default function Dashboard({
           <div className="admin-categories">
             <div className="reports-panel">
               <div className="panel-heading">
-                <h2>التصنيفات الحالية</h2>
+                <h2>{t('التصنيفات الحالية')}</h2>
               </div>
               {categories.map((category) => (
                 <button
@@ -635,11 +634,11 @@ export default function Dashboard({
                   onClick={() => setCategoryForm(category)}
                 >
                   <span>
-                    <strong>{category.labelAr}</strong>
+                    <strong>{bilingual(category.labelAr, category.labelEn)}</strong>
                     <small>{category.labelEn}</small>
                   </span>
                   <span className={category.active ? 'active-category' : 'muted'}>
-                    {category.active ? 'مفعّل' : 'غير مفعّل'}
+                    {category.active ? t('مفعّل') : t('غير مفعّل')}
                   </span>
                   <ChevronLeft size={18} />
                 </button>
@@ -652,9 +651,9 @@ export default function Dashboard({
                 void saveCategory();
               }}
             >
-              <h3>{categoryForm.id ? 'تعديل التصنيف' : 'إضافة تصنيف'}</h3>
+              <h3>{categoryForm.id ? t('تعديل التصنيف') : t('إضافة تصنيف')}</h3>
               <label className="field-label" htmlFor="category-ar">
-                الاسم بالعربية
+                {t('الاسم بالعربية')}
               </label>
               <input
                 id="category-ar"
@@ -663,7 +662,7 @@ export default function Dashboard({
                 onChange={(e) => setCategoryForm({ ...categoryForm, labelAr: e.target.value })}
               />
               <label className="field-label" htmlFor="category-en">
-                الاسم بالإنجليزية
+                {t('الاسم بالإنجليزية')}
               </label>
               <input
                 id="category-en"
@@ -678,11 +677,11 @@ export default function Dashboard({
                   checked={categoryForm.active}
                   onChange={(e) => setCategoryForm({ ...categoryForm, active: e.target.checked })}
                 />
-                تصنيف مفعّل
+                {t('تصنيف مفعّل')}
               </label>
               <button className="button primary" type="submit" disabled={loading}>
                 <Check size={17} />
-                حفظ التصنيف
+                {t('حفظ التصنيف')}
               </button>
               <button
                 className="button ghost"
@@ -697,7 +696,7 @@ export default function Dashboard({
                   })
                 }
               >
-                تصنيف جديد
+                {t('تصنيف جديد')}
               </button>
             </form>
           </div>
@@ -707,7 +706,8 @@ export default function Dashboard({
           <div className="reports-panel">
             <div className="panel-heading">
               <h2>
-                إشعارات الاختبار <span>{number(outbox.length)}</span>
+                {t('إشعارات الاختبار')}
+                <span>{number(outbox.length)}</span>
               </h2>
               <span className="demo-pill">EMAIL_MODE=test</span>
               {backend === 'supabase' && (
@@ -719,7 +719,7 @@ export default function Dashboard({
                       .catch((e) => setError(e.message))
                   }
                 >
-                  معالجة قائمة الاختبار
+                  {t('معالجة قائمة الاختبار')}
                 </button>
               )}
             </div>
@@ -740,8 +740,8 @@ export default function Dashboard({
             ))}
             {!outbox.length && (
               <EmptyState
-                title="صندوق الاختبار فارغ"
-                description="ستظهر إشعارات البلاغات المسموح بنشرها هنا."
+                title={t('صندوق الاختبار فارغ')}
+                description={t('ستظهر إشعارات البلاغات المسموح بنشرها هنا.')}
               />
             )}
           </div>
@@ -760,35 +760,41 @@ export default function Dashboard({
               <span className="small-code" dir="ltr">
                 {selected.publicId}
               </span>
-              <button className="icon-button" aria-label="إغلاق" onClick={() => setSelected(null)}>
+              <button
+                className="icon-button"
+                aria-label={t('إغلاق')}
+                onClick={() => setSelected(null)}
+              >
                 <X size={21} />
               </button>
             </div>
-            <h2 id="staff-detail-title">{selected.categoryLabel}</h2>
+            <h2 id="staff-detail-title">
+              {bilingual(selected.categoryLabel, selected.categoryLabelEn)}
+            </h2>
             <div className="staff-detail-sub">
               <span>
                 <MapPin size={16} />
-                {selected.districtName}
+                {bilingual(selected.districtName, selected.districtNameEn)}
               </span>
               <StatusBadge status={selected.status} />
             </div>
             <img
               className="staff-evidence"
               src={selected.imageUrl}
-              alt="صورة البلاغ المراد معالجته"
+              alt={t('صورة البلاغ المراد معالجته')}
             />
             <div className="staff-info">
               <span>
                 <ShieldCheck size={16} />
-                {selected.identityVerified ? 'مواطن موثّق تجريبيًا' : 'حالة التحقق غير متاحة'}
+                {selected.identityVerified ? t('مواطن موثّق تجريبيًا') : t('حالة التحقق غير متاحة')}
               </span>
               <span className={`severity-tag severity-${selected.severity}`}>
-                {severities[selected.severity]}
+                {t(severities[selected.severity])}
               </span>
             </div>
-            <p>{selected.description || 'لم تُضف تفاصيل أخرى.'}</p>
+            <p>{selected.description || t('لم تُضف تفاصيل أخرى.')}</p>
             <div className="staff-coordinate">
-              <span>إحداثيات الموقع</span>
+              <span>{t('إحداثيات الموقع')}</span>
               <a href={`/map?report=${selected.id}`} target="_blank" rel="noreferrer" dir="ltr">
                 {selected.latitude.toFixed(5)}, {selected.longitude.toFixed(5)}{' '}
                 <ArrowUpLeft size={14} />
@@ -796,16 +802,16 @@ export default function Dashboard({
             </div>
             {selected.resolutionImageUrl && (
               <div className="staff-resolution">
-                <h3>توثيق الحل</h3>
-                <img src={selected.resolutionImageUrl} alt="صورة المعالجة" />
+                <h3>{t('توثيق الحل')}</h3>
+                <img src={selected.resolutionImageUrl} alt={t('صورة المعالجة')} />
                 <p>{selected.resolutionNote}</p>
               </div>
             )}
             <div className="staff-history">
-              <h3>سجل الإجراءات</h3>
+              <h3>{t('سجل الإجراءات')}</h3>
               {selected.history.map((event, index) => (
                 <div key={index}>
-                  <span>{statuses[event.status]}</span>
+                  <span>{t(statuses[event.status])}</span>
                   <small>{date(event.createdAt)}</small>
                   {event.note && <p>{event.note}</p>}
                 </div>
@@ -813,16 +819,18 @@ export default function Dashboard({
             </div>
             {error && (
               <p className="form-error" role="alert">
-                {error}
+                {t(error)}
               </p>
             )}
             {message && (
               <p className="success-notice" role="status">
-                {message}
+                {t(message)}
               </p>
             )}
             <label className="field-label" htmlFor="staff-note">
-              {action === 'resolved' ? 'وصف المعالجة (مطلوب)' : 'ملاحظة الإجراء / ملاحظة داخلية'}
+              {action === 'resolved'
+                ? t('وصف المعالجة (مطلوب)')
+                : t('ملاحظة الإجراء / ملاحظة داخلية')}
             </label>
             <textarea
               id="staff-note"
@@ -830,7 +838,7 @@ export default function Dashboard({
               value={note}
               maxLength={1000}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="اكتب تفاصيل واضحة للفريق…"
+              placeholder={t('اكتب تفاصيل واضحة للفريق…')}
             />
             {tab === 'moderation' ? (
               <div>
@@ -841,8 +849,9 @@ export default function Dashboard({
                       checked={redactionConfirmed}
                       onChange={(e) => setRedactionConfirmed(e.target.checked)}
                     />
-                    راجعت صور قبل وبعد، ولا توجد وجوه أو لوحات أو بيانات شخصية ظاهرة. احجب الصور
-                    الحساسة لحين توفير نسخة منقحة.
+                    {t(
+                      'راجعت صور قبل وبعد، ولا توجد وجوه أو لوحات أو بيانات شخصية ظاهرة. احجب الصور الحساسة لحين توفير نسخة منقحة.',
+                    )}
                   </label>
                 )}
                 <div className="staff-actions">
@@ -852,21 +861,21 @@ export default function Dashboard({
                     onClick={() => moderate('safe')}
                   >
                     <Check size={17} />
-                    السماح بالنشر
+                    {t('السماح بالنشر')}
                   </button>
                   <button
                     className="button secondary"
                     disabled={loading}
                     onClick={() => moderate('flagged')}
                   >
-                    يحتاج مراجعة إضافية
+                    {t('يحتاج مراجعة إضافية')}
                   </button>
                   <button
                     className="button danger"
                     disabled={loading || !note.trim()}
                     onClick={() => moderate('blocked')}
                   >
-                    حجب المحتوى
+                    {t('حجب المحتوى')}
                   </button>
                 </div>
               </div>
@@ -880,12 +889,12 @@ export default function Dashboard({
                         disabled={loading}
                         onClick={demoResolution}
                       >
-                        صورة معالجة تجريبية
+                        {t('صورة معالجة تجريبية')}
                       </button>
                     )}
                     <label className="button secondary">
                       <Upload size={17} />
-                      {resolution ? 'تغيير صورة المعالجة' : 'رفع صورة المعالجة (مطلوبة)'}
+                      {resolution ? t('تغيير صورة المعالجة') : t('رفع صورة المعالجة (مطلوبة)')}
                       <input
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
@@ -893,35 +902,36 @@ export default function Dashboard({
                         onChange={(e) => upload(e.target.files?.[0])}
                       />
                     </label>
-                    {resolution && <img src={resolution} alt="صورة المعالجة المختارة" />}
+                    {resolution && <img src={resolution} alt={t('صورة المعالجة المختارة')} />}
                     <button
                       className="button primary"
                       disabled={loading || !resolution || !note.trim()}
                       onClick={() => update('resolved')}
                     >
                       <CheckCircle2 size={17} />
-                      تأكيد حل البلاغ
+                      {t('تأكيد حل البلاغ')}
                     </button>
                   </div>
                 )}
                 {action === 'duplicate' && (
                   <div className="resolution-upload">
                     <label className="field-label" htmlFor="duplicate-id">
-                      معرّف البلاغ الأصلي
+                      {t('معرّف البلاغ الأصلي')}
                     </label>
                     <select
                       id="duplicate-id"
                       value={duplicateOf}
                       onChange={(e) => setDuplicateOf(e.target.value)}
                     >
-                      <option value="">اختر البلاغ الأصلي</option>
+                      <option value="">{t('اختر البلاغ الأصلي')}</option>
                       {reports
                         .filter(
                           (report) => report.id !== selected.id && report.status !== 'duplicate',
                         )
                         .map((report) => (
                           <option key={report.id} value={report.id}>
-                            {report.publicId} — {report.categoryLabel}
+                            {report.publicId} —{' '}
+                            {bilingual(report.categoryLabel, report.categoryLabelEn)}
                           </option>
                         ))}
                     </select>
@@ -930,7 +940,7 @@ export default function Dashboard({
                       disabled={loading || !duplicateOf || !note.trim()}
                       onClick={() => update('duplicate')}
                     >
-                      تأكيد البلاغ المكرر
+                      {t('تأكيد البلاغ المكرر')}
                     </button>
                   </div>
                 )}
@@ -942,7 +952,7 @@ export default function Dashboard({
                       onClick={() => update('acknowledged')}
                     >
                       <Check size={16} />
-                      استلام البلاغ
+                      {t('استلام البلاغ')}
                     </button>
                   )}
                   {selected.status === 'acknowledged' && (
@@ -951,7 +961,7 @@ export default function Dashboard({
                       disabled={loading}
                       onClick={() => update('in_progress')}
                     >
-                      بدء العمل
+                      {t('بدء العمل')}
                       <ArrowLeft size={16} />
                     </button>
                   )}
@@ -962,7 +972,7 @@ export default function Dashboard({
                       onClick={() => setAction('resolved')}
                     >
                       <CheckCircle2 size={16} />
-                      تم الحل
+                      {t('تم الحل')}
                     </button>
                   )}
                   <button
@@ -970,7 +980,7 @@ export default function Dashboard({
                     disabled={loading || !note.trim()}
                     onClick={addNote}
                   >
-                    إضافة ملاحظة داخلية
+                    {t('إضافة ملاحظة داخلية')}
                   </button>
                   {!['resolved', 'rejected', 'duplicate', 'under_review'].includes(
                     selected.status,
@@ -981,14 +991,14 @@ export default function Dashboard({
                         disabled={loading}
                         onClick={() => setAction('duplicate')}
                       >
-                        بلاغ مكرر
+                        {t('بلاغ مكرر')}
                       </button>
                       <button
                         className="button danger"
                         disabled={loading || !note.trim()}
                         onClick={() => update('rejected')}
                       >
-                        رفض مع توضيح السبب
+                        {t('رفض مع توضيح السبب')}
                       </button>
                     </>
                   )}

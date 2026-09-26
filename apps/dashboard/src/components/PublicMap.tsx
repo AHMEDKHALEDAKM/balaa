@@ -1,4 +1,6 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useEffect, useRef, useState } from 'react';
 import { LocateFixed, MapPin } from 'lucide-react';
 import type { Map as MapType, Marker } from 'maplibre-gl';
@@ -16,6 +18,7 @@ export default function PublicMap({
   compact?: boolean;
   focus?: { latitude: number; longitude: number };
 }) {
+  const { t, bilingual } = useLocale();
   const node = useRef<HTMLDivElement>(null);
   const map = useRef<MapType | null>(null);
   const markers = useRef<Marker[]>([]);
@@ -25,12 +28,19 @@ export default function PublicMap({
   selectRef.current = onSelect;
   useEffect(() => {
     let disposed = false;
+    setReady(false);
     import('maplibre-gl')
       .then((maplibre) => {
         if (disposed || !node.current) return;
         maplibre.setWorkerUrl('/vendor/maplibre/maplibre-gl-worker.mjs');
         const instance = new maplibre.Map({
           container: node.current,
+          locale: {
+            'NavigationControl.ZoomIn': t('تكبير الخريطة'),
+            'NavigationControl.ZoomOut': t('تصغير الخريطة'),
+            'AttributionControl.ToggleAttribution': t('مصادر الخريطة'),
+            'Map.Title': t('الخريطة'),
+          },
           style: {
             version: 8,
             sources: {
@@ -74,7 +84,7 @@ export default function PublicMap({
       instance?.remove();
       map.current = null;
     };
-  }, []);
+  }, [t]);
   useEffect(() => {
     if (!ready || !map.current) return;
     let disposed = false;
@@ -84,7 +94,10 @@ export default function PublicMap({
       markers.current = reports.map((report) => {
         const button = document.createElement('button');
         button.className = `map-marker ${report.status === 'resolved' ? 'marker-resolved' : report.severity === 'critical' ? 'marker-critical' : ''} ${selectedId === report.id ? 'marker-selected' : ''}`;
-        button.setAttribute('aria-label', `${report.categoryLabel} ${report.publicId}`);
+        button.setAttribute(
+          'aria-label',
+          `${bilingual(report.categoryLabel, report.categoryLabelEn)} ${report.publicId}`,
+        );
         button.innerHTML =
           report.status === 'resolved'
             ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 12 4 4 8-8"/></svg>'
@@ -98,7 +111,7 @@ export default function PublicMap({
     return () => {
       disposed = true;
     };
-  }, [reports, ready, selectedId]);
+  }, [reports, ready, selectedId, bilingual]);
   useEffect(() => {
     if (!ready || !map.current || !focus) return;
     let marker: Marker | undefined;
@@ -117,25 +130,25 @@ export default function PublicMap({
   }, [ready, focus]);
   return (
     <div className={`public-map ${compact ? 'map-compact' : ''}`}>
-      <div ref={node} className="map-canvas" aria-label="خريطة بلاغات القاهرة" />
+      <div ref={node} className="map-canvas" aria-label={t('خريطة بلاغات القاهرة')} />
       {(!ready || failed) && (
         <div className="map-loading">
           <MapPin size={24} />
           <span>
             {failed
-              ? 'تعذّر تحميل بعض أجزاء الخريطة. يمكنك تصفح قائمة البلاغات.'
-              : 'جارٍ تحميل خريطة الحي…'}
+              ? t('تعذّر تحميل بعض أجزاء الخريطة. يمكنك تصفح قائمة البلاغات.')
+              : t('جارٍ تحميل خريطة الحي…')}
           </span>
         </div>
       )}
       <div className="map-area">
         <span className="live-dot" />
-        القاهرة · نطاق العرض التجريبي
+        {t('القاهرة · نطاق العرض التجريبي')}
       </div>
       <button
         className="map-locate"
-        title="العودة إلى المعادي"
-        aria-label="العودة إلى المعادي"
+        title={t('العودة إلى المعادي')}
+        aria-label={t('العودة إلى المعادي')}
         onClick={() => map.current?.flyTo({ center: [31.263, 29.965], zoom: 13.3 })}
       >
         <LocateFixed size={20} />
@@ -143,15 +156,15 @@ export default function PublicMap({
       <div className="map-legend">
         <span>
           <i className="legend-open" />
-          بلاغ مفتوح
+          {t('بلاغ مفتوح')}
         </span>
         <span>
           <i className="legend-critical" />
-          خطر فوري
+          {t('خطر فوري')}
         </span>
         <span>
           <i className="legend-resolved" />
-          تم الحل
+          {t('تم الحل')}
         </span>
       </div>
     </div>

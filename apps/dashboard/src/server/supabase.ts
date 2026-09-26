@@ -197,6 +197,8 @@ async function reports(
       publicId: text(r.public_id),
       categoryId: text(category?.slug) || text(r.category_slug),
       categoryLabel: text(category?.name_ar) || text(r.category_ar),
+      categoryLabelEn: text(category?.name_en) || text(r.category_en),
+      districtNameEn: text(district?.name_en),
       districtId: text(district?.slug),
       districtName: text(district?.name_ar),
       status: r.status as PublicReport['status'],

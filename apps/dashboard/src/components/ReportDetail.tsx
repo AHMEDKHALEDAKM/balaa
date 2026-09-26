@@ -1,7 +1,9 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useState } from 'react';
 import { X, MapPin, Users, ShieldCheck, Share2, Check, ArrowUpLeft } from 'lucide-react';
-import { api, Report, User, statuses, severities, date, number } from './model';
+import { api, Report, User, statuses, severities } from './model';
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
 export default function ReportDetail({
@@ -15,6 +17,7 @@ export default function ReportDetail({
   onClose: () => void;
   onUpdate: () => void;
 }) {
+  const { t, bilingual, date, number } = useLocale();
   useDialog(true, onClose);
   const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
@@ -22,7 +25,7 @@ export default function ReportDetail({
     setBusy(true);
     try {
       await api(`/api/reports/${report.id}/confirm`, {});
-      setMessage('تم تسجيل تأكيدك. شكرًا لمشاركتك.');
+      setMessage(t('تم تسجيل تأكيدك. شكرًا لمشاركتك.'));
       onUpdate();
     } catch (e) {
       setMessage((e as Error).message);
@@ -33,13 +36,13 @@ export default function ReportDetail({
   async function share() {
     const url = `${location.origin}/reports/${report.id}`;
     try {
-      if (navigator.share) await navigator.share({ title: `بلاعة · ${report.publicId}`, url });
+      if (navigator.share) await navigator.share({ title: t('بلاعة · {0}', report.publicId), url });
       else {
         await navigator.clipboard.writeText(url);
-        setMessage('تم نسخ رابط البلاغ');
+        setMessage(t('تم نسخ رابط البلاغ'));
       }
     } catch {
-      setMessage('تعذّرت المشاركة. رابط البلاغ: ' + url);
+      setMessage(t('تعذّرت المشاركة. رابط البلاغ: ') + url);
     }
   }
   return (
@@ -52,8 +55,8 @@ export default function ReportDetail({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-top">
-          <span className="eyebrow">تفاصيل البلاغ</span>
-          <button className="icon-button" onClick={onClose} aria-label="إغلاق">
+          <span className="eyebrow">{t('تفاصيل البلاغ')}</span>
+          <button className="icon-button" onClick={onClose} aria-label={t('إغلاق')}>
             <X size={21} />
           </button>
         </div>
@@ -62,41 +65,46 @@ export default function ReportDetail({
             <span className="small-code" dir="ltr">
               {report.publicId}
             </span>
-            <h2 id="detail-title">{report.categoryLabel}</h2>
+            <h2 id="detail-title">{bilingual(report.categoryLabel, report.categoryLabelEn)}</h2>
             <p>
               <MapPin size={16} />
-              {report.districtName}، القاهرة
+              {bilingual(report.districtName, report.districtNameEn)}
+              {t('، القاهرة')}
             </p>
           </div>
           <StatusBadge status={report.status} />
         </div>
         <div className={`evidence-grid ${report.resolutionImageUrl ? 'has-after' : ''}`}>
           <figure>
-            <img src={report.imageUrl} alt="صورة المشكلة قبل الحل" />
-            <figcaption>{report.resolutionImageUrl ? 'قبل المعالجة' : 'صورة البلاغ'}</figcaption>
+            <img src={report.imageUrl} alt={t('صورة المشكلة قبل الحل')} />
+            <figcaption>
+              {report.resolutionImageUrl ? t('قبل المعالجة') : t('صورة البلاغ')}
+            </figcaption>
           </figure>
           {report.resolutionImageUrl && (
             <figure>
-              <img src={report.resolutionImageUrl} alt="صورة توثيق حل المشكلة" />
+              <img src={report.resolutionImageUrl} alt={t('صورة توثيق حل المشكلة')} />
               <figcaption className="after">
                 <Check size={14} />
-                بعد المعالجة
+                {t('بعد المعالجة')}
               </figcaption>
             </figure>
           )}
         </div>
         <div className="detail-facts">
           <div>
-            <span>تاريخ البلاغ</span>
+            <span>{t('تاريخ البلاغ')}</span>
             <strong>{date(report.createdAt)}</strong>
           </div>
           <div>
-            <span>درجة الخطورة</span>
-            <strong>{severities[report.severity]}</strong>
+            <span>{t('درجة الخطورة')}</span>
+            <strong>{t(severities[report.severity])}</strong>
           </div>
           <div>
-            <span>تأكيدات المواطنين</span>
-            <strong>{number(report.confirmationCount)} تأكيد</strong>
+            <span>{t('تأكيدات المواطنين')}</span>
+            <strong>
+              {number(report.confirmationCount)} {t('تأكيد')}
+            </strong>
           </div>
         </div>
         {report.description && <p className="detail-description">{report.description}</p>}
@@ -106,7 +114,7 @@ export default function ReportDetail({
             <span>{report.resolutionNote}</span>
           </div>
         )}
-        <h3 className="section-mini-title">رحلة البلاغ</h3>
+        <h3 className="section-mini-title">{t('رحلة البلاغ')}</h3>
         <div className="timeline">
           {report.history.map((event, index) => (
             <div
@@ -117,7 +125,7 @@ export default function ReportDetail({
                 <Check size={12} />
               </span>
               <div>
-                <strong>{statuses[event.status]}</strong>
+                <strong>{t(statuses[event.status])}</strong>
                 {event.note && <p>{event.note}</p>}
                 <time>{date(event.createdAt)}</time>
               </div>
@@ -126,28 +134,28 @@ export default function ReportDetail({
         </div>
         <div className="privacy-note">
           <ShieldCheck size={17} />
-          بيانات صاحب البلاغ خاصة ولا تظهر للجمهور.
+          {t('بيانات صاحب البلاغ خاصة ولا تظهر للجمهور.')}
         </div>
         {message && (
           <p className="inline-message" role="status">
-            {message}
+            {t(message)}
           </p>
         )}
         <div className="modal-actions">
           <button className="button secondary" onClick={share}>
             <Share2 size={17} />
-            مشاركة البلاغ
+            {t('مشاركة البلاغ')}
           </button>
           {user?.role === 'citizen' &&
             ['submitted', 'delivered', 'acknowledged', 'in_progress'].includes(report.status) && (
               <button className="button primary" onClick={confirm} disabled={busy}>
                 <Users size={17} />
-                المشكلة ما زالت موجودة
+                {t('المشكلة ما زالت موجودة')}
               </button>
             )}
           <a className="button ghost" href={`/map?report=${report.id}`}>
             <ArrowUpLeft size={17} />
-            الخريطة
+            {t('الخريطة')}
           </a>
         </div>
       </section>

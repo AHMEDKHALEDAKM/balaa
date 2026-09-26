@@ -1,6 +1,8 @@
 # Balaa mobile
 
-Arabic citizen application built with Expo SDK 57 and React Native. All labels and primary reading flow are right-to-left. Explicit row ordering and Arabic text directions keep the experience predictable on phones configured in either Arabic or English.
+Arabic/English citizen application built with Expo SDK 57 and React Native. Arabic is the default; the EN / العربية switch saves the preference in SecureStore. Text direction, alignment, navigation order and dates follow the chosen language. User descriptions remain unchanged.
+
+For GitHub publishing, Android APKs and iPhone/TestFlight installation, see [the step-by-step guide](../../docs/GITHUB-AND-PHONE.md).
 
 ## Run
 
@@ -24,7 +26,7 @@ npm run typecheck --workspace @balaa/mobile
 Onboarding → home/public MapLibre map → mock identity → direct camera → foreground GPS → server polygon lookup → location confirmation → editable server categories and severity → privacy review → duplicate check → submission → status/history and before/after images.
 
 - Mock identity is visibly labeled throughout. No national ID, official logo or government password is requested.
-- Only the server-issued demo bearer token and demo account are saved in native SecureStore. On restart the token is checked against `/api/auth/session`.
+- The language preference, onboarding flag, server-issued demo bearer token and demo account are saved in native SecureStore. On restart the token is checked against `/api/auth/session`.
 - The camera opens directly. Photos are resized to at most 1280 pixels wide and recompressed as JPEG before upload. EXIF is not requested or used for routing. **Recompression is not face/license-plate redaction.** The server moderation boundary remains authoritative.
 - GPS requires foreground permission and an actual location fix. Permission, offline, unsupported location and poor-accuracy states are visible. Coordinates are never silently replaced with Cairo.
 - Location correction is bounded to 50 meters from the original fix, in 10-meter steps. Each correction reruns the server district lookup. Device coordinates/timestamps are evidence, not tamper-proof verification.

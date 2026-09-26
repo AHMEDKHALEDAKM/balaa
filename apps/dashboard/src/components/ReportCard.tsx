@@ -1,11 +1,14 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { ArrowUpLeft, MapPin, Users, CircleAlert, Construction } from 'lucide-react';
-import { Report, statuses, number } from './model';
+import { Report, statuses } from './model';
 export function StatusBadge({ status }: { status: Report['status'] }) {
+  const { t } = useLocale();
   return (
     <span className={`status-badge status-${status}`}>
       <span className="status-dot" />
-      {statuses[status]}
+      {t(statuses[status])}
     </span>
   );
 }
@@ -16,15 +19,16 @@ export function ReportCard({
   report: Report;
   onSelect: (report: Report) => void;
 }) {
+  const { t, bilingual, number } = useLocale();
   return (
     <button className="report-card" onClick={() => onSelect(report)}>
       <div className="report-card-image">
-        <img src={report.imageUrl} alt={report.categoryLabel} />
+        <img src={report.imageUrl} alt={bilingual(report.categoryLabel, report.categoryLabelEn)} />
         <StatusBadge status={report.status} />
         {report.severity === 'critical' && (
           <span className="urgency">
             <CircleAlert size={13} />
-            خطر فوري
+            {t('خطر فوري')}
           </span>
         )}
       </div>
@@ -32,15 +36,16 @@ export function ReportCard({
         <span className="small-code" dir="ltr">
           {report.publicId}
         </span>
-        <h3>{report.categoryLabel}</h3>
+        <h3>{bilingual(report.categoryLabel, report.categoryLabelEn)}</h3>
         <p>
           <MapPin size={14} />
-          {report.districtName}، القاهرة
+          {bilingual(report.districtName, report.districtNameEn)}
+          {t('، القاهرة')}
         </p>
         <div className="report-card-footer">
           <span>
             <Users size={15} />
-            {number(report.confirmationCount)} تأكيد للمشكلة
+            {number(report.confirmationCount)} {t('تأكيد للمشكلة')}
           </span>
           <span className="card-arrow">
             <ArrowUpLeft size={18} />
@@ -57,11 +62,12 @@ export function EmptyState({
   title?: string;
   description?: string;
 }) {
+  const { t } = useLocale();
   return (
     <div className="empty-state">
       <Construction size={30} />
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <h3>{t(title)}</h3>
+      <p>{t(description)}</p>
     </div>
   );
 }

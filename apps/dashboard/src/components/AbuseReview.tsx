@@ -1,4 +1,6 @@
 'use client';
+import { useLocale } from '@balaa/ui/locale';
+
 import { useCallback, useEffect, useState } from 'react';
 import { api } from './model';
 type Account = {
@@ -10,6 +12,7 @@ type Account = {
   strikes: number;
 };
 export default function AbuseReview() {
+  const { t, locale } = useLocale();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [target, setTarget] = useState('');
   const [hours, setHours] = useState(24);
@@ -27,7 +30,7 @@ export default function AbuseReview() {
     setBusy(true);
     try {
       await api('/api/admin/abuse', { userId: target, hours, note });
-      setMessage('تم حفظ المراجعة. لا يوجد حظر دائم تلقائي.');
+      setMessage(t('تم حفظ المراجعة. لا يوجد حظر دائم تلقائي.'));
       await refresh();
     } catch (e) {
       setMessage((e as Error).message);
@@ -39,21 +42,21 @@ export default function AbuseReview() {
     <section className="reports-panel abuse-panel">
       <div className="panel-heading">
         <div>
-          <h2>مراجعة إساءة الاستخدام</h2>
-          <p>متاحة لمدير المنصة فقط. الإيقاف مؤقت وبقرار مراجعة بشرية.</p>
+          <h2>{t('مراجعة إساءة الاستخدام')}</h2>
+          <p>{t('متاحة لمدير المنصة فقط. الإيقاف مؤقت وبقرار مراجعة بشرية.')}</p>
         </div>
       </div>
       <div className="report-table-wrap">
         <table className="report-table">
           <thead>
             <tr>
-              <th>الحساب الداخلي</th>
-              <th>البلاغات</th>
-              <th>مرفوضة</th>
-              <th>للمراجعة</th>
-              <th>المخالفات</th>
-              <th>الإيقاف حتى</th>
-              <th>مراجعة</th>
+              <th>{t('الحساب الداخلي')}</th>
+              <th>{t('البلاغات')}</th>
+              <th>{t('مرفوضة')}</th>
+              <th>{t('للمراجعة')}</th>
+              <th>{t('المخالفات')}</th>
+              <th>{t('الإيقاف حتى')}</th>
+              <th>{t('مراجعة')}</th>
             </tr>
           </thead>
           <tbody>
@@ -66,12 +69,12 @@ export default function AbuseReview() {
                 <td>{a.strikes}</td>
                 <td>
                   {a.suspendedUntil
-                    ? new Date(a.suspendedUntil).toLocaleString('ar-EG')
-                    : 'غير موقوف'}
+                    ? new Date(a.suspendedUntil).toLocaleString(locale)
+                    : t('غير موقوف')}
                 </td>
                 <td>
                   <button className="button secondary" onClick={() => setTarget(a.id)}>
-                    اختيار
+                    {t('اختيار')}
                   </button>
                 </td>
               </tr>
@@ -87,17 +90,17 @@ export default function AbuseReview() {
             void review();
           }}
         >
-          <label htmlFor="suspension-hours">مدة الإيقاف</label>
+          <label htmlFor="suspension-hours">{t('مدة الإيقاف')}</label>
           <select
             id="suspension-hours"
             value={hours}
             onChange={(e) => setHours(Number(e.target.value))}
           >
-            <option value={0}>إلغاء الإيقاف بعد المراجعة</option>
-            <option value={24}>٢٤ ساعة</option>
-            <option value={168}>٧ أيام</option>
+            <option value={0}>{t('إلغاء الإيقاف بعد المراجعة')}</option>
+            <option value={24}>{t('٢٤ ساعة')}</option>
+            <option value={168}>{t('٧ أيام')}</option>
           </select>
-          <label htmlFor="abuse-note">سبب القرار</label>
+          <label htmlFor="abuse-note">{t('سبب القرار')}</label>
           <textarea
             id="abuse-note"
             required
@@ -107,13 +110,13 @@ export default function AbuseReview() {
             onChange={(e) => setNote(e.target.value)}
           />
           <button className="button primary" disabled={busy || note.trim().length < 3}>
-            حفظ قرار المراجعة
+            {t('حفظ قرار المراجعة')}
           </button>
         </form>
       )}
       {message && (
         <p className="notice" role="status">
-          {message}
+          {t(message)}
         </p>
       )}
     </section>
