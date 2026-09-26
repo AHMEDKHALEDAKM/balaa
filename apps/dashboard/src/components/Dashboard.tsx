@@ -22,20 +22,11 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import {
-  api,
-  Category,
-  fileData,
-  Report,
-  severities,
-  Status,
-  statuses,
-  User,
-  withBase,
-} from './model';
+import { api, Category, Report, severities, Status, statuses, User, withBase } from './model';
 import { cairoDistrictNames } from '@balaa/geo/src/cairo-district-names';
 import { EmptyState, StatusBadge } from './ReportCard';
 import AbuseReview from './AbuseReview';
+import { shrinkPhoto } from './imageTools';
 import { useDialog } from './useDialog';
 type Tab = 'reports' | 'moderation' | 'categories' | 'outbox' | 'abuse';
 export default function Dashboard({
@@ -204,7 +195,7 @@ export default function Dashboard({
     setLoading(true);
     try {
       const image = await api<{ imageUrl: string }>('/api/media', {
-        dataUrl: await fileData(file),
+        dataUrl: await shrinkPhoto(file),
         kind: 'resolution',
       });
       setResolution(image.imageUrl);

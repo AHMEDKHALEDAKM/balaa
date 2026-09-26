@@ -91,11 +91,3 @@ export async function api<T>(url: string, body?: unknown): Promise<T> {
     );
   return data as T;
 }
-export async function fileData(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error('تعذّر قراءة الصورة'));
-    reader.readAsDataURL(file);
-  });
-}

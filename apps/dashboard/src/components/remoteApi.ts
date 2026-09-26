@@ -1,6 +1,5 @@
 // Shared backend client for the GitHub Pages build: every request goes to the Balaa
 // Google Apps Script web app (apps-script/), so all phones see the same reports.
-import { normalizeImage } from './imageTools';
 
 const TOKEN_KEY = 'balaa_token';
 const DEVICE_KEY = 'balaa_device';
@@ -75,13 +74,8 @@ async function send(backend: string, request: string): Promise<Reply | 'failed'>
 }
 
 export async function remoteApi<T>(backend: string, url: string, body?: unknown): Promise<T> {
-  let payload = body;
-  // Send a small upright JPEG instead of the full camera photo.
-  if (url === '/api/media' && body && typeof body === 'object' && 'dataUrl' in body) {
-    const data = body as { dataUrl: string };
-    const base64 = await normalizeImage(data.dataUrl.slice(data.dataUrl.indexOf(',') + 1));
-    payload = { ...data, dataUrl: `data:image/jpeg;base64,${base64}` };
-  }
+  // Photos arrive already made small (imageTools.shrinkPhoto), so they are sent as is.
+  const payload = body;
   const read = body === undefined;
   const request = JSON.stringify({
     method: read ? 'GET' : 'POST',

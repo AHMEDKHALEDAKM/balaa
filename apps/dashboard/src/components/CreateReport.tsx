@@ -17,7 +17,8 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { api, Category, fileData, Report, Severity, severities, sharedBackend } from './model';
+import { api, Category, Report, Severity, severities, sharedBackend } from './model';
+import { shrinkPhoto } from './imageTools';
 
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
@@ -88,12 +89,9 @@ export default function CreateReport({
       setError(t('اختر ملف صورة صالحًا.'));
       return;
     }
-    if (file.size > 5 * 1000 * 1000) {
-      setError(t('حجم الصورة يجب ألا يتجاوز ٥ ميجابايت.'));
-      return;
-    }
+    // Any size is fine: the photo is made small on the phone before it is sent.
     await run(async () => {
-      const data = await fileData(file);
+      const data = await shrinkPhoto(file);
       setPhoto(data);
       setCapture(new Date().toISOString());
       const upload = await api<{ imageUrl: string }>('/api/media', {
