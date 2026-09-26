@@ -4,12 +4,12 @@ Independent open-source civic-tech prototype. No government endorsement, identit
 
 ## Runtime boundaries
 
-- `apps/mobile`: Expo React Native citizen application, Arabic RTL, camera and foreground GPS; native iOS-compatible components. MapLibre renders the public map through the web companion in a WebView.
+- `apps/mobile`: Expo React Native citizen application, Arabic RTL / English LTR, camera and foreground GPS; native iOS-compatible components. MapLibre renders the public map through the web companion in a WebView.
 - `apps/dashboard`: Next.js App Router. Responsive district console, public map/tracking and browser citizen demonstration. HTTP API is shared with mobile.
 - `packages/types`: Zod input schemas, bilingual category/status models, API contracts.
 - `packages/config`: identity, moderation and notification provider contracts plus safe demo implementations.
 - `packages/geo`: portable point-in-polygon fixture lookup and meter-distance helpers; the Supabase path uses PostGIS as its source of truth.
-- `packages/ui`: common design tokens and Arabic strings without platform-specific dependencies.
+- `packages/ui`: shared design tokens, Arabic/English interface copy, formatting helpers and a React locale context shared by web and native.
 - `supabase`: canonical PostgreSQL/PostGIS schema, RLS, RPC transitions, private media storage and Edge Function integration boundary.
 
 ## Two explicit operating environments

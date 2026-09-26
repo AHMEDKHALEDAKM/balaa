@@ -75,3 +75,7 @@ See [verification record](docs/VERIFICATION.md) for executed checks and limitati
 [Original PRD](docs/PRD.md) · [Architecture](docs/ARCHITECTURE.md) · [Data model](docs/DATA-MODEL.md) · [Implementation plan](docs/IMPLEMENTATION-PLAN.md) · [Contributing](docs/CONTRIBUTING.md) · [Roadmap](docs/ROADMAP.md)
 
 MIT licensed. Synthetic boundary fixtures are CC0; see [data provenance](data/README.md).
+
+## Continuing in Claude Code
+
+Open this repository root in Claude Code. [Project handover](docs/CLAUDE-HANDOVER.md) contains current decisions, architecture, verification results and outstanding work. [Starter prompt](docs/CLAUDE-STARTER-PROMPT.txt) provides the initial request. The root `CLAUDE.md` imports the handover.

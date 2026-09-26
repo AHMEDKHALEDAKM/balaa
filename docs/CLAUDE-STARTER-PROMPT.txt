@@ -1,0 +1,5 @@
+Continue development of Balaa from this existing repository. Read CLAUDE.md and docs/CLAUDE-HANDOVER.md first, then inspect git status and the relevant project files. Do not rebuild from scratch.
+
+Preserve the original teal logo (the supplied navy/gold logo was reverted), Arabic/English support and all explicit prototype disclosures. The local demo works; live Supabase, physical-device testing and signed mobile distribution remain unverified. Do not invent government integrations or send real notifications.
+
+Start by establishing a local baseline: install dependencies if needed, run lint/typechecks/tests/build, and report concrete blockers. Then propose the smallest next implementation step toward reliable Android/iPhone testing and a validated Supabase backend. Ask for the intended GitHub destination or developer-account configuration only when that step requires it. Do not publish, deploy or reset existing data as part of the baseline check.
