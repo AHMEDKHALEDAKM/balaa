@@ -46,7 +46,7 @@ export interface User {
 }
 export const statuses: Record<Status, string> = {
   submitted: 'تم الإبلاغ',
-  delivered: 'وصل لصندوق الاختبار',
+  delivered: 'تم الإرسال · تجريبي',
   acknowledged: 'تم الاستلام',
   in_progress: 'جاري العمل',
   resolved: 'تم الحل',

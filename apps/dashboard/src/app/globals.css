@@ -1075,12 +1075,18 @@ img {
   font-size: 8px;
   color: #929b8e;
 }
-.site-footer > button {
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+}
+.footer-links button {
   background: none;
-  font-size: 10px;
+  font-size: 13px;
   display: flex;
   align-items: center;
   gap: 9px;
+  min-height: 40px;
 }
 .page-heading {
   margin: 10px 0 30px;
@@ -2968,9 +2974,6 @@ img {
   }
   .site-footer > div:nth-child(2) {
     margin-inline-start: auto;
-  }
-  .site-footer > button {
-    display: none;
   }
   .staff-login {
     grid-template-columns: 1fr;

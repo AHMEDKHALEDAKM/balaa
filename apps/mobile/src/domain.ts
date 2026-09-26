@@ -100,7 +100,7 @@ export const emptyDraft = (): Draft => ({
 });
 export const statusLabels: Record<Status, string> = {
   submitted: 'تم الإبلاغ',
-  delivered: 'أُرسل لصندوق الاختبار',
+  delivered: 'تم الإرسال · تجريبي',
   acknowledged: 'تم الاستلام',
   in_progress: 'جارٍ العمل',
   resolved: 'تم الحل',

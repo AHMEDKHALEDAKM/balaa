@@ -22,7 +22,7 @@ export default function LanguageProvider({ children }: { children: ReactNode }) 
     }
     const url = new URL(window.location.href);
     url.searchParams.set('lang', next);
-    window.history.replaceState(null, '', url);
+    window.history.replaceState(window.history.state, '', url);
   }, []);
   useEffect(() => {
     document.documentElement.lang = language;

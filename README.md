@@ -20,7 +20,7 @@ Open [localhost:3000](http://localhost:3000). No external credentials or Docker 
 1. Choose **بلّغ عن مشكلة**, complete the clearly marked mock verification.
 2. Use **صورة تجريبية** and **موقع المعادي التجريبي**, or camera/GPS in the supported fixture area.
 3. Choose category/severity, review and submit. Track the `BLAA-…` ID.
-4. Open **لوحة الأحياء** → **موظف حي المعادي**. Acknowledge the report, start work, upload a resolution image and enter a resolution note.
+4. Open **دخول فرق الأحياء** in the footer → **موظف حي المعادي**. Acknowledge the report, start work, upload a resolution image and enter a resolution note.
 5. Resolve it and open the public report to see before/after evidence.
 6. Sign out, enter **مدير المنصة**, then inspect the test inbox, categories and account review. **مراجع المحتوى** demonstrates the moderation queue. A description containing `[flag]` is held for review.
 

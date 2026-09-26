@@ -27,6 +27,22 @@ import ReportDetail from '../components/ReportDetail';
 import Dashboard from '../components/Dashboard';
 
 type View = 'home' | 'map' | 'my' | 'dashboard';
+const VIEWS: View[] = ['home', 'map', 'my', 'dashboard'];
+
+// Each section and open report gets its own URL so the phone's Back gesture
+// steps through the app instead of leaving it.
+function viewFromUrl(): View {
+  const value = new URLSearchParams(window.location.search).get('view') as View | null;
+  return value && VIEWS.includes(value) ? value : 'home';
+}
+function urlWith(changes: Record<string, string | null>) {
+  const url = new URL(window.location.href);
+  for (const [key, value] of Object.entries(changes))
+    if (value === null) url.searchParams.delete(key);
+    else url.searchParams.set(key, value);
+  return url;
+}
+
 export default function Home() {
   const { t, number } = useLocale();
   const [view, setView] = useState<View>('home');
@@ -66,14 +82,22 @@ export default function Home() {
   }, []);
   useEffect(() => {
     void refresh();
-    const query = new URLSearchParams(window.location.search);
-    if (query.get('view') === 'dashboard') setView('dashboard');
-    const id = query.get('report');
+    setView(viewFromUrl());
+    const id = new URLSearchParams(window.location.search).get('report');
     if (id)
       api<{ report: Report }>(`/api/public/reports/${encodeURIComponent(id)}`)
         .then((result) => setSelected(result.report))
         .catch((e) => setError(e.message));
   }, [refresh]);
+  useEffect(() => {
+    function onPopState() {
+      setView(viewFromUrl());
+      setStatus('all');
+      if (!new URLSearchParams(window.location.search).get('report')) setSelected(null);
+    }
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
   useEffect(() => {
     if (view === 'my' && user?.role === 'citizen')
       api<{ reports: Report[] }>('/api/me/reports')
@@ -97,9 +121,24 @@ export default function Home() {
       : report.status === status,
   );
   function navigate(next: View) {
+    if (next !== view)
+      window.history.pushState(null, '', urlWith({ view: next === 'home' ? null : next }));
     setView(next);
     setStatus('all');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function openReport(report: Report) {
+    if (new URLSearchParams(window.location.search).get('report') !== report.id)
+      window.history.pushState({ balaaReport: true }, '', urlWith({ report: report.id }));
+    setSelected(report);
+  }
+  function closeReport() {
+    // Undo our own history entry; a report opened from a shared link has none to undo.
+    if (window.history.state?.balaaReport) window.history.back();
+    else {
+      window.history.replaceState(null, '', urlWith({ report: null }));
+      setSelected(null);
+    }
   }
   return (
     <>
@@ -128,13 +167,6 @@ export default function Home() {
             </button>
             <button className={view === 'my' ? 'active' : ''} onClick={() => navigate('my')}>
               {t('بلاغاتي')}
-            </button>
-            <button
-              className={view === 'dashboard' ? 'active' : ''}
-              onClick={() => navigate('dashboard')}
-            >
-              {t('لوحة الأحياء')}
-              <ArrowUpLeft size={13} />
             </button>
           </nav>
           <div className="header-actions">
@@ -290,7 +322,7 @@ export default function Home() {
                   </button>
                 </div>
                 <div className="home-map-wrap">
-                  <PublicMap reports={reports} onSelect={setSelected} />
+                  <PublicMap reports={reports} onSelect={openReport} />
                   <div className="map-summary-card">
                     <span className="map-summary-icon">
                       <MapPin size={23} />
@@ -329,7 +361,7 @@ export default function Home() {
                 ) : reports.length ? (
                   <div className="report-grid">
                     {reports.slice(0, 3).map((report) => (
-                      <ReportCard key={report.id} report={report} onSelect={setSelected} />
+                      <ReportCard key={report.id} report={report} onSelect={openReport} />
                     ))}
                   </div>
                 ) : (
@@ -383,7 +415,7 @@ export default function Home() {
                   </b>
                 </span>
               </div>
-              <PublicMap reports={filtered} onSelect={setSelected} />
+              <PublicMap reports={filtered} onSelect={openReport} />
               <div className="map-page-reports">
                 <div className="section-heading">
                   <h2>{t('البلاغات في هذا العرض')}</h2>
@@ -392,7 +424,7 @@ export default function Home() {
                 {filtered.length ? (
                   <div className="report-grid">
                     {filtered.map((report) => (
-                      <ReportCard key={report.id} report={report} onSelect={setSelected} />
+                      <ReportCard key={report.id} report={report} onSelect={openReport} />
                     ))}
                   </div>
                 ) : (
@@ -412,7 +444,7 @@ export default function Home() {
                 mine.length ? (
                   <div className="report-grid">
                     {mine.map((report) => (
-                      <ReportCard key={report.id} report={report} onSelect={setSelected} />
+                      <ReportCard key={report.id} report={report} onSelect={openReport} />
                     ))}
                   </div>
                 ) : (
@@ -458,10 +490,16 @@ export default function Home() {
           <span>{t('بلاعة · مشروع مجتمعي مفتوح المصدر')}</span>
           <small>{t('نسخة تجريبية. الهوية والحدود والإشعارات للعرض فقط.')}</small>
         </div>
-        <button onClick={() => setOnboarding(true)}>
-          {t('عن المبادرة')}
-          <ArrowUpLeft size={15} />
-        </button>
+        <div className="footer-links">
+          <button onClick={() => setOnboarding(true)}>
+            {t('عن المبادرة')}
+            <ArrowUpLeft size={15} />
+          </button>
+          <button onClick={() => navigate('dashboard')}>
+            {t('دخول فرق الأحياء')}
+            <ArrowUpLeft size={15} />
+          </button>
+        </div>
       </footer>
       {create && (
         <CreateReport
@@ -474,18 +512,13 @@ export default function Home() {
           }}
           onSubmitted={(report) => {
             setCreate(false);
-            setSelected(report);
+            openReport(report);
             void refresh();
           }}
         />
       )}
       {selected && (
-        <ReportDetail
-          report={selected}
-          user={user}
-          onClose={() => setSelected(null)}
-          onUpdate={refresh}
-        />
+        <ReportDetail report={selected} user={user} onClose={closeReport} onUpdate={refresh} />
       )}{' '}
       {onboarding && (
         <div className="modal-backdrop" onClick={() => setOnboarding(false)}>

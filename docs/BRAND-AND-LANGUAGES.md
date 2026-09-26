@@ -11,7 +11,7 @@ The shared catalog covers citizen, district, moderation and administrative inter
 Retain the requested Egyptian conversational tone in invitations, with clear standard Arabic for statuses, privacy and errors. Keep the brand/tagline **بلاعة — بلّغ. تابع. خلّي الطريق أأمن.**
 
 - **جاري العمل** → **جارٍ العمل**; similarly **بلاغ جارٍ العمل عليه**.
-- **وصل لصندوق الاختبار** → **وصل إلى صندوق الاختبار**.
+- **وصل لصندوق الاختبار** → **وصل إلى صندوق الاختبار**. The public status badge now reads **تم الإرسال · تجريبي** (Sent · demo) so citizens see a plain status that still says nothing reached a real authority.
 - **أُرسل لصندوق الاختبار** → **أُرسل إلى صندوق الاختبار**.
 - **اختار التصنيف الأقرب** → **اختر التصنيف الأقرب** in the instruction.
 - **راجعت الصورة وخلوها من بيانات شخصية** → **راجعت الصورة وتأكدت من خلوّها من البيانات الشخصية**.

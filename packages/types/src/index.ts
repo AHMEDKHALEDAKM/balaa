@@ -98,7 +98,7 @@ export const categorySchema = z
   .strict();
 export const statusLabels: Record<ReportStatus, string> = {
   submitted: 'تم الإبلاغ',
-  delivered: 'وصل لصندوق الاختبار',
+  delivered: 'تم الإرسال · تجريبي',
   acknowledged: 'تم الاستلام',
   in_progress: 'جارٍ العمل',
   resolved: 'تم الحل',
