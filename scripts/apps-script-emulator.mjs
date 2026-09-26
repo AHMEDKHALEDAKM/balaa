@@ -93,7 +93,7 @@ const context = vm.createContext({
   },
   SpreadsheetApp: { create: makeSpreadsheet, openById: lookup(sheets) },
   LockService: {
-    getScriptLock: () => ({ waitLock: () => undefined, releaseLock: () => undefined }),
+    getScriptLock: () => ({ tryLock: () => true, releaseLock: () => undefined }),
   },
   PropertiesService: {
     getScriptProperties: () => ({

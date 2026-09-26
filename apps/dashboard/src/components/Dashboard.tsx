@@ -33,6 +33,7 @@ import {
   User,
   withBase,
 } from './model';
+import { cairoDistrictNames } from '@balaa/geo/src/cairo-district-names';
 import { EmptyState, StatusBadge } from './ReportCard';
 import AbuseReview from './AbuseReview';
 import { useDialog } from './useDialog';
@@ -54,12 +55,15 @@ export default function Dashboard({
   const [password, setPassword] = useState('');
   const [staffCode, setStaffCode] = useState('');
   const [codeRequired, setCodeRequired] = useState(false);
+  const [districtTeams, setDistrictTeams] = useState(false);
+  const [teamDistrict, setTeamDistrict] = useState('');
   const [redactionConfirmed, setRedactionConfirmed] = useState(false);
   useEffect(() => {
-    api<{ mode: string; staffCodeRequired?: boolean }>('/api/config')
+    api<{ mode: string; staffCodeRequired?: boolean; districtTeams?: boolean }>('/api/config')
       .then((c) => {
         setBackend(c.mode);
         setCodeRequired(!!c.staffCodeRequired);
+        setDistrictTeams(!!c.districtTeams);
       })
       .catch(() => undefined);
   }, []);
@@ -99,6 +103,11 @@ export default function Dashboard({
   const isStaff =
     user &&
     ['district_agent', 'district_manager', 'moderator', 'platform_admin'].includes(user.role);
+  /** The district a team account belongs to, in the current language. */
+  const teamName = (account: User) => {
+    const district = cairoDistrictNames.find((d) => d.id === account.districtIds[0]);
+    return district ? bilingual(district.nameAr, district.nameEn) : '';
+  };
   const isAdmin = user?.role === 'platform_admin';
   const isModerator = isAdmin || user?.role === 'moderator';
   async function load() {
@@ -136,8 +145,8 @@ export default function Dashboard({
         backend === 'supabase'
           ? { email, password }
           : codeRequired
-            ? { role, code: staffCode }
-            : { role },
+            ? { role, code: staffCode, ...(districtTeams ? { districtId: teamDistrict } : {}) }
+            : { role, ...(districtTeams ? { districtId: teamDistrict } : {}) },
       );
       onLogin(result.user);
       if (result.user.role === 'moderator') setTab('moderation');
@@ -366,20 +375,58 @@ export default function Dashboard({
               </form>
             )}
             <div hidden={backend === 'supabase'}>
-              <button
-                className="role-option"
-                disabled={loading}
-                onClick={() => login('district_agent')}
-              >
-                <span className="feature-icon small">
-                  <MapPin size={20} />
-                </span>
-                <span>
-                  <strong>{t('موظف حي المعادي')}</strong>
-                  <small>{t('إدارة البلاغات المسندة لهذا الحي فقط')}</small>
-                </span>
-                <ArrowLeft size={18} />
-              </button>
+              {districtTeams ? (
+                <div className="team-district">
+                  <label className="field-label" htmlFor="team-district">
+                    {t('فريق الحي')}
+                  </label>
+                  <select
+                    id="team-district"
+                    value={teamDistrict}
+                    onChange={(e) => setTeamDistrict(e.target.value)}
+                  >
+                    <option value="">{t('اختر الحي')}</option>
+                    {[...cairoDistrictNames]
+                      .sort((a, b) =>
+                        bilingual(a.nameAr, a.nameEn).localeCompare(bilingual(b.nameAr, b.nameEn)),
+                      )
+                      .map((district) => (
+                        <option key={district.id} value={district.id}>
+                          {bilingual(district.nameAr, district.nameEn)}
+                        </option>
+                      ))}
+                  </select>
+                  <button
+                    className="role-option"
+                    disabled={loading || !teamDistrict}
+                    onClick={() => login('district_agent')}
+                  >
+                    <span className="feature-icon small">
+                      <MapPin size={20} />
+                    </span>
+                    <span>
+                      <strong>{t('دخول فريق الحي')}</strong>
+                      <small>{t('إدارة البلاغات المسندة لهذا الحي فقط')}</small>
+                    </span>
+                    <ArrowLeft size={18} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  className="role-option"
+                  disabled={loading}
+                  onClick={() => login('district_agent')}
+                >
+                  <span className="feature-icon small">
+                    <MapPin size={20} />
+                  </span>
+                  <span>
+                    <strong>{t('موظف حي المعادي')}</strong>
+                    <small>{t('إدارة البلاغات المسندة لهذا الحي فقط')}</small>
+                  </span>
+                  <ArrowLeft size={18} />
+                </button>
+              )}
               <button className="role-option" disabled={loading} onClick={() => login('moderator')}>
                 <span className="feature-icon small">
                   <ShieldCheck size={20} />
@@ -423,7 +470,7 @@ export default function Dashboard({
         <span className="sidebar-label">{t('مساحة العمل')}</span>
         <h3>
           {user.role === 'district_agent'
-            ? t('حي المعادي')
+            ? teamName(user) || t('حي المعادي')
             : user.role === 'moderator'
               ? t('مراجعة المحتوى')
               : t('إدارة المنصة')}

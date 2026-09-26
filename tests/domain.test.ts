@@ -122,3 +122,22 @@ describe('Domain validation', () => {
     ).toBe(false);
   });
 });
+
+describe('official Cairo districts', () => {
+  it('names well-known places by their district and leaves Giza out', async () => {
+    const { resolveCairoDistrict } = await import('@balaa/geo');
+    const place = (lat: number, lng: number) => resolveCairoDistrict(lat, lng)?.nameAr ?? null;
+    expect(place(29.9602, 31.2569)).toBe('المعادي');
+    expect(place(30.0444, 31.2357)).toBe('قصر النيل');
+    expect(place(30.0626, 31.2197)).toBe('الزمالك');
+    expect(place(30.0731, 31.3456)).toBe('مدينة نصر أول');
+    expect(place(30.0074, 31.4913)).toBe('القاهرة الجديدة أول');
+    expect(place(29.8414, 31.3342)).toBe('حلوان');
+    expect(place(29.9792, 31.1342)).toBeNull();
+    expect(place(30.0385, 31.2123)).toBeNull();
+    // 60 m beyond Maadi's western edge (GPS error, simplification gaps) goes to the nearest
+    // district; 2 km out, across the Nile in Giza, is outside Cairo.
+    expect(resolveCairoDistrict(29.96506, 31.2438)).not.toBeNull();
+    expect(resolveCairoDistrict(29.96506, 31.22368)).toBeNull();
+  });
+});

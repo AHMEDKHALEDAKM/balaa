@@ -54,6 +54,26 @@ function fromPage(value: unknown): unknown {
   return value;
 }
 
+type Reply = {
+  status: number;
+  body: { error?: unknown; token?: unknown } | null;
+  media?: Record<string, string>;
+};
+async function send(backend: string, request: string): Promise<Reply | 'failed'> {
+  try {
+    const response = await fetch(backend, {
+      method: 'POST',
+      // text/plain keeps this a "simple" request, which Apps Script accepts cross-origin.
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: request,
+    });
+    const reply = (await response.json()) as Reply;
+    return typeof reply?.status === 'number' ? reply : 'failed';
+  } catch {
+    return 'failed';
+  }
+}
+
 export async function remoteApi<T>(backend: string, url: string, body?: unknown): Promise<T> {
   let payload = body;
   // Send a small upright JPEG instead of the full camera photo.
@@ -62,28 +82,34 @@ export async function remoteApi<T>(backend: string, url: string, body?: unknown)
     const base64 = await normalizeImage(data.dataUrl.slice(data.dataUrl.indexOf(',') + 1));
     payload = { ...data, dataUrl: `data:image/jpeg;base64,${base64}` };
   }
-  let result: {
-    status: number;
-    body: { error?: unknown; token?: unknown } | null;
-    media?: Record<string, string>;
-  };
-  try {
-    const response = await fetch(backend, {
-      method: 'POST',
-      // text/plain keeps this a "simple" request, which Apps Script accepts cross-origin.
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({
-        method: body === undefined ? 'GET' : 'POST',
-        path: url,
-        body: fromPage(payload),
-        token: token(),
-        device: device(),
-      }),
-    });
-    result = await response.json();
-  } catch {
-    throw new Error('تعذّر الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.');
+  const read = body === undefined;
+  const request = JSON.stringify({
+    method: read ? 'GET' : 'POST',
+    path: url,
+    body: fromPage(payload),
+    token: token(),
+    device: device(),
+  });
+  let result: Reply | null = null;
+  // Google sometimes answers slowly or with a temporary error page, especially when the
+  // script has been idle. Reads are retried quietly; a change (like sending a report) is
+  // retried only when the server says it did nothing, so it can never be sent twice.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt) await new Promise((resolve) => setTimeout(resolve, 900 * attempt));
+    const reply = await send(backend, request);
+    if (reply === 'failed') {
+      if (read) continue;
+      break;
+    }
+    result = reply;
+    if (reply.status !== 503) break;
   }
+  if (!result)
+    throw new Error(
+      typeof navigator !== 'undefined' && navigator.onLine === false
+        ? 'أنت غير متصل بالإنترنت. سنحاول مرة أخرى عند عودة الاتصال.'
+        : 'تعذّر الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.',
+    );
   if (result.status >= 400)
     throw new Error(
       typeof result.body?.error === 'string'

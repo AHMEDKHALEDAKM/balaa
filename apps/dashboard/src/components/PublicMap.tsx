@@ -2,7 +2,7 @@
 import { useLocale } from '@balaa/ui/locale';
 
 import { useEffect, useRef, useState } from 'react';
-import { LocateFixed, MapPin } from 'lucide-react';
+import { LoaderCircle, LocateFixed, MapPin } from 'lucide-react';
 import type { Map as MapType, Marker } from 'maplibre-gl';
 import { Report, withBase } from './model';
 export default function PublicMap({
@@ -24,6 +24,9 @@ export default function PublicMap({
   const markers = useRef<Marker[]>([]);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState('');
+  const me = useRef<Marker | null>(null);
   const selectRef = useRef(onSelect);
   selectRef.current = onSelect;
   useEffect(() => {
@@ -60,8 +63,8 @@ export default function PublicMap({
               },
             ],
           },
-          center: [31.263, 29.965],
-          zoom: 13.3,
+          center: [31.2357, 30.0444],
+          zoom: 11.2,
           attributionControl: { compact: true },
         });
         map.current = instance;
@@ -81,6 +84,8 @@ export default function PublicMap({
       const instance = map.current as (MapType & { _balaaResize?: ResizeObserver }) | null;
       instance?._balaaResize?.disconnect();
       markers.current.forEach((marker) => marker.remove());
+      me.current?.remove();
+      me.current = null;
       instance?.remove();
       map.current = null;
     };
@@ -128,6 +133,45 @@ export default function PublicMap({
       marker?.remove();
     };
   }, [ready, focus]);
+  /** Centres the map on the phone's real GPS position and marks it with a blue dot. */
+  function locateMe() {
+    setLocateError('');
+    if (!navigator.geolocation) {
+      setLocateError(t('المتصفح لا يدعم تحديد الموقع.'));
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocating(false);
+        const { latitude, longitude, accuracy } = position.coords;
+        if (!map.current) return;
+        map.current.flyTo({
+          center: [longitude, latitude],
+          zoom: accuracy > 500 ? 14 : 16.5,
+        });
+        void import('maplibre-gl').then((maplibre) => {
+          if (!map.current) return;
+          if (!me.current) {
+            const dot = document.createElement('span');
+            dot.className = 'map-me';
+            dot.setAttribute('aria-label', t('موقعك الحالي'));
+            me.current = new maplibre.Marker({ element: dot });
+          }
+          me.current.setLngLat([longitude, latitude]).addTo(map.current);
+        });
+      },
+      (error) => {
+        setLocating(false);
+        setLocateError(
+          error.code === error.PERMISSION_DENIED
+            ? t('اسمح للتطبيق بالوصول إلى موقعك من إعدادات المتصفح أو الهاتف.')
+            : t('تعذّر تحديد موقعك. تأكد من تشغيل الـ GPS وحاول مرة أخرى.'),
+        );
+      },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+    );
+  }
   return (
     <div className={`public-map ${compact ? 'map-compact' : ''}`}>
       <div ref={node} className="map-canvas" aria-label={t('خريطة بلاغات القاهرة')} />
@@ -143,16 +187,22 @@ export default function PublicMap({
       )}
       <div className="map-area">
         <span className="live-dot" />
-        {t('القاهرة · نطاق العرض التجريبي')}
+        {t('القاهرة')}
       </div>
       <button
         className="map-locate"
-        title={t('العودة إلى المعادي')}
-        aria-label={t('العودة إلى المعادي')}
-        onClick={() => map.current?.flyTo({ center: [31.263, 29.965], zoom: 13.3 })}
+        title={t('موقعي')}
+        aria-label={t('موقعي')}
+        onClick={locateMe}
+        disabled={locating}
       >
-        <LocateFixed size={20} />
+        {locating ? <LoaderCircle className="spin" size={20} /> : <LocateFixed size={20} />}
       </button>
+      {locateError && (
+        <p className="map-locate-error" role="alert">
+          {locateError}
+        </p>
+      )}
       <div className="map-legend">
         <span>
           <i className="legend-open" />

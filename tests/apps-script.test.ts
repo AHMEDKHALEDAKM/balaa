@@ -109,7 +109,7 @@ function fakeGoogle() {
     },
     SpreadsheetApp: { create: makeSpreadsheet, openById: lookup(sheets) },
     LockService: {
-      getScriptLock: () => ({ waitLock: () => undefined, releaseLock: () => undefined }),
+      getScriptLock: () => ({ tryLock: () => true, releaseLock: () => undefined }),
     },
     PropertiesService: {
       getScriptProperties: () => ({
@@ -195,12 +195,14 @@ describe('Apps Script shared backend', () => {
     expect(JSON.stringify(visitor.body)).not.toContain('mona@example.com');
   });
 
-  it('routes Cairo points outside the mapped districts to the pending queue', () => {
-    const inCairo = call('POST', '/api/geo', { latitude: 30.05, longitude: 31.24 });
-    expect(inCairo.body.district.nameAr).toBe('حي قيد التحديد');
-    const outside = call('POST', '/api/geo', { latitude: 31.2, longitude: 29.9 });
-    expect(outside.status).toBe(422);
-    expect(outside.body.error).toBe('النسخة الحالية تغطي القاهرة فقط');
+  it('names the official Cairo district for any point and refuses places outside Cairo', () => {
+    const tahrir = call('POST', '/api/geo', { latitude: 30.0444, longitude: 31.2357 });
+    expect(tahrir.body.district).toMatchObject({ id: 'qasr-el-nil', nameAr: 'قصر النيل' });
+    const korba = call('POST', '/api/geo', { latitude: 30.0911, longitude: 31.3225 });
+    expect(korba.body.district.nameAr).toBe('مصر الجديدة');
+    const dokki = call('POST', '/api/geo', { latitude: 30.0385, longitude: 31.2123 });
+    expect(dokki.status).toBe(422);
+    expect(dokki.body.error).toBe('النسخة الحالية تغطي القاهرة فقط');
   });
 
   it('requires the team code for staff and runs the repair lifecycle', () => {
@@ -209,7 +211,27 @@ describe('Apps Script shared backend', () => {
     );
     fake.properties.set('STAFF_CODE', 'maadi-2026');
     expect(call('POST', '/api/auth/staff', { role: 'district_agent', code: 'x' }).status).toBe(403);
-    const staff = call('POST', '/api/auth/staff', { role: 'district_agent', code: 'maadi-2026' });
+    expect(
+      call('POST', '/api/auth/staff', { role: 'district_agent', code: 'maadi-2026' }).body.error,
+    ).toBe('اختر الحي');
+    // Another district's team cannot see Maadi's report.
+    const heliopolis = call('POST', '/api/auth/staff', {
+      role: 'district_agent',
+      code: 'maadi-2026',
+      districtId: 'heliopolis',
+    });
+    expect(heliopolis.body.user).toMatchObject({
+      districtIds: ['heliopolis'],
+      name: 'مصر الجديدة',
+    });
+    expect(
+      call('GET', '/api/dashboard/reports', undefined, heliopolis.body.token).body.reports,
+    ).toEqual([]);
+    const staff = call('POST', '/api/auth/staff', {
+      role: 'district_agent',
+      code: 'maadi-2026',
+      districtId: 'maadi',
+    });
     const token = staff.body.token;
     const [open] = call('GET', '/api/dashboard/reports', undefined, token).body.reports;
     for (const status of ['acknowledged', 'in_progress'])

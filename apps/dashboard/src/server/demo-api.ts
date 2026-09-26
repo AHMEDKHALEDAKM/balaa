@@ -2,6 +2,7 @@
 // phone demo on GitHub Pages (browser store). Keep this file free of Node imports.
 import { z } from 'zod';
 import { categorySchema, coordinateSchema, type User } from '@balaa/types';
+import { cairoDistrictNames } from '@balaa/geo';
 import { audit, type State } from './state';
 import {
   ApiError,
@@ -27,8 +28,11 @@ export interface DemoHost {
   normalizeImage(base64: string): Promise<string>;
   /** When set, district staff must enter this team code to sign in (empty = not configured yet). */
   staffCode?: string;
-  /** Send Cairo points outside the mapped districts to the "district pending" queue. */
-  triageUnmapped?: boolean;
+  /**
+   * Route by the 42 official Cairo districts, each with its own staff team (the phone
+   * app). Without it only the two demo fixtures and the Maadi demo staff exist.
+   */
+  officialDistricts?: boolean;
 }
 /** `login` asks the host to start a session for that user and return it to the caller. */
 export type DemoResult = { status: number; body: unknown; login?: User };
@@ -63,12 +67,27 @@ export async function demoRequest(
       const { code } = z.object({ code: z.string().max(100).default('') }).parse(body);
       if (code.trim() !== host.staffCode) throw new ApiError(403, 'رمز فريق العمل غير صحيح');
     }
-    const { role } = z
+    const { role, districtId } = z
       .object({
         role: z.enum(['district_agent', 'district_manager', 'moderator', 'platform_admin']),
+        districtId: z.string().max(80).optional(),
       })
       .parse(body);
-    const staff = state.users.find((u) => u.id === `demo-${role}`)!;
+    let staff = state.users.find((u) => u.id === `demo-${role}`)!;
+    if (host.officialDistricts && (role === 'district_agent' || role === 'district_manager')) {
+      // One team account per official district, created the first time it signs in.
+      const district = cairoDistrictNames.find((d) => d.id === districtId);
+      if (!district) throw new ApiError(400, 'اختر الحي');
+      const id = `staff-${role}-${district.id}`;
+      staff = state.users.find((u) => u.id === id) ?? {
+        id,
+        role,
+        verified: true,
+        districtIds: [district.id],
+        name: district.nameAr,
+      };
+      if (!state.users.includes(staff)) state.users.push(staff);
+    }
     audit(state, staff.id, 'session.demo_staff', staff.id);
     return { status: 200, body: null, login: staff };
   }
@@ -93,11 +112,13 @@ export async function demoRequest(
   }
   if (method === 'POST' && endpoint === 'geo') {
     const input = coordinateSchema.parse(body);
-    const district = routeLocation(input.latitude, input.longitude, host.triageUnmapped);
+    const district = routeLocation(input.latitude, input.longitude, host.officialDistricts);
     if (!district)
       throw new ApiError(
         422,
-        host.triageUnmapped ? 'النسخة الحالية تغطي القاهرة فقط' : 'الموقع خارج حدود العرض التجريبي',
+        host.officialDistricts
+          ? 'النسخة الحالية تغطي القاهرة فقط'
+          : 'الموقع خارج حدود العرض التجريبي',
       );
     return ok({
       district: { id: district.id, nameAr: district.nameAr, nameEn: district.nameEn },
@@ -111,7 +132,11 @@ export async function demoRequest(
   }
   if (method === 'POST' && endpoint === 'reports')
     return ok(
-      { report: await submitReport(state, user, body, { triageUnmapped: host.triageUnmapped }) },
+      {
+        report: await submitReport(state, user, body, {
+          officialDistricts: host.officialDistricts,
+        }),
+      },
       201,
     );
   if (method === 'POST' && path[0] === 'reports' && path[1] && path[2] === 'confirm')

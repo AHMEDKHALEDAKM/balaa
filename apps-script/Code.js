@@ -64,9 +64,14 @@ function handle(request) {
     .map(decodeURIComponent);
   var endpoint = path.join('/');
   if (endpoint === 'config')
-    return { status: 200, body: { mode: 'shared', identityMock: true, staffCodeRequired: true } };
-  var lock = LockService.getScriptLock();
-  lock.waitLock(30000);
+    return {
+      status: 200,
+      body: { mode: 'shared', identityMock: true, staffCodeRequired: true, districtTeams: true },
+    };
+  // Reads never change data, so they skip the lock and are not held up by someone's upload.
+  var lock = method === 'POST' ? LockService.getScriptLock() : null;
+  if (lock && !lock.tryLock(25000))
+    return { status: 503, body: { error: 'الخادم مشغول. حاول مرة أخرى بعد لحظات.' } };
   try {
     var store = openStore();
     var state = store.load();
@@ -89,7 +94,7 @@ function handle(request) {
           return base64;
         },
         staffCode: PropertiesService.getScriptProperties().getProperty('STAFF_CODE') || '',
-        triageUnmapped: true,
+        officialDistricts: true,
       }),
     );
     if (result.login) {
@@ -109,7 +114,7 @@ function handle(request) {
     console.error(error && error.stack ? error.stack : error);
     return { status: 500, body: { error: 'تعذر إتمام الطلب. حاول مرة أخرى.' } };
   } finally {
-    lock.releaseLock();
+    if (lock) lock.releaseLock();
   }
 }
 

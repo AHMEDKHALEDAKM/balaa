@@ -4556,3 +4556,104 @@ html[dir='ltr'] .hero h1 {
   background: var(--mint);
   border-bottom: 1px solid var(--line);
 }
+.map-me {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #1a73e8;
+  border: 3px solid white;
+  box-shadow:
+    0 0 0 8px #1a73e833,
+    0 2px 6px #0004;
+}
+.map-locate-error {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 56px;
+  z-index: 3;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: white;
+  color: var(--red);
+  font-size: 13px;
+  line-height: 1.7;
+  box-shadow: 0 6px 18px #183c3722;
+}
+
+/* ---------- Opening screen ---------- */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  text-align: center;
+  color: white;
+  background: radial-gradient(circle at 50% 35%, #1d8a79 0, var(--teal) 45%, var(--teal-dark) 100%);
+  animation: splash-in 0.45s ease-out;
+  transition: opacity 0.55s ease;
+  cursor: pointer;
+}
+.splash-leaving {
+  opacity: 0;
+}
+.splash-mark {
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff1f;
+  margin-bottom: 14px;
+}
+.splash-mark svg {
+  width: 46px;
+  height: 46px;
+}
+.splash-hadith {
+  margin: 0;
+  font-size: clamp(38px, 11vw, 60px) !important;
+  line-height: 1.75;
+  font-weight: 700;
+}
+.splash-hadith span {
+  display: block;
+  white-space: nowrap;
+}
+.splash-source {
+  font-size: 14px;
+  opacity: 0.8;
+  letter-spacing: 0.3px;
+}
+.splash-translation {
+  font-size: 14px;
+  opacity: 0.85;
+  max-width: 30ch;
+  line-height: 1.7;
+}
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    animation: none;
+    transition: none;
+  }
+}
+.team-district select {
+  margin-bottom: 10px;
+  font-size: 15px;
+}

@@ -84,3 +84,42 @@ export function distanceMeters(
 export function publicCoordinate(value: number) {
   return Math.round(value * 1000) / 1000;
 }
+
+// Official Cairo districts (qism) from OCHA / HDX, CC BY-IGO. See data/README.md.
+export { cairoDistrictNames } from './cairo-district-names';
+export { cairoDistricts } from './cairo-district-shapes';
+import { cairoDistricts } from './cairo-district-shapes';
+/**
+ * Official Cairo district containing the point, or null outside Cairo Governorate.
+ * A point just outside every district (up to `edgeMeters`, from GPS error or the gaps
+ * that boundary simplification leaves between neighbours) belongs to the nearest one.
+ */
+export function resolveCairoDistrict(latitude: number, longitude: number, edgeMeters = 150) {
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  const point: Position = [longitude, latitude];
+  // Districts made of several pieces appear once per piece, with the same id.
+  const inside = cairoDistricts.find((d) => contains(point, d));
+  if (inside) return inside;
+  // Equirectangular metres are accurate enough over a few hundred metres.
+  const mx = 111320 * Math.cos((latitude * Math.PI) / 180);
+  const my = 110540;
+  let nearest: DistrictBoundary | null = null;
+  let best = edgeMeters;
+  for (const district of cairoDistricts)
+    for (const ring of district.rings)
+      for (let i = 1; i < ring.length; i++) {
+        const [ax, ay] = ring[i - 1]!;
+        const [bx, by] = ring[i]!;
+        const dx = (bx - ax) * mx;
+        const dy = (by - ay) * my;
+        const px = (longitude - ax) * mx;
+        const py = (latitude - ay) * my;
+        const t = Math.max(0, Math.min(1, (px * dx + py * dy) / (dx * dx + dy * dy || 1)));
+        const distance = Math.hypot(px - t * dx, py - t * dy);
+        if (distance < best) {
+          best = distance;
+          nearest = district;
+        }
+      }
+  return nearest;
+}

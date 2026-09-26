@@ -1,5 +1,12 @@
 import { identityProvider, DemoModerationProvider, notificationProvider } from '@balaa/config';
-import { distanceMeters, publicCoordinate, resolveDistrict, demoBoundaries } from '@balaa/geo';
+import {
+  cairoDistrictNames,
+  demoBoundaries,
+  distanceMeters,
+  publicCoordinate,
+  resolveCairoDistrict,
+  resolveDistrict,
+} from '@balaa/geo';
 import {
   canTransition,
   openStatuses,
@@ -52,6 +59,7 @@ export function dto(state: State, report: StoredReport, staff = false): PublicRe
     categoryLabelEn: state.categories.find((c) => c.id === report.categoryId)?.labelEn,
     districtNameEn:
       demoBoundaries.find((d) => d.id === report.districtId)?.nameEn ??
+      cairoDistrictNames.find((d) => d.id === report.districtId)?.nameEn ??
       (report.districtId === unassignedDistrict.id ? unassignedDistrict.nameEn : undefined),
     districtId: report.districtId,
     districtName: report.districtName,
@@ -132,22 +140,24 @@ function ownMedia(state: State, url: string, userId: string, kind: 'before' | 'r
   if (!media) throw new ApiError(400, 'ارفع صورة جديدة من حسابك لهذا البلاغ');
   return media;
 }
-/** Cairo points outside the mapped demo districts, held for manual routing by the platform team. */
+/**
+ * Reports filed before official districts were added, held for manual routing by the
+ * platform team. No new report is routed here.
+ */
 export const unassignedDistrict = {
   id: 'cairo-unassigned',
   nameAr: 'حي قيد التحديد',
   nameEn: 'District pending',
 };
-const inGreaterCairo = (latitude: number, longitude: number) =>
-  latitude >= 29.75 && latitude <= 30.25 && longitude >= 31.05 && longitude <= 31.65;
 /**
- * Mapped district for a point. With `triageUnmapped`, other Cairo points go to the
- * visible "district pending" queue instead of being rejected; they are never guessed.
+ * District for a point. With `officialDistricts` (the phone app), it is the official Cairo
+ * district (qism) containing the point, or null outside Cairo Governorate. Without it
+ * (local server, tests), only the two demo fixtures route.
  */
-export function routeLocation(latitude: number, longitude: number, triageUnmapped = false) {
-  const district = resolveDistrict(latitude, longitude);
-  if (district) return district;
-  return triageUnmapped && inGreaterCairo(latitude, longitude) ? unassignedDistrict : null;
+export function routeLocation(latitude: number, longitude: number, officialDistricts = false) {
+  return officialDistricts
+    ? resolveCairoDistrict(latitude, longitude)
+    : resolveDistrict(latitude, longitude);
 }
 /** The address real email would come from; set BALAA_SENDER once a domain is owned. */
 const sender = () => process.env.BALAA_SENDER || 'بلاعة · Balaa <no-reply@balaa.invalid>';
@@ -158,8 +168,13 @@ async function notify(state: State, report: StoredReport) {
     .find((d) => d.districtSlug === report.districtId)
     ?.endpoints.find((e) => e.type === 'primary' && e.enabled);
   const unassigned = report.districtId === unassignedDistrict.id;
-  if (!endpoint && !unassigned) throw new ApiError(422, 'لم يتم إعداد نقطة إشعار لهذا الحي');
-  const intendedTo = endpoint?.email ?? operationsInbox;
+  const official = cairoDistrictNames.some((d) => d.id === report.districtId);
+  if (!endpoint && !unassigned && !official)
+    throw new ApiError(422, 'لم يتم إعداد نقطة إشعار لهذا الحي');
+  // Official districts have no vetted contact yet: a reserved placeholder stands in for it.
+  const intendedTo =
+    endpoint?.email ??
+    (unassigned ? operationsInbox : `${report.districtId}@districts.balaa.invalid`);
   const provider = notificationProvider(process.env.EMAIL_MODE, process.env.TEST_INBOX);
   const category = state.categories.find((c) => c.id === report.categoryId)?.labelAr || '';
   const subject = `[بلاعة] بلاغ جديد ${report.publicId} — ${category} — ${report.districtName}`;
@@ -232,7 +247,7 @@ export async function submitReport(
   state: State,
   user: User | null,
   body: unknown,
-  options: { triageUnmapped?: boolean } = {},
+  options: { officialDistricts?: boolean } = {},
 ) {
   const citizen = verifiedCitizen(user);
   const input = reportInputSchema.parse(body);
@@ -252,11 +267,11 @@ export async function submitReport(
     throw new ApiError(400, 'الصورة يجب أن تكون ملتقطة خلال آخر 24 ساعة');
   if (!state.categories.some((c) => c.id === input.categoryId && c.active))
     throw new ApiError(400, 'تصنيف غير متاح');
-  const district = routeLocation(input.latitude, input.longitude, options.triageUnmapped);
+  const district = routeLocation(input.latitude, input.longitude, options.officialDistricts);
   if (!district)
     throw new ApiError(
       422,
-      options.triageUnmapped
+      options.officialDistricts
         ? 'النسخة الحالية تغطي القاهرة فقط'
         : 'الموقع خارج حدود العرض التجريبي أو يحتاج مراجعة',
     );

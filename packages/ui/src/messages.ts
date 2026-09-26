@@ -86,7 +86,8 @@ export const english: Record<string, string> = {
   'كل البلاغات': 'All reports',
   'جارٍ تحميل البلاغات…': 'Loading reports…',
   'الطريق مسؤوليتنا كلنا.': "Safer roads are everyone's responsibility.",
-  '«وتُميطُ الأذى عن الطريق صدقة»': '“Removing harm from the road is an act of charity.”',
+  '«وَتُمِيطُ الْأَذَى عَنِ الطَّرِيقِ صَدَقَةٌ»':
+    '“Removing harm from the road is an act of charity.”',
   'ابدأ بمشاركة': 'Make a contribution',
   'المشهد من حولك': 'Around you',
   'بلاغات موثقة، متابعة واضحة، وبيانات شخصية تظل خاصة.':
@@ -763,6 +764,22 @@ export const english: Record<string, string> = {
     'In Safari: tap the Share button at the bottom of the screen, then choose "Add to Home Screen".',
   'في Chrome: افتح القائمة ⋮ أعلى الشاشة، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».':
     'In Chrome: open the ⋮ menu at the top, then choose "Install app" or "Add to Home screen".',
+  'حديث شريف': 'Hadith of the Prophet',
+  'فريق {0}': '{0} team',
+  'فريق الحي': 'District team',
+  'اختر الحي': 'Choose the district',
+  'دخول فريق الحي': 'Sign in as the district team',
+  موقعي: 'My location',
+  'موقعك الحالي': 'Your current location',
+  'اسمح للتطبيق بالوصول إلى موقعك من إعدادات المتصفح أو الهاتف.':
+    'Allow the app to use your location in your browser or phone settings.',
+  'تعذّر تحديد موقعك. تأكد من تشغيل الـ GPS وحاول مرة أخرى.':
+    'Could not find your location. Make sure GPS is on and try again.',
+  'أنت غير متصل بالإنترنت. سنحاول مرة أخرى عند عودة الاتصال.':
+    'You are offline. We will try again when the connection is back.',
+  'الخادم مشغول. حاول مرة أخرى بعد لحظات.': 'The server is busy. Try again in a moment.',
+  'الخرائط: OpenStreetMap · حدود الأحياء: OCHA / HDX (CC BY-IGO)':
+    'Maps: OpenStreetMap · District boundaries: OCHA / HDX (CC BY-IGO)',
 };
 export const arabicCorrections: Record<string, string> = {
   'جاري العمل': 'جارٍ العمل',

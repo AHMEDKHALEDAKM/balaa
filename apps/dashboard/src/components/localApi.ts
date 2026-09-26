@@ -111,7 +111,7 @@ async function run(url: string, body: unknown) {
     .filter(Boolean)
     .map(decodeURIComponent);
   const endpoint = path.join('/');
-  if (endpoint === 'config') return { mode: 'demo', identityMock: true };
+  if (endpoint === 'config') return { mode: 'demo', identityMock: true, districtTeams: true };
   if (endpoint === 'auth/logout') {
     setStoredUser(null);
     return { ok: true };
@@ -122,7 +122,7 @@ async function run(url: string, body: unknown) {
     const result = await demoRequest(state, user, method, path, fromPage(body ?? {}), {
       clientKey: 'device',
       normalizeImage,
-      triageUnmapped: true,
+      officialDistricts: true,
     });
     await save(state);
     if (result.login) {

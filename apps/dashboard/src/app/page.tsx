@@ -35,6 +35,8 @@ import CreateReport from '../components/CreateReport';
 import ReportDetail from '../components/ReportDetail';
 import Dashboard from '../components/Dashboard';
 import SignIn from '../components/SignIn';
+import Splash, { hadith } from '../components/Splash';
+import { cairoDistrictNames } from '@balaa/geo/src/cairo-district-names';
 import { useInstall } from '../components/useInstall';
 
 type View = 'home' | 'map' | 'my' | 'account' | 'dashboard';
@@ -76,7 +78,14 @@ function urlWith(changes: Record<string, string | null>) {
 }
 
 export default function Home() {
-  const { t, number } = useLocale();
+  const { t, number, bilingual } = useLocale();
+  /** "Maadi team", "Moderator"... for staff; district teams are named after their district. */
+  const staffLabel = (account: User) => {
+    const district = cairoDistrictNames.find((d) => d.id === account.districtIds[0]);
+    return district && account.role.startsWith('district_')
+      ? t('فريق {0}', bilingual(district.nameAr, district.nameEn))
+      : t(staffRoles[account.role] ?? 'فريق العمل');
+  };
   const [view, setView] = useState<View>('home');
   const [user, setUser] = useState<User | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
@@ -92,8 +101,9 @@ export default function Home() {
   const firstLoad = useRef(true);
   const installer = useInstall();
   const [installHelp, setInstallHelp] = useState(false);
-  const refresh = useCallback(async () => {
-    setError('');
+  /** `quiet`: a background refresh keeps what is on screen if it fails, without an error. */
+  const refresh = useCallback(async (quiet = false) => {
+    if (!quiet) setError('');
     try {
       const [publicData, categoryData, session] = await Promise.all([
         api<{ reports: Report[] }>('/api/public/reports'),
@@ -114,7 +124,7 @@ export default function Home() {
         old ? publicData.reports.find((report) => report.id === old.id) || old : null,
       );
     } catch (e) {
-      setError((e as Error).message);
+      if (!quiet) setError((e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -141,12 +151,18 @@ export default function Home() {
     // Everyone shares one set of reports: pick up other people's changes when the
     // app comes back to the foreground, and every minute while it is open.
     function onVisible() {
-      if (document.visibilityState === 'visible') void refresh();
+      if (document.visibilityState === 'visible') void refresh(true);
+    }
+    // Back online after a dropped connection: reload and clear the offline message.
+    function onOnline() {
+      void refresh();
     }
     document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onOnline);
     const timer = setInterval(onVisible, 60000);
     return () => {
       document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onOnline);
       clearInterval(timer);
     };
   }, [refresh]);
@@ -241,11 +257,7 @@ export default function Home() {
                 <span className="account-avatar">
                   {user.name?.trim().charAt(0) || (user.role === 'citizen' ? t('م') : t('ف'))}
                 </span>
-                <span>
-                  {user.role === 'citizen'
-                    ? user.name || t('مواطن')
-                    : t(staffRoles[user.role] ?? 'فريق العمل')}
-                </span>
+                <span>{user.role === 'citizen' ? user.name || t('مواطن') : staffLabel(user)}</span>
               </button>
             ) : (
               <button className="account-button" onClick={() => setSignIn('welcome')}>
@@ -263,7 +275,7 @@ export default function Home() {
       {error && (
         <div className="global-error" role="alert">
           {t(error)}
-          <button className="text-button" onClick={refresh}>
+          <button className="text-button" onClick={() => void refresh()}>
             {t('إعادة المحاولة')}
           </button>
         </div>
@@ -444,7 +456,7 @@ export default function Home() {
                 </span>
                 <div>
                   <h2>{t('الطريق مسؤوليتنا كلنا.')}</h2>
-                  <p>{t('«وتُميطُ الأذى عن الطريق صدقة»')}</p>
+                  <p>{t(hadith)}</p>
                 </div>
                 <button className="button primary" onClick={startReport}>
                   {t('ابدأ بمشاركة')}
@@ -558,11 +570,7 @@ export default function Home() {
                     {user.name?.trim().charAt(0) || (user.role === 'citizen' ? t('م') : t('ف'))}
                   </span>
                   <div>
-                    <h2>
-                      {user.role === 'citizen'
-                        ? user.name || t('مواطن')
-                        : t(staffRoles[user.role] ?? 'فريق العمل')}
-                    </h2>
+                    <h2>{user.role === 'citizen' ? user.name || t('مواطن') : staffLabel(user)}</h2>
                     {user.email && (
                       <p className="account-email">
                         <span dir="ltr">{user.email}</span>
@@ -666,6 +674,9 @@ export default function Home() {
                 )}
               </p>
               <p className="account-version">{t('بلاعة · نسخة تجريبية مفتوحة المصدر')}</p>
+              <p className="account-version">
+                {t('الخرائط: OpenStreetMap · حدود الأحياء: OCHA / HDX (CC BY-IGO)')}
+              </p>
             </div>
           )}
         </main>
@@ -702,6 +713,7 @@ export default function Home() {
           ),
         )}
       </nav>
+      <Splash />
       {signIn && (
         <SignIn
           reason={signIn === 'report' ? 'report' : undefined}
