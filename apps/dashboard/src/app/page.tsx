@@ -41,6 +41,23 @@ import { useInstall } from '../components/useInstall';
 
 type View = 'home' | 'map' | 'my' | 'account' | 'dashboard';
 const VIEWS: View[] = ['home', 'map', 'my', 'account', 'dashboard'];
+const CACHE_KEY = 'balaa_cache_v1';
+type Cache = { reports: Report[]; categories: Category[] };
+function readCache(): Cache | null {
+  try {
+    const cache = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null') as Cache | null;
+    return cache && Array.isArray(cache.reports) && Array.isArray(cache.categories) ? cache : null;
+  } catch {
+    return null;
+  }
+}
+function writeCache(cache: Cache) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  } catch {
+    /* Storage full or blocked: the app simply waits for the network next time. */
+  }
+}
 const WELCOMED_KEY = 'balaa_welcomed';
 function welcomed() {
   try {
@@ -112,6 +129,7 @@ export default function Home() {
       ]);
       setReports(publicData.reports);
       setCategories(categoryData.categories);
+      writeCache({ reports: publicData.reports, categories: categoryData.categories });
       setUser(session.user);
       // First visit: open on the sign-in screen, like an installed app.
       if (firstLoad.current && !session.user && !welcomed()) setSignIn('welcome');
@@ -130,7 +148,15 @@ export default function Home() {
     }
   }, []);
   useEffect(() => {
-    void refresh();
+    // Show the last reports this phone saw straight away; the shared backend can take a
+    // few seconds to answer, and the fresh list replaces them as soon as it arrives.
+    const cached = readCache();
+    if (cached) {
+      setReports(cached.reports);
+      setCategories(cached.categories);
+      setLoading(false);
+    }
+    void refresh(!!cached);
     setView(viewFromUrl());
     const id = new URLSearchParams(window.location.search).get('report');
     if (id)

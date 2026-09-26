@@ -120,7 +120,9 @@ writeFileSync(
 );
 writeFileSync(
   'packages/geo/src/cairo-district-shapes.ts',
-  `${header}import type { DistrictBoundary } from './index';\nexport const cairoDistricts: DistrictBoundary[] = ${JSON.stringify(districts)};\n`,
+  // A JSON string parses much faster than the same data written as a JS literal, which
+  // matters in Apps Script, where the whole file is loaded on every request.
+  `${header}import type { DistrictBoundary } from './index';\nexport const cairoDistricts: DistrictBoundary[] = JSON.parse(${JSON.stringify(JSON.stringify(districts))});\n`,
 );
 const points = districts.reduce((n, d) => n + d.rings.reduce((m, r) => m + r.length, 0), 0);
 console.log(`${list.length} districts, ${districts.length} polygons, ${points} points.`);

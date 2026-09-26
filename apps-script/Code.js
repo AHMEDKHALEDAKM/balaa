@@ -68,13 +68,16 @@ function handle(request) {
       status: 200,
       body: { mode: 'shared', identityMock: true, staffCodeRequired: true, districtTeams: true },
     };
-  // Reads never change data, so they skip the lock and are not held up by someone's upload.
-  var lock = method === 'POST' ? LockService.getScriptLock() : null;
+  // Reads (and lookups sent as POST) never change data, so they skip the lock and are
+  // not held up by someone's upload.
+  var lookup = endpoint === 'geo' || endpoint === 'reports/duplicates';
+  var lock = method === 'POST' && !lookup ? LockService.getScriptLock() : null;
   if (lock && !lock.tryLock(25000))
     return { status: 503, body: { error: 'الخادم مشغول. حاول مرة أخرى بعد لحظات.' } };
   try {
     var store = openStore();
     var state = store.load();
+    var before = JSON.stringify(state);
     var user = sessionUser(state, request.token);
     if (endpoint === 'auth/logout') {
       if (request.token) {
@@ -101,11 +104,13 @@ function handle(request) {
       var token = issueSession(state, result.login);
       result = { status: 200, body: { user: result.login, token: token } };
     }
-    var changed = method === 'POST' || !!result.login;
-    if (changed) {
+    // Saving and rebuilding the spreadsheet are the slowest steps: only do them when
+    // something really changed, and rebuild the sheet only when its contents did.
+    if (!lookup && JSON.stringify(state) !== before) {
+      var sheetBefore = sheetContent(JSON.parse(before));
       storePhotos(state, store);
       store.save(state);
-      mirror(state, store);
+      if (sheetContent(state) !== sheetBefore) mirror(state, store);
     }
     return { status: result.status, body: result.body, media: mediaUrls(state, result.body) };
   } catch (error) {
@@ -203,6 +208,11 @@ function mediaUrls(state, body) {
 }
 
 // ---------- Readable spreadsheet ----------
+
+/** Everything the spreadsheet shows, to tell whether it needs rebuilding. */
+function sheetContent(state) {
+  return JSON.stringify([state.reports, state.notifications, state.categories]);
+}
 
 function mirror(state, store) {
   var sheet = store.sheet();

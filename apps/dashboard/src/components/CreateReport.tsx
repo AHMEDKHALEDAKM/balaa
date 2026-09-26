@@ -17,9 +17,26 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { api, Category, fileData, Report, Severity, severities } from './model';
+import { api, Category, fileData, Report, Severity, severities, sharedBackend } from './model';
+
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
+
+/**
+ * District for the location step. With the shared backend this runs on the phone (the
+ * same official boundaries the server uses), saving a slow round trip to Google; the
+ * server checks it again when the report is sent.
+ */
+async function districtName(point: { latitude: number; longitude: number }) {
+  if (sharedBackend) {
+    const { resolveCairoDistrict } = await import('@balaa/geo');
+    const district = resolveCairoDistrict(point.latitude, point.longitude);
+    if (!district) throw new Error('النسخة الحالية تغطي القاهرة فقط');
+    return district;
+  }
+  const result = await api<{ district: { nameAr: string; nameEn?: string } }>('/api/geo', point);
+  return result.district;
+}
 
 export default function CreateReport({
   categories,
@@ -163,8 +180,8 @@ export default function CreateReport({
               );
             },
           );
-      const result = await api<{ district: { nameAr: string } }>('/api/geo', coordinates);
-      setLocation({ ...coordinates, district: result.district.nameAr, demo });
+      const district = await districtName(coordinates);
+      setLocation({ ...coordinates, district: bilingual(district.nameAr, district.nameEn), demo });
     });
   }
   async function review() {

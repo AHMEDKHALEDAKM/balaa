@@ -22,6 +22,7 @@ const signed = (bytes: Uint8Array) => Array.from(bytes, (b) => (b > 127 ? b - 25
 function fakeGoogle() {
   const properties = new Map<string, string>();
   const files = new Map<string, any>();
+  const writes = { state: 0, sheet: 0 };
   const folders = new Map<string, any>();
   const sheets = new Map<string, any>();
   const makeFile = (name: string, content: string | { bytes: number[] }, mime = '') => {
@@ -34,7 +35,10 @@ function fakeGoogle() {
       sharing: '',
       getId: () => id,
       getBlob: () => ({ getDataAsString: () => file.content }),
-      setContent: (text: string) => void (file.content = text),
+      setContent: (text: string) => {
+        file.content = text;
+        writes.state++;
+      },
       setSharing: (access: string) => void (file.sharing = access),
       moveTo: () => undefined,
     };
@@ -70,7 +74,12 @@ function fakeGoogle() {
         clearContents: () => void (tab.values = []),
         setRightToLeft: () => undefined,
         setFrozenRows: () => undefined,
-        getRange: () => ({ setValues: (v: unknown[][]) => void (tab.values = v) }),
+        getRange: () => ({
+          setValues: (v: unknown[][]) => {
+            tab.values = v;
+            writes.sheet++;
+          },
+        }),
       };
       tabs.set(name, tab);
       return tab;
@@ -128,7 +137,7 @@ function fakeGoogle() {
     },
     console: { log: () => undefined, error: () => undefined },
   };
-  return { google, properties, files, sheets };
+  return { google, properties, files, sheets, writes };
 }
 
 const png =
@@ -196,6 +205,7 @@ describe('Apps Script shared backend', () => {
   });
 
   it('names the official Cairo district for any point and refuses places outside Cairo', () => {
+    const writes = { ...fake.writes };
     const tahrir = call('POST', '/api/geo', { latitude: 30.0444, longitude: 31.2357 });
     expect(tahrir.body.district).toMatchObject({ id: 'qasr-el-nil', nameAr: 'قصر النيل' });
     const korba = call('POST', '/api/geo', { latitude: 30.0911, longitude: 31.3225 });
@@ -203,6 +213,10 @@ describe('Apps Script shared backend', () => {
     const dokki = call('POST', '/api/geo', { latitude: 30.0385, longitude: 31.2123 });
     expect(dokki.status).toBe(422);
     expect(dokki.body.error).toBe('النسخة الحالية تغطي القاهرة فقط');
+    // Lookups are answered without saving data or rebuilding the spreadsheet.
+    expect(fake.writes).toEqual(writes);
+    call('GET', '/api/public/reports');
+    expect(fake.writes).toEqual(writes);
   });
 
   it('requires the team code for staff and runs the repair lifecycle', () => {
