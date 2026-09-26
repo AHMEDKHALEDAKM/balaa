@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ClipboardList,
   Clock3,
+  Download,
   House,
   Info,
   LayoutDashboard,
@@ -34,6 +35,7 @@ import CreateReport from '../components/CreateReport';
 import ReportDetail from '../components/ReportDetail';
 import Dashboard from '../components/Dashboard';
 import SignIn from '../components/SignIn';
+import { useInstall } from '../components/useInstall';
 
 type View = 'home' | 'map' | 'my' | 'account' | 'dashboard';
 const VIEWS: View[] = ['home', 'map', 'my', 'account', 'dashboard'];
@@ -88,6 +90,8 @@ export default function Home() {
   const [onboarding, setOnboarding] = useState(false);
   const [signIn, setSignIn] = useState<null | 'welcome' | 'report'>(null);
   const firstLoad = useRef(true);
+  const installer = useInstall();
+  const [installHelp, setInstallHelp] = useState(false);
   const refresh = useCallback(async () => {
     setError('');
     try {
@@ -608,6 +612,29 @@ export default function Home() {
                 </div>
               )}
               <section className="settings-list" aria-label={t('الإعدادات')}>
+                {!installer.installed && (
+                  <button
+                    className="settings-row install-row"
+                    onClick={async () => {
+                      if (!(await installer.install())) setInstallHelp((open) => !open);
+                    }}
+                  >
+                    <Download size={19} />
+                    <span>{t('ثبّت التطبيق على هاتفك')}</span>
+                    <ChevronLeft size={18} />
+                  </button>
+                )}
+                {!installer.installed && installHelp && (
+                  <p className="install-help" role="status">
+                    {installer.platform === 'ios'
+                      ? t(
+                          'في Safari: اضغط زر المشاركة أسفل الشاشة، ثم اختر «إضافة إلى الشاشة الرئيسية».',
+                        )
+                      : t(
+                          'في Chrome: افتح القائمة ⋮ أعلى الشاشة، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».',
+                        )}
+                  </p>
+                )}
                 <div className="settings-row">
                   <span>{t('اللغة')}</span>
                   <LanguageSwitch />

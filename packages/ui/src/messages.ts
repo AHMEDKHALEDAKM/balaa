@@ -758,6 +758,11 @@ export const english: Record<string, string> = {
   'تعذّر الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.':
     'Could not reach the server. Check your internet connection and try again.',
   'حي قيد التحديد': 'District pending',
+  'ثبّت التطبيق على هاتفك': 'Install the app on your phone',
+  'في Safari: اضغط زر المشاركة أسفل الشاشة، ثم اختر «إضافة إلى الشاشة الرئيسية».':
+    'In Safari: tap the Share button at the bottom of the screen, then choose "Add to Home Screen".',
+  'في Chrome: افتح القائمة ⋮ أعلى الشاشة، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».':
+    'In Chrome: open the ⋮ menu at the top, then choose "Install app" or "Add to Home screen".',
 };
 export const arabicCorrections: Record<string, string> = {
   'جاري العمل': 'جارٍ العمل',

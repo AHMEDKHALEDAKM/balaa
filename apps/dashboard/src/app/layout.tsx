@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   manifest: `${base}/manifest.webmanifest`,
   icons: { icon: `${base}/icons/icon-192.png`, apple: `${base}/icons/apple-touch-icon.png` },
   appleWebApp: { capable: true, title: 'بلاعة', statusBarStyle: 'default' },
+  // Older iPhones only open home-screen apps full screen with this exact tag.
+  other: { 'apple-mobile-web-app-capable': 'yes' },
 };
 export const viewport: Viewport = { themeColor: '#167365' };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
