@@ -34,3 +34,7 @@ See [SETUP.md](SETUP.md) for runtime instructions and [SECURITY.md](SECURITY.md)
 - iOS permission copy is configured in both Arabic and English; the OS chooses its display language. The uploaded Arabic wordmark, basemap labels and original report descriptions are intentionally not translated.
 
 See [GitHub and phone installation](GITHUB-AND-PHONE.md) for the remaining account/build steps and [Arabic review](BRAND-AND-LANGUAGES.md) for editorial changes.
+
+## Branding revert
+
+Restored the original web grille mark and native letter mark. Removed the supplied PNG from the application and reverted its Expo icon override. Arabic/English functionality remains in place.

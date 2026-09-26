@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   title: 'بلاعة | Balaa',
   description:
     'منصة مجتمعية مستقلة ومفتوحة المصدر لتوثيق مشكلات الطرق ومتابعة حلها. نسخة تجريبية بدون تكامل حكومي.',
-  icons: { icon: '/brand/balaa-logo.png', apple: '/brand/balaa-logo.png' },
   robots: { index: false, follow: false },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {

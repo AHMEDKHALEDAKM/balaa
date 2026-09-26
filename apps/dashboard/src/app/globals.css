@@ -4081,13 +4081,6 @@ select {
   }
 }
 
-.brand-logo {
-  width: 64px;
-  height: 64px;
-  object-fit: contain;
-  border-radius: 12px;
-  flex-shrink: 0;
-}
 .language-switch {
   min-width: 48px;
   min-height: 44px;
@@ -4113,10 +4106,6 @@ html[dir='ltr'] .lucide-chevron-left {
   transform: scaleX(-1);
 }
 @media (max-width: 600px) {
-  .brand-logo {
-    width: 48px;
-    height: 48px;
-  }
   .header-actions {
     gap: 6px;
   }

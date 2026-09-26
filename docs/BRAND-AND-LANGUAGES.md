@@ -1,6 +1,6 @@
 # Brand and language review
 
-The owner-supplied Balaa PNG is used unchanged in the web header, mobile header/start screen and Expo application icon configuration. Its Arabic wordmark is part of the artwork and is retained in the English interface. Software licensing does not grant rights to the supplied artwork; confirm those rights before public distribution.
+The original teal grille mark is restored on the web, with the original letter mark in the native header/start screen. The supplied PNG and its app-icon override have been removed. Arabic/English support is unchanged.
 
 Arabic is the default. The EN / العربية switch saves the preference in browser localStorage or native SecureStore. Web pages update lang/dir; native components use language-specific text alignment/direction and explicit layout ordering. Embedded maps receive the language parameter. Dates and numbers use ar-EG / en-GB. System permission prompts follow OS/platform localization and are not controlled by the in-app switch.
 

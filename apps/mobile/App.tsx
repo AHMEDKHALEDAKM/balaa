@@ -1,8 +1,6 @@
 import { useLocale, LocaleProvider, type Language } from '@balaa/ui/locale';
-import logo from './assets/balaa-logo.png';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  Image,
   ActivityIndicator,
   AppState,
   BackHandler,
@@ -469,11 +467,7 @@ function BalaaApp() {
     if (screen === 'splash')
       return (
         <View style={styles.splash}>
-          <Image
-            source={logo}
-            accessibilityLabel={t('بلاعة')}
-            style={{ width: 180, height: 180, borderRadius: 24 }}
-          />
+          <Text style={styles.splashMark}>{t('ب')}</Text>
           <Title>{t('بلاعة')}</Title>
           <Body>{t('بلّغ. تابع. خلّي الطريق أأمن.')}</Body>
           <ActivityIndicator color={colors.teal} size="large" />
@@ -1206,11 +1200,9 @@ function BalaaApp() {
           </View>
           <View style={styles.brand}>
             <Text style={styles.brandName}>{t('بلاعة')}</Text>
-            <Image
-              source={logo}
-              accessibilityLabel={t('بلاعة')}
-              style={{ width: 56, height: 56, borderRadius: 10 }}
-            />
+            <View style={styles.brandMark}>
+              <Text style={styles.brandLetter}>{t('ب')}</Text>
+            </View>
           </View>
         </View>
       )}

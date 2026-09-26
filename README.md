@@ -28,7 +28,7 @@ These buttons create local demo sessions; they are not a production staff authen
 
 ## Logo, languages and installing on a phone
 
-The supplied logo is included. Switch **EN / العربية** in the web or mobile header; your preference is saved. Arabic interface wording has been reviewed and corrected. Citizen-written descriptions are retained as submitted.
+The original teal logo is restored. Switch **EN / العربية** in the web or mobile header; your preference is saved. Arabic interface wording has been reviewed and corrected. Citizen-written descriptions are retained as submitted.
 
 [GitHub + Android/iPhone installation guide](docs/GITHUB-AND-PHONE.md) · [Brand and Arabic review](docs/BRAND-AND-LANGUAGES.md)
 

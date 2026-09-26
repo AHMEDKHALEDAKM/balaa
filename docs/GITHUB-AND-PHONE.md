@@ -95,7 +95,7 @@ Select the intended successful store build. Complete Apple's required app inform
 
 ## Current prototype limits
 
-The logo and both interface languages are included. The backend still uses synthetic geographic fixtures, mock identity and test-only delivery. Release mobile builds intentionally hide development gallery/synthetic-location tools. A standalone app outside the two fixture polygons cannot submit a real-GPS report until reviewed boundaries are configured. Live Supabase, native device behavior, EAS signing and store submission remain separate verification steps.
+The original branding and both interface languages are included. The backend still uses synthetic geographic fixtures, mock identity and test-only delivery. Release mobile builds intentionally hide development gallery/synthetic-location tools. A standalone app outside the two fixture polygons cannot submit a real-GPS report until reviewed boundaries are configured. Live Supabase, native device behavior, EAS signing and store submission remain separate verification steps.
 
 Official references, checked 26 September 2026:
 
