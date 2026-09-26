@@ -17,26 +17,23 @@ import {
   Upload,
   X,
 } from 'lucide-react';
-import { api, Category, fileData, Report, Severity, severities, User } from './model';
+import { api, Category, fileData, Report, Severity, severities } from './model';
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
 
 export default function CreateReport({
-  user,
   categories,
-  onLogin,
   onClose,
   onSubmitted,
 }: {
-  user: User | null;
   categories: Category[];
-  onLogin: (user: User) => void;
   onClose: () => void;
   onSubmitted: (report: Report) => void;
 }) {
   const { t, bilingual } = useLocale();
   useDialog(true, onClose);
-  const [step, setStep] = useState(user?.role === 'citizen' ? 1 : 0);
+  // The page signs the citizen in first (SignIn.tsx), so the wizard starts at the photo.
+  const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [photo, setPhoto] = useState('');
@@ -67,13 +64,6 @@ export default function CreateReport({
     } finally {
       setBusy(false);
     }
-  }
-  async function verify() {
-    await run(async () => {
-      const result = await api<{ user: User }>('/api/auth/mock', {});
-      onLogin(result.user);
-      setStep(1);
-    });
   }
   async function choose(file?: File) {
     if (!file) return;
@@ -230,7 +220,7 @@ export default function CreateReport({
             <X size={21} />
           </button>
         </div>
-        {step > 0 && step < 4 && (
+        {step < 4 && (
           <div className="wizard-progress">
             {[t('الصورة والموقع'), t('تفاصيل المشكلة'), t('مراجعة وإرسال')].map((label, index) => (
               <div className={step >= index + 1 ? 'active' : ''} key={t(label)}>
@@ -238,34 +228,6 @@ export default function CreateReport({
                 <b>{t(label)}</b>
               </div>
             ))}
-          </div>
-        )}
-        {step === 0 && (
-          <div className="auth-panel">
-            <span className="feature-icon large">
-              <ShieldCheck size={36} />
-            </span>
-            <span className="demo-pill">{t('نسخة تجريبية · Demo')}</span>
-            <h2 id="wizard-title">{t('صوتك موثوق. بياناتك خاصة.')}</h2>
-            <p>
-              {t(
-                'توثيق الهوية يساعدنا في الحفاظ على جدية البلاغات. لا يظهر اسمك أو أي بيانات شخصية مع بلاغك.',
-              )}
-            </p>
-            <div className="notice">
-              <ShieldCheck size={19} />
-              <span>
-                {t(
-                  'هذه محاكاة لتسجيل الدخول، ولا تتصل بمصر الرقمية أو أي جهة حكومية. لا نطلب رقمك القومي.',
-                )}
-              </span>
-            </div>
-            <button className="button primary full" onClick={verify} disabled={busy}>
-              {busy ? <LoaderCircle className="spin" size={19} /> : <ShieldCheck size={19} />}{' '}
-              {busy ? t('جارٍ التحقق التجريبي…') : t('متابعة عبر مصر الرقمية')}
-              <ArrowLeft size={18} />
-            </button>
-            <small>{t('سيتم إنشاء حساب مواطن تجريبي داخل هذه النسخة.')}</small>
           </div>
         )}
         {step === 1 && (
@@ -321,10 +283,10 @@ export default function CreateReport({
               )}
             </div>
             <div className="dev-inputs">
-              <span>{t('أدوات العرض التجريبي:')}</span>
+              <span>{t('أو:')}</span>
               <button disabled={busy} onClick={() => file.current?.click()}>
                 <Upload size={14} />
-                {t('اختيار صورة')}
+                {t('اختيار من المعرض')}
               </button>
               <button disabled={busy} onClick={demoPhoto}>
                 <ImagePlus size={14} />
@@ -356,7 +318,7 @@ export default function CreateReport({
                   {t('تحديد موقعي')}
                 </button>
                 <button className="text-button" onClick={() => locate(true)} disabled={busy}>
-                  {t('موقع المعادي التجريبي')}
+                  {t('استخدام موقع تجريبي')}
                 </button>
               </div>
               {location && (
@@ -366,7 +328,7 @@ export default function CreateReport({
               )}
             </div>
             <p className="microcopy">
-              {t('حدود الأحياء في العرض توضيحية وليست بيانات رسمية معتمدة.')}
+              {t('نحدد الحي المختص تلقائيًا. المواقع خارج الأحياء المُعرّفة تُحال لفريق التوجيه.')}
             </p>
           </>
         )}
@@ -472,7 +434,7 @@ export default function CreateReport({
               <ShieldCheck size={21} />
               <span>
                 {t(
-                  'يُراجع البلاغ قبل إتاحته للعامة. تذهب إشعارات هذه النسخة لصندوق اختبار فقط، ولا تُرسل لجهة حكومية.',
+                  'بعد الإرسال يظهر بلاغك على الخريطة للجميع ويُحال للحي المختص. بياناتك الشخصية لا تظهر مع البلاغ.',
                 )}
               </span>
             </div>
@@ -499,7 +461,9 @@ export default function CreateReport({
               </span>
             </div>
             <div className="notice">
-              {t('الإشعارات تجريبية ومحفوظة بصندوق الاختبار. لم يتم إرسال بلاغ إلى جهة حكومية.')}
+              {t(
+                'سجّلنا رسالة للحي المختص ورسالة تأكيد لبريدك. في هذه النسخة التجريبية تُحفظ الرسائل ولا تُرسل فعليًا.',
+              )}
             </div>
             <button className="button primary full" onClick={() => onSubmitted(result)}>
               {t('متابعة البلاغ')}
@@ -512,13 +476,13 @@ export default function CreateReport({
             {t(error)}
           </p>
         )}
-        {busy && step > 0 && (
+        {busy && (
           <p className="loading-line" role="status">
             <LoaderCircle size={16} className="spin" />
             {t('جارٍ إتمام الطلب…')}
           </p>
         )}
-        {step > 0 && step < 4 && (
+        {step < 4 && (
           <div className="wizard-footer">
             <button
               className="button ghost"

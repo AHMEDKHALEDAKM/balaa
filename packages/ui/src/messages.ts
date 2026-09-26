@@ -683,6 +683,81 @@ export const english: Record<string, string> = {
   طرة: 'Tora',
   '15 مايو': '15th of May',
   'مدينة نصر — نطاق تجريبي': 'Nasr City — DEMO area',
+  // App shell, sign-in, account and shared-backend messages
+  حسابي: 'Account',
+  مواطن: 'Citizen',
+  'تسجيل الدخول': 'Sign in',
+  'سجّل الدخول لإنشاء بلاغاتك ومتابعة حالتها.':
+    'Sign in to create reports and follow their status.',
+  'حسابك وإعداداتك': 'Your account and settings',
+  'هوية موثقة عبر مصر الرقمية · تجريبي': 'Identity verified via Digital Egypt · demo',
+  'حساب فريق العمل': 'Team account',
+  'أنت تتصفح كزائر': 'You are browsing as a guest',
+  'سجّل الدخول للإبلاغ عن مشكلة ومتابعة بلاغاتك.':
+    'Sign in to report a problem and follow your reports.',
+  'تم حلها': 'Resolved',
+  'تأكيدات من الآخرين': 'Confirmations from others',
+  الإعدادات: 'Settings',
+  اللغة: 'Language',
+  'كيف تعمل بلاعة': 'How Balaa works',
+  'لوحة فريق العمل': 'Team dashboard',
+  'اسمك وبريدك لا يظهران للحي أو للعامة. تظهر للجميع تفاصيل البلاغ وصورته وحالته فقط.':
+    'Your name and email are never shown to the district or the public. Everyone sees only the report details, photo and status.',
+  'بلاعة · نسخة تجريبية مفتوحة المصدر': 'Balaa · open-source prototype',
+  'مدير حي المعادي': 'Maadi district manager',
+  'أو:': 'Or:',
+  'اختيار من المعرض': 'Choose from gallery',
+  'استخدام موقع تجريبي': 'Use a demo location',
+  'نحدد الحي المختص تلقائيًا. المواقع خارج الأحياء المُعرّفة تُحال لفريق التوجيه.':
+    'We find the responsible district automatically. Locations outside mapped districts go to the routing team.',
+  'بعد الإرسال يظهر بلاغك على الخريطة للجميع ويُحال للحي المختص. بياناتك الشخصية لا تظهر مع البلاغ.':
+    'Once sent, your report appears on the map for everyone and is referred to the responsible district. Your personal details are never shown with it.',
+  'سجّلنا رسالة للحي المختص ورسالة تأكيد لبريدك. في هذه النسخة التجريبية تُحفظ الرسائل ولا تُرسل فعليًا.':
+    'We recorded a message to the district and a confirmation to your email. In this prototype, messages are saved but not actually sent.',
+  'أدخل رمز فريق العمل الذي حصلت عليه من إدارة المنصة، ثم اختر دورك.':
+    'Enter the team code you received from the platform administrators, then choose your role.',
+  'رمز فريق العمل': 'Team code',
+  'التصنيفات والمراجعة والرسائل الصادرة': 'Categories, review and outgoing messages',
+  'الرسائل الصادرة': 'Outgoing messages',
+  'الإرسال الفعلي متوقف': 'Real sending is off',
+  'إلى المواطن': 'To the citizen',
+  'إلى فريق التوجيه': 'To the routing team',
+  'إلى الحي المختص': 'To the district',
+  'إلى:': 'To:',
+  'من:': 'From:',
+  'لم تُرسل · وضع تجريبي': 'Not sent · demo mode',
+  'لا توجد رسائل بعد': 'No messages yet',
+  'كل رسالة للحي أو للمواطن تظهر هنا مع المرسل والمستلم.':
+    'Every message to a district or citizen appears here with its sender and recipient.',
+  'اكتب اسمك وبريدًا إلكترونيًا صحيحًا.': 'Enter your name and a valid email address.',
+  'سجّل الدخول لإرسال بلاغك': 'Sign in to send your report',
+  'أهلًا بك في بلاعة': 'Welcome to Balaa',
+  'سجّل دخولك بهويتك الرقمية للإبلاغ عن مشكلات الطريق ومتابعة حلها خطوة بخطوة.':
+    'Sign in with your digital identity to report road problems and follow each step until they are fixed.',
+  'الدخول عبر مصر الرقمية': 'Sign in with Digital Egypt',
+  تجريبي: 'Demo',
+  أو: 'or',
+  'تصفح البلاغات بدون تسجيل': 'Browse reports without signing in',
+  'نسخة تجريبية: زر مصر الرقمية للعرض فقط ولا يتصل بأي جهة حكومية. لا نطلب رقمك القومي.':
+    'Prototype: the Digital Egypt button is for demonstration only and contacts no government system. We never ask for your national ID.',
+  'جارٍ التحقق من هويتك…': 'Verifying your identity…',
+  'مصر الرقمية': 'Digital Egypt',
+  'هوية موثقة': 'Identity verified',
+  'أكمل بياناتك': 'Complete your details',
+  'خطوة أخيرة لنرسل لك تحديثات بلاغاتك.':
+    'One last step so we can send you updates on your reports.',
+  الاسم: 'Name',
+  'اسمك كما تحب أن نناديك': 'What should we call you?',
+  'البريد الإلكتروني': 'Email',
+  'نستخدم بريدك لإرسال تحديثات بلاغاتك فقط. لا يظهر اسمك أو بريدك للحي أو للعامة.':
+    'We use your email only for updates on your reports. Your name and email are never shown to the district or the public.',
+  ابدأ: 'Start',
+  'النسخة الحالية تغطي القاهرة فقط': 'This version covers Cairo only',
+  'رمز فريق العمل غير صحيح': 'Incorrect team code',
+  'لم يتم ضبط رمز دخول فريق العمل بعد': 'The team access code has not been set up yet',
+  'تعذّر الاتصال بالخادم. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.':
+    'Could not reach the server. Check your internet connection and try again.',
+  'حي قيد التحديد': 'District pending',
 };
 export const arabicCorrections: Record<string, string> = {
   'جاري العمل': 'جارٍ العمل',

@@ -43,6 +43,8 @@ export interface User {
   role: string;
   verified: boolean;
   districtIds: string[];
+  name?: string;
+  email?: string;
 }
 export const statuses: Record<Status, string> = {
   submitted: 'تم الإبلاغ',
@@ -64,11 +66,16 @@ export const date = (value: string) =>
     new Date(value),
   );
 export const number = (value: number) => new Intl.NumberFormat('ar-EG').format(value);
-/** True in the GitHub Pages build, where the demo runs entirely on the device. */
-export const deviceDemo = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
+/** Balaa Google Apps Script web app shared by every phone (GitHub Pages build). */
+export const sharedBackend = process.env.NEXT_PUBLIC_BALAA_BACKEND_URL || '';
+/** GitHub Pages build with no shared backend: the demo runs entirely on this device. */
+export const deviceDemo = process.env.NEXT_PUBLIC_STATIC_DEMO === '1' && !sharedBackend;
+/** Any GitHub Pages build (no per-report pages; links use /?report=). */
+export const staticSite = process.env.NEXT_PUBLIC_STATIC_DEMO === '1';
 /** Prefixes a site path with the GitHub Pages sub-path (e.g. /balaa); a no-op elsewhere. */
 export const withBase = (path: string) => `${process.env.NEXT_PUBLIC_BASE_PATH || ''}${path}`;
 export async function api<T>(url: string, body?: unknown): Promise<T> {
+  if (sharedBackend) return (await import('./remoteApi')).remoteApi<T>(sharedBackend, url, body);
   if (deviceDemo) return (await import('./localApi')).localApi<T>(url, body);
   const response = await fetch(url, {
     method: body === undefined ? 'GET' : 'POST',

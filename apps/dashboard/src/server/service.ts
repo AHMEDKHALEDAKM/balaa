@@ -50,7 +50,9 @@ export function dto(state: State, report: StoredReport, staff = false): PublicRe
     categoryLabel:
       state.categories.find((c) => c.id === report.categoryId)?.labelAr || report.categoryId,
     categoryLabelEn: state.categories.find((c) => c.id === report.categoryId)?.labelEn,
-    districtNameEn: demoBoundaries.find((d) => d.id === report.districtId)?.nameEn,
+    districtNameEn:
+      demoBoundaries.find((d) => d.id === report.districtId)?.nameEn ??
+      (report.districtId === unassignedDistrict.id ? unassignedDistrict.nameEn : undefined),
     districtId: report.districtId,
     districtName: report.districtName,
     status: report.status,
@@ -68,11 +70,17 @@ export function dto(state: State, report: StoredReport, staff = false): PublicRe
     ...(staff ? { identityVerified: true } : {}),
   };
 }
-export async function mockLogin(state: State, current: User | null) {
+export async function mockLogin(
+  state: State,
+  current: User | null,
+  profile: { name?: string; email?: string } = {},
+) {
   const user: User =
     current?.role === 'citizen'
       ? current
       : { id: crypto.randomUUID(), role: 'citizen', verified: true, districtIds: [] };
+  if (profile.name) user.name = profile.name;
+  if (profile.email) user.email = profile.email;
   const result = await identityProvider(process.env.AUTH_PROVIDER).verify(user.id);
   if (!state.users.some((u) => u.id === user.id)) state.users.push(user);
   state.identityVerifications.push({
@@ -124,27 +132,86 @@ function ownMedia(state: State, url: string, userId: string, kind: 'before' | 'r
   if (!media) throw new ApiError(400, 'ارفع صورة جديدة من حسابك لهذا البلاغ');
   return media;
 }
+/** Cairo points outside the mapped demo districts, held for manual routing by the platform team. */
+export const unassignedDistrict = {
+  id: 'cairo-unassigned',
+  nameAr: 'حي قيد التحديد',
+  nameEn: 'District pending',
+};
+const inGreaterCairo = (latitude: number, longitude: number) =>
+  latitude >= 29.75 && latitude <= 30.25 && longitude >= 31.05 && longitude <= 31.65;
+/**
+ * Mapped district for a point. With `triageUnmapped`, other Cairo points go to the
+ * visible "district pending" queue instead of being rejected; they are never guessed.
+ */
+export function routeLocation(latitude: number, longitude: number, triageUnmapped = false) {
+  const district = resolveDistrict(latitude, longitude);
+  if (district) return district;
+  return triageUnmapped && inGreaterCairo(latitude, longitude) ? unassignedDistrict : null;
+}
+/** The address real email would come from; set BALAA_SENDER once a domain is owned. */
+const sender = () => process.env.BALAA_SENDER || 'بلاعة · Balaa <no-reply@balaa.invalid>';
+const operationsInbox = 'routing-team@balaa.invalid';
 async function notify(state: State, report: StoredReport) {
   if (report.moderationStatus !== 'safe') return;
   const endpoint = districtContacts.districts
     .find((d) => d.districtSlug === report.districtId)
     ?.endpoints.find((e) => e.type === 'primary' && e.enabled);
-  if (!endpoint) throw new ApiError(422, 'لم يتم إعداد نقطة إشعار لهذا الحي');
+  const unassigned = report.districtId === unassignedDistrict.id;
+  if (!endpoint && !unassigned) throw new ApiError(422, 'لم يتم إعداد نقطة إشعار لهذا الحي');
+  const intendedTo = endpoint?.email ?? operationsInbox;
   const provider = notificationProvider(process.env.EMAIL_MODE, process.env.TEST_INBOX);
   const category = state.categories.find((c) => c.id === report.categoryId)?.labelAr || '';
-  const subject = `[Balaa Demo] ${report.publicId} — ${category} — ${report.districtName}`;
-  const body = `${report.publicId}\n${category}\n${report.severity}\n${report.districtName}\n${report.capturedAt}\nالموقع العام: ${publicCoordinate(report.latitude)}, ${publicCoordinate(report.longitude)}\n/api/public/reports/${report.id}\n${report.imageUrl}\nنسخة تجريبية — لم يتم الاتصال بأي جهة حكومية.`;
-  const delivered = await provider.send({ reportId: report.id, to: endpoint.email, subject, body });
+  const subject = `[بلاعة] بلاغ جديد ${report.publicId} — ${category} — ${report.districtName}`;
+  const body = `${unassigned ? 'بلاغ يحتاج تحديد الحي المختص.\n' : ''}${report.publicId}\n${category}\n${report.severity}\n${report.districtName}\n${report.capturedAt}\nالموقع العام: ${publicCoordinate(report.latitude)}, ${publicCoordinate(report.longitude)}\n/api/public/reports/${report.id}\n${report.imageUrl}\nنسخة تجريبية — لم يتم الاتصال بأي جهة حكومية.`;
+  const delivered = await provider.send({ reportId: report.id, to: intendedTo, subject, body });
   state.notifications.push({
     id: crypto.randomUUID(),
     reportId: report.id,
     to: delivered.destination,
+    intendedTo,
+    from: sender(),
+    audience: unassigned ? 'operations' : 'district',
     subject,
     body,
     createdAt: new Date().toISOString(),
     status: delivered.status,
   });
   audit(state, 'system', 'notification.test_captured', report.id);
+}
+const citizenSubjects: Partial<Record<ReportStatus, string>> = {
+  delivered: 'استلمنا بلاغك',
+  acknowledged: 'استلمته الجهة المختصة',
+  in_progress: 'بدأ العمل',
+  resolved: 'تم الحل',
+  rejected: 'لم يُقبل',
+  duplicate: 'بلاغ مكرر',
+};
+const citizenUpdates: Partial<Record<ReportStatus, string>> = {
+  delivered: 'استلمنا بلاغك وأحلناه للجهة المختصة.',
+  acknowledged: 'الجهة المختصة استلمت بلاغك.',
+  in_progress: 'بدأ العمل على المشكلة التي أبلغت عنها.',
+  resolved: 'تم حل المشكلة. شكرًا لمشاركتك في جعل الطريق أأمن.',
+  rejected: 'تمت مراجعة بلاغك ولم يُقبل. يمكنك الاطلاع على السبب في صفحة البلاغ.',
+  duplicate: 'بلاغك مطابق لبلاغ قائم، وسنتابع المشكلة من خلاله.',
+};
+/** Status email to the citizen who reported, when they gave an address. Captured, never sent. */
+function notifyCitizen(state: State, report: StoredReport, status: ReportStatus) {
+  const citizen = state.users.find((u) => u.id === report.userId);
+  const message = citizenUpdates[status];
+  if (!citizen?.email || !message) return;
+  state.notifications.push({
+    id: crypto.randomUUID(),
+    reportId: report.id,
+    to: 'citizen-updates@balaa.invalid',
+    intendedTo: citizen.email,
+    from: sender(),
+    audience: 'citizen',
+    subject: `[بلاعة] بلاغك ${report.publicId}: ${citizenSubjects[status]}`,
+    body: `${citizen.name ? `مرحبًا ${citizen.name}،\n` : ''}${message}\nرقم البلاغ: ${report.publicId}\n/?report=${report.publicId}`,
+    createdAt: new Date().toISOString(),
+    status: 'test_captured',
+  });
 }
 function setStatus(
   state: State,
@@ -159,8 +226,14 @@ function setStatus(
   report.history.push({ status, note, createdAt: now });
   if (status === 'acknowledged') report.acknowledgedAt = now;
   audit(state, actorId, `report.${status}`, report.id, note);
+  notifyCitizen(state, report, status);
 }
-export async function submitReport(state: State, user: User | null, body: unknown) {
+export async function submitReport(
+  state: State,
+  user: User | null,
+  body: unknown,
+  options: { triageUnmapped?: boolean } = {},
+) {
   const citizen = verifiedCitizen(user);
   const input = reportInputSchema.parse(body);
   if ((input.capturedLatitude === undefined) !== (input.capturedLongitude === undefined))
@@ -179,8 +252,14 @@ export async function submitReport(state: State, user: User | null, body: unknow
     throw new ApiError(400, 'الصورة يجب أن تكون ملتقطة خلال آخر 24 ساعة');
   if (!state.categories.some((c) => c.id === input.categoryId && c.active))
     throw new ApiError(400, 'تصنيف غير متاح');
-  const district = resolveDistrict(input.latitude, input.longitude);
-  if (!district) throw new ApiError(422, 'الموقع خارج حدود العرض التجريبي أو يحتاج مراجعة');
+  const district = routeLocation(input.latitude, input.longitude, options.triageUnmapped);
+  if (!district)
+    throw new ApiError(
+      422,
+      options.triageUnmapped
+        ? 'النسخة الحالية تغطي القاهرة فقط'
+        : 'الموقع خارج حدود العرض التجريبي أو يحتاج مراجعة',
+    );
   const media = ownMedia(state, input.imageUrl, citizen.id, 'before');
   rateLimit(state, `reports:${citizen.id}`, 10, 3600000);
   const moderation = await new DemoModerationProvider().review(input);

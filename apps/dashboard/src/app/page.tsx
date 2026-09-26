@@ -2,20 +2,28 @@
 import { LanguageSwitch } from '../components/LanguageProvider';
 import { useLocale } from '@balaa/ui/locale';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowLeft,
   ArrowUpLeft,
+  BadgeCheck,
   Check,
   CheckCircle2,
+  ChevronLeft,
   ClipboardList,
   Clock3,
+  House,
+  Info,
+  LayoutDashboard,
   LoaderCircle,
+  LogIn,
   LogOut,
+  Map as MapIcon,
   MapPin,
   Plus,
   Route,
   ShieldCheck,
+  UserRound,
   X,
 } from 'lucide-react';
 import { Brand } from '../components/Brand';
@@ -25,9 +33,31 @@ import PublicMap from '../components/PublicMap';
 import CreateReport from '../components/CreateReport';
 import ReportDetail from '../components/ReportDetail';
 import Dashboard from '../components/Dashboard';
+import SignIn from '../components/SignIn';
 
-type View = 'home' | 'map' | 'my' | 'dashboard';
-const VIEWS: View[] = ['home', 'map', 'my', 'dashboard'];
+type View = 'home' | 'map' | 'my' | 'account' | 'dashboard';
+const VIEWS: View[] = ['home', 'map', 'my', 'account', 'dashboard'];
+const WELCOMED_KEY = 'balaa_welcomed';
+function welcomed() {
+  try {
+    return localStorage.getItem(WELCOMED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+function markWelcomed() {
+  try {
+    localStorage.setItem(WELCOMED_KEY, '1');
+  } catch {
+    /* The welcome screen then shows again next visit. */
+  }
+}
+const staffRoles: Record<string, string> = {
+  district_agent: 'موظف حي المعادي',
+  district_manager: 'مدير حي المعادي',
+  moderator: 'مراجع المحتوى',
+  platform_admin: 'مدير المنصة',
+};
 
 // Each section and open report gets its own URL so the phone's Back gesture
 // steps through the app instead of leaving it.
@@ -56,6 +86,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState('all');
   const [onboarding, setOnboarding] = useState(false);
+  const [signIn, setSignIn] = useState<null | 'welcome' | 'report'>(null);
+  const firstLoad = useRef(true);
   const refresh = useCallback(async () => {
     setError('');
     try {
@@ -67,6 +99,9 @@ export default function Home() {
       setReports(publicData.reports);
       setCategories(categoryData.categories);
       setUser(session.user);
+      // First visit: open on the sign-in screen, like an installed app.
+      if (firstLoad.current && !session.user && !welcomed()) setSignIn('welcome');
+      firstLoad.current = false;
       if (session.user?.role === 'citizen') {
         const data = await api<{ reports: Report[] }>('/api/me/reports');
         setMine(data.reports);
@@ -99,6 +134,19 @@ export default function Home() {
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
   useEffect(() => {
+    // Everyone shares one set of reports: pick up other people's changes when the
+    // app comes back to the foreground, and every minute while it is open.
+    function onVisible() {
+      if (document.visibilityState === 'visible') void refresh();
+    }
+    document.addEventListener('visibilitychange', onVisible);
+    const timer = setInterval(onVisible, 60000);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      clearInterval(timer);
+    };
+  }, [refresh]);
+  useEffect(() => {
     if (view === 'my' && user?.role === 'citizen')
       api<{ reports: Report[] }>('/api/me/reports')
         .then((data) => setMine(data.reports))
@@ -112,6 +160,11 @@ export default function Home() {
     } catch (e) {
       setError((e as Error).message);
     }
+  }
+  /** Reporting needs a signed-in citizen; otherwise sign in first and continue. */
+  function startReport() {
+    if (user?.role === 'citizen') setCreate(true);
+    else setSignIn('report');
   }
   const resolved = reports.filter((report) => report.status === 'resolved').length;
   const progress = reports.filter((report) => report.status === 'in_progress').length;
@@ -170,22 +223,33 @@ export default function Home() {
             <button className={view === 'my' ? 'active' : ''} onClick={() => navigate('my')}>
               {t('بلاغاتي')}
             </button>
+            <button
+              className={view === 'account' ? 'active' : ''}
+              onClick={() => navigate('account')}
+            >
+              {t('حسابي')}
+            </button>
           </nav>
           <div className="header-actions">
             <LanguageSwitch />
             {user ? (
-              <button className="account-button" onClick={logout} title={t('تسجيل الخروج')}>
-                <span className="account-avatar">{user.role === 'citizen' ? t('م') : t('ف')}</span>
-                <span>{user.role === 'citizen' ? t('مواطن تجريبي') : t('فريق العمل')}</span>
-                <LogOut size={15} />
+              <button className="account-button" onClick={() => navigate('account')}>
+                <span className="account-avatar">
+                  {user.name?.trim().charAt(0) || (user.role === 'citizen' ? t('م') : t('ف'))}
+                </span>
+                <span>
+                  {user.role === 'citizen'
+                    ? user.name || t('مواطن')
+                    : t(staffRoles[user.role] ?? 'فريق العمل')}
+                </span>
               </button>
             ) : (
-              <span className="header-location">
-                <MapPin size={16} />
-                {t('القاهرة')}
-              </span>
+              <button className="account-button" onClick={() => setSignIn('welcome')}>
+                <LogIn size={16} />
+                <span>{t('تسجيل الدخول')}</span>
+              </button>
             )}
-            <button className="button primary header-report" onClick={() => setCreate(true)}>
+            <button className="button primary header-report" onClick={startReport}>
               <Plus size={18} />
               {t('بلّغ عن مشكلة')}
             </button>
@@ -223,7 +287,7 @@ export default function Home() {
                     {t('صوّرها، حدّد مكانها، وتابع بلاغك لحد ما تتحل.')}
                   </p>
                   <div className="hero-buttons">
-                    <button className="button primary large" onClick={() => setCreate(true)}>
+                    <button className="button primary large" onClick={startReport}>
                       <Plus size={21} />
                       {t('بلّغ عن مشكلة')}
                       <ArrowLeft size={19} />
@@ -378,7 +442,7 @@ export default function Home() {
                   <h2>{t('الطريق مسؤوليتنا كلنا.')}</h2>
                   <p>{t('«وتُميطُ الأذى عن الطريق صدقة»')}</p>
                 </div>
-                <button className="button primary" onClick={() => setCreate(true)}>
+                <button className="button primary" onClick={startReport}>
                   {t('ابدأ بمشاركة')}
                   <ArrowLeft size={17} />
                 </button>
@@ -457,7 +521,7 @@ export default function Home() {
                         'لم تسجّل أي بلاغات بعد. لو لاحظت مشكلة في الطريق، وثّقها بصورة.',
                       )}
                     />
-                    <button className="button primary" onClick={() => setCreate(true)}>
+                    <button className="button primary" onClick={startReport}>
                       <Plus size={18} />
                       {t('إنشاء أول بلاغ')}
                     </button>
@@ -469,19 +533,164 @@ export default function Home() {
                     <ShieldCheck size={35} />
                   </span>
                   <h2>{t('بلاغاتك في مكان واحد')}</h2>
-                  <p>{t('استخدم حساب مواطن تجريبي لإنشاء بلاغاتك ومتابعتها.')}</p>
-                  <button className="button primary" onClick={() => setCreate(true)}>
-                    {t('متابعة عبر مصر الرقمية')}
+                  <p>{t('سجّل الدخول لإنشاء بلاغاتك ومتابعة حالتها.')}</p>
+                  <button className="button primary" onClick={() => setSignIn('welcome')}>
+                    {t('تسجيل الدخول')}
                     <ArrowLeft size={18} />
                   </button>
-                  <span className="microcopy">
-                    {t('محاكاة مستقلة. لا يوجد اتصال بخدمة هوية حكومية.')}
-                  </span>
                 </div>
               )}
             </>
           )}
+          {view === 'account' && (
+            <div className="account-view">
+              <div className="page-heading">
+                <span className="eyebrow">{t('حسابك وإعداداتك')}</span>
+                <h1>{t('حسابي')}</h1>
+              </div>
+              {user ? (
+                <section className="account-card">
+                  <span className="account-avatar large">
+                    {user.name?.trim().charAt(0) || (user.role === 'citizen' ? t('م') : t('ف'))}
+                  </span>
+                  <div>
+                    <h2>
+                      {user.role === 'citizen'
+                        ? user.name || t('مواطن')
+                        : t(staffRoles[user.role] ?? 'فريق العمل')}
+                    </h2>
+                    {user.email && (
+                      <p className="account-email">
+                        <span dir="ltr">{user.email}</span>
+                      </p>
+                    )}
+                    <span className="verified-chip">
+                      <BadgeCheck size={15} />
+                      {user.role === 'citizen'
+                        ? t('هوية موثقة عبر مصر الرقمية · تجريبي')
+                        : t('حساب فريق العمل')}
+                    </span>
+                  </div>
+                </section>
+              ) : (
+                <section className="account-card guest">
+                  <span className="account-avatar large">
+                    <UserRound size={30} />
+                  </span>
+                  <div>
+                    <h2>{t('أنت تتصفح كزائر')}</h2>
+                    <p>{t('سجّل الدخول للإبلاغ عن مشكلة ومتابعة بلاغاتك.')}</p>
+                    <button className="button primary" onClick={() => setSignIn('welcome')}>
+                      <LogIn size={17} />
+                      {t('تسجيل الدخول')}
+                    </button>
+                  </div>
+                </section>
+              )}
+              {user?.role === 'citizen' && (
+                <div className="account-stats">
+                  <div>
+                    <strong>{number(mine.length)}</strong>
+                    <span>{t('بلاغاتي')}</span>
+                  </div>
+                  <div>
+                    <strong>
+                      {number(mine.filter((report) => report.status === 'resolved').length)}
+                    </strong>
+                    <span>{t('تم حلها')}</span>
+                  </div>
+                  <div>
+                    <strong>
+                      {number(mine.reduce((sum, report) => sum + report.confirmationCount, 0))}
+                    </strong>
+                    <span>{t('تأكيدات من الآخرين')}</span>
+                  </div>
+                </div>
+              )}
+              <section className="settings-list" aria-label={t('الإعدادات')}>
+                <div className="settings-row">
+                  <span>{t('اللغة')}</span>
+                  <LanguageSwitch />
+                </div>
+                <button className="settings-row" onClick={() => setOnboarding(true)}>
+                  <Info size={19} />
+                  <span>{t('كيف تعمل بلاعة')}</span>
+                  <ChevronLeft size={18} />
+                </button>
+                <button className="settings-row" onClick={() => navigate('dashboard')}>
+                  <LayoutDashboard size={19} />
+                  <span>
+                    {user && user.role !== 'citizen' ? t('لوحة فريق العمل') : t('دخول فرق الأحياء')}
+                  </span>
+                  <ChevronLeft size={18} />
+                </button>
+                {user && (
+                  <button className="settings-row danger" onClick={logout}>
+                    <LogOut size={19} />
+                    <span>{t('تسجيل الخروج')}</span>
+                    <ChevronLeft size={18} />
+                  </button>
+                )}
+              </section>
+              <p className="account-privacy">
+                <ShieldCheck size={16} />
+                {t(
+                  'اسمك وبريدك لا يظهران للحي أو للعامة. تظهر للجميع تفاصيل البلاغ وصورته وحالته فقط.',
+                )}
+              </p>
+              <p className="account-version">{t('بلاعة · نسخة تجريبية مفتوحة المصدر')}</p>
+            </div>
+          )}
         </main>
+      )}
+      <nav className="tab-bar" aria-label={t('التنقل الرئيسي')}>
+        {(
+          [
+            ['home', House, 'الرئيسية'],
+            ['map', MapIcon, 'الخريطة'],
+            ['report', Plus, 'بلّغ'],
+            ['my', ClipboardList, 'بلاغاتي'],
+            ['account', UserRound, 'حسابي'],
+          ] as const
+        ).map(([key, Icon, label]) =>
+          key === 'report' ? (
+            <button key={key} className="tab-report" onClick={startReport}>
+              <span>
+                <Icon size={26} />
+              </span>
+              {t(label)}
+            </button>
+          ) : (
+            <button
+              key={key}
+              className={
+                view === key || (key === 'account' && view === 'dashboard') ? 'active' : ''
+              }
+              aria-current={view === key ? 'page' : undefined}
+              onClick={() => navigate(key)}
+            >
+              <Icon size={22} />
+              {t(label)}
+            </button>
+          ),
+        )}
+      </nav>
+      {signIn && (
+        <SignIn
+          reason={signIn === 'report' ? 'report' : undefined}
+          onGuest={() => {
+            markWelcomed();
+            setSignIn(null);
+          }}
+          onSignedIn={(signedIn) => {
+            markWelcomed();
+            setUser(signedIn);
+            const next = signIn;
+            setSignIn(null);
+            if (next === 'report') setCreate(true);
+            void refresh();
+          }}
+        />
       )}
       <footer className="site-footer">
         <div>
@@ -505,9 +714,7 @@ export default function Home() {
       </footer>
       {create && (
         <CreateReport
-          user={user}
           categories={categories}
-          onLogin={setUser}
           onClose={() => {
             setCreate(false);
             void refresh();
@@ -584,7 +791,7 @@ export default function Home() {
               className="button primary full"
               onClick={() => {
                 setOnboarding(false);
-                setCreate(true);
+                startReport();
               }}
             >
               {t('خلّي مشاركتك أول خطوة')}

@@ -52,10 +52,15 @@ export default function Dashboard({
   const [backend, setBackend] = useState('demo');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [staffCode, setStaffCode] = useState('');
+  const [codeRequired, setCodeRequired] = useState(false);
   const [redactionConfirmed, setRedactionConfirmed] = useState(false);
   useEffect(() => {
-    api<{ mode: string }>('/api/config')
-      .then((c) => setBackend(c.mode))
+    api<{ mode: string; staffCodeRequired?: boolean }>('/api/config')
+      .then((c) => {
+        setBackend(c.mode);
+        setCodeRequired(!!c.staffCodeRequired);
+      })
       .catch(() => undefined);
   }, []);
   const [tab, setTab] = useState<Tab>('reports');
@@ -75,6 +80,9 @@ export default function Dashboard({
       id: string;
       reportId: string;
       to: string;
+      intendedTo?: string;
+      from?: string;
+      audience?: 'district' | 'citizen' | 'operations';
       subject: string;
       createdAt: string;
       status: string;
@@ -125,7 +133,11 @@ export default function Dashboard({
     try {
       const result = await api<{ user: User }>(
         '/api/auth/staff',
-        backend === 'supabase' ? { email, password } : { role },
+        backend === 'supabase'
+          ? { email, password }
+          : codeRequired
+            ? { role, code: staffCode }
+            : { role },
       );
       onLogin(result.user);
       if (result.user.role === 'moderator') setTab('moderation');
@@ -298,7 +310,25 @@ export default function Dashboard({
           </span>
           <span className="demo-pill">{t('دخول تجريبي')}</span>
           <h2>{t('مرحبًا بفريق العمل')}</h2>
-          <p>{t('اختر دورًا لتجربة لوحة المتابعة. جميع الحسابات والبيانات هنا مخصصة للعرض.')}</p>
+          <p>
+            {codeRequired
+              ? t('أدخل رمز فريق العمل الذي حصلت عليه من إدارة المنصة، ثم اختر دورك.')
+              : t('اختر دورًا لتجربة لوحة المتابعة. جميع الحسابات والبيانات هنا مخصصة للعرض.')}
+          </p>
+          {codeRequired && (
+            <>
+              <label className="field-label" htmlFor="staff-code">
+                {t('رمز فريق العمل')}
+              </label>
+              <input
+                id="staff-code"
+                type="password"
+                autoComplete="off"
+                value={staffCode}
+                onChange={(e) => setStaffCode(e.target.value)}
+              />
+            </>
+          )}
           <>
             {backend === 'supabase' && (
               <form
@@ -370,7 +400,7 @@ export default function Dashboard({
                 </span>
                 <span>
                   <strong>{t('مدير المنصة')}</strong>
-                  <small>{t('التصنيفات والمراجعة وصندوق الاختبار')}</small>
+                  <small>{t('التصنيفات والمراجعة والرسائل الصادرة')}</small>
                 </span>
                 <ArrowLeft size={18} />
               </button>
@@ -437,7 +467,7 @@ export default function Dashboard({
               </button>
               <button className={tab === 'outbox' ? 'active' : ''} onClick={() => setTab('outbox')}>
                 <Inbox size={19} />
-                {t('صندوق الاختبار')}
+                {t('الرسائل الصادرة')}
               </button>
               <button className={tab === 'abuse' ? 'active' : ''} onClick={() => setTab('abuse')}>
                 <ShieldCheck size={19} />
@@ -716,10 +746,10 @@ export default function Dashboard({
           <div className="reports-panel">
             <div className="panel-heading">
               <h2>
-                {t('إشعارات الاختبار')}
+                {t('الرسائل الصادرة')}
                 <span>{number(outbox.length)}</span>
               </h2>
-              <span className="demo-pill">EMAIL_MODE=test</span>
+              <span className="demo-pill">{t('الإرسال الفعلي متوقف')}</span>
               {backend === 'supabase' && (
                 <button
                   className="button secondary"
@@ -739,10 +769,24 @@ export default function Dashboard({
                   <Inbox size={21} />
                 </span>
                 <div>
+                  <span className="outbox-audience">
+                    {item.audience === 'citizen'
+                      ? t('إلى المواطن')
+                      : item.audience === 'operations'
+                        ? t('إلى فريق التوجيه')
+                        : t('إلى الحي المختص')}
+                  </span>
                   <strong>{item.subject}</strong>
-                  <p dir="ltr">{item.to}</p>
+                  <p>
+                    {t('إلى:')} <span dir="ltr">{item.intendedTo ?? item.to}</span>
+                  </p>
+                  {item.from && (
+                    <p>
+                      {t('من:')} <span dir="ltr">{item.from}</span>
+                    </p>
+                  )}
                   <small>
-                    {date(item.createdAt)} · {item.status}
+                    {date(item.createdAt)} · {t('لم تُرسل · وضع تجريبي')}
                   </small>
                 </div>
                 <CheckCircle2 size={19} />
@@ -750,8 +794,8 @@ export default function Dashboard({
             ))}
             {!outbox.length && (
               <EmptyState
-                title={t('صندوق الاختبار فارغ')}
-                description={t('ستظهر إشعارات البلاغات المسموح بنشرها هنا.')}
+                title={t('لا توجد رسائل بعد')}
+                description={t('كل رسالة للحي أو للمواطن تظهر هنا مع المرسل والمستلم.')}
               />
             )}
           </div>
@@ -898,7 +942,7 @@ export default function Dashboard({
               <>
                 {action === 'resolved' && (
                   <div className="resolution-upload">
-                    {backend === 'demo' && (
+                    {backend !== 'supabase' && (
                       <button
                         className="button secondary"
                         disabled={loading}

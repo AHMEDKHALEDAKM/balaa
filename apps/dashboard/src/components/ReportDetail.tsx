@@ -3,7 +3,7 @@ import { useLocale } from '@balaa/ui/locale';
 
 import { useState } from 'react';
 import { X, MapPin, Users, ShieldCheck, Share2, Check, ArrowUpLeft } from 'lucide-react';
-import { api, deviceDemo, Report, User, statuses, severities, withBase } from './model';
+import { api, Report, staticSite, User, statuses, severities, withBase } from './model';
 import { StatusBadge } from './ReportCard';
 import { useDialog } from './useDialog';
 export default function ReportDetail({
@@ -35,7 +35,7 @@ export default function ReportDetail({
   }
   async function share() {
     // The phone demo has no per-report pages; its links reopen the report on the home page.
-    const url = deviceDemo
+    const url = staticSite
       ? `${location.origin}${withBase('/')}?report=${report.publicId}`
       : `${location.origin}/reports/${report.id}`;
     try {

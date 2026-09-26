@@ -32,6 +32,8 @@ jobs:
         env:
           NEXT_TELEMETRY_DISABLED: '1'
           BALAA_BASE_PATH: /${{ github.event.repository.name }}
+          # Shared backend (apps-script/README.md). Without it, each phone keeps its own data.
+          NEXT_PUBLIC_BALAA_BACKEND_URL: ${{ vars.BALAA_BACKEND_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: apps/dashboard/out

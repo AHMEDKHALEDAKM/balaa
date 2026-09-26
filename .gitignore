@@ -28,3 +28,5 @@ apps/mobile/ios/
 .env.*
 !.env.example
 apps/dashboard/out/
+# Generated Apps Script file, committed so it can be downloaded from GitHub and pasted into Google
+!apps-script/dist/

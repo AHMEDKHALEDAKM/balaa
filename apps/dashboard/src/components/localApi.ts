@@ -4,6 +4,7 @@
 import type { User } from '@balaa/types';
 import { demoError, demoRequest } from '../server/demo-api';
 import { seed, type State } from '../server/state';
+import { normalizeImage } from './imageTools';
 import { withBase } from './model';
 
 const DB_NAME = 'balaa-demo';
@@ -29,9 +30,9 @@ async function load(): Promise<State> {
       request.onsuccess = () => resolve(request.result as State | undefined);
       request.onerror = () => reject(request.error);
     });
-    return stored ?? seed();
+    return stored ?? seed(false);
   } catch {
-    return (memory ??= seed());
+    return (memory ??= seed(false));
   }
 }
 async function save(state: State) {
@@ -61,27 +62,6 @@ function setStoredUser(id: string | null) {
   } catch {
     /* Sign-in then lasts until the page closes. */
   }
-}
-
-/** Same result as the server's sharp step: upright, at most 1600px, JPEG, no EXIF/GPS metadata. */
-async function normalizeImage(base64: string) {
-  const blob = await (await fetch(`data:application/octet-stream;base64,${base64}`)).blob();
-  const bitmap = await createImageBitmap(blob, { imageOrientation: 'from-image' });
-  const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bitmap.width * scale);
-  canvas.height = Math.round(bitmap.height * scale);
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  const jpeg = await new Promise<Blob>((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('encode'))), 'image/jpeg', 0.82),
-  );
-  const dataUrl = await new Promise<string>((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.readAsDataURL(jpeg);
-  });
-  return dataUrl.slice(dataUrl.indexOf(',') + 1);
 }
 
 // Stored photos are addressed as /api/media/<id>, which has no server here. Hand
@@ -142,6 +122,7 @@ async function run(url: string, body: unknown) {
     const result = await demoRequest(state, user, method, path, fromPage(body ?? {}), {
       clientKey: 'device',
       normalizeImage,
+      triageUnmapped: true,
     });
     await save(state);
     if (result.login) {

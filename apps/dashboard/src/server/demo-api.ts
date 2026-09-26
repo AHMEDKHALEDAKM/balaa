@@ -2,7 +2,6 @@
 // phone demo on GitHub Pages (browser store). Keep this file free of Node imports.
 import { z } from 'zod';
 import { categorySchema, coordinateSchema, type User } from '@balaa/types';
-import { resolveDistrict } from '@balaa/geo';
 import { audit, type State } from './state';
 import {
   ApiError,
@@ -16,6 +15,7 @@ import {
   rateLimit,
   requireRole,
   requireUser,
+  routeLocation,
   submitReport,
   transitionReport,
 } from './service';
@@ -25,6 +25,10 @@ export interface DemoHost {
   clientKey: string;
   /** Re-encodes an uploaded image as a metadata-free JPEG and returns it as base64. */
   normalizeImage(base64: string): Promise<string>;
+  /** When set, district staff must enter this team code to sign in (empty = not configured yet). */
+  staffCode?: string;
+  /** Send Cairo points outside the mapped districts to the "district pending" queue. */
+  triageUnmapped?: boolean;
 }
 /** `login` asks the host to start a session for that user and return it to the caller. */
 export type DemoResult = { status: number; body: unknown; login?: User };
@@ -45,8 +49,19 @@ export async function demoRequest(
   if (method === 'POST' && (endpoint === 'auth/mock' || endpoint === 'auth/staff')) {
     rateLimit(state, `login:${host.clientKey}`, 30, 3600000);
     if (endpoint === 'auth/mock') {
-      const citizen = await mockLogin(state, user);
+      const profile = z
+        .object({
+          name: z.string().trim().max(80).optional(),
+          email: z.email().max(160).optional(),
+        })
+        .parse(body ?? {});
+      const citizen = await mockLogin(state, user, profile);
       return { status: 200, body: null, login: citizen };
+    }
+    if (host.staffCode !== undefined) {
+      if (!host.staffCode) throw new ApiError(403, 'لم يتم ضبط رمز دخول فريق العمل بعد');
+      const { code } = z.object({ code: z.string().max(100).default('') }).parse(body);
+      if (code.trim() !== host.staffCode) throw new ApiError(403, 'رمز فريق العمل غير صحيح');
     }
     const { role } = z
       .object({
@@ -78,8 +93,12 @@ export async function demoRequest(
   }
   if (method === 'POST' && endpoint === 'geo') {
     const input = coordinateSchema.parse(body);
-    const district = resolveDistrict(input.latitude, input.longitude);
-    if (!district) throw new ApiError(422, 'الموقع خارج حدود العرض التجريبي');
+    const district = routeLocation(input.latitude, input.longitude, host.triageUnmapped);
+    if (!district)
+      throw new ApiError(
+        422,
+        host.triageUnmapped ? 'النسخة الحالية تغطي القاهرة فقط' : 'الموقع خارج حدود العرض التجريبي',
+      );
     return ok({
       district: { id: district.id, nameAr: district.nameAr, nameEn: district.nameEn },
       dataset: 'synthetic-demo',
@@ -91,7 +110,10 @@ export async function demoRequest(
     return ok({ reports: duplicateReports(state, input).map((r) => dto(state, r)) });
   }
   if (method === 'POST' && endpoint === 'reports')
-    return ok({ report: await submitReport(state, user, body) }, 201);
+    return ok(
+      { report: await submitReport(state, user, body, { triageUnmapped: host.triageUnmapped }) },
+      201,
+    );
   if (method === 'POST' && path[0] === 'reports' && path[1] && path[2] === 'confirm')
     return ok({ report: confirmReport(state, user, path[1]) });
   if (method === 'POST' && endpoint === 'media') {
@@ -167,7 +189,18 @@ export async function demoRequest(
   }
   if (method === 'GET' && endpoint === 'admin/outbox') {
     requireRole(user, ['platform_admin']);
-    return ok({ notifications: state.notifications });
+    // Platform staff see that a citizen was emailed, not their full address.
+    return ok({
+      notifications: state.notifications.map((n) =>
+        n.audience === 'citizen' && n.intendedTo
+          ? {
+              ...n,
+              intendedTo: maskEmail(n.intendedTo),
+              body: n.body.replace(/^مرحبًا .*،\n/, ''),
+            }
+          : n,
+      ),
+    });
   }
   if (method === 'GET' && endpoint === 'admin/audit') {
     requireRole(user, ['platform_admin']);
@@ -234,4 +267,10 @@ export function demoError(error: unknown): { status: number; body: unknown } | n
     };
   if (error instanceof ApiError) return { status: error.status, body: { error: error.message } };
   return null;
+}
+
+/** a***@example.com: enough to confirm a citizen update was addressed, without exposing it. */
+export function maskEmail(email: string) {
+  const [local = '', domain = ''] = email.split('@');
+  return `${local.slice(0, 1)}***@${domain}`;
 }

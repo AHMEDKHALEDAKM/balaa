@@ -22,4 +22,13 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+  {
+    // Google Apps Script: files share one global scope, so top-level functions and
+    // globals (crypto, process, Promise) are used from other files or by Google itself.
+    files: ['apps-script/**/*.js'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-this-alias': 'off',
+    },
+  },
 );

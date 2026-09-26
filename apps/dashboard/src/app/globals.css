@@ -4190,3 +4190,355 @@ html[dir='ltr'] .hero h1 {
     max-width: 100%;
   }
 }
+
+/* ---------- App shell: bottom tabs on phones (like the Ninja owners app) ---------- */
+.tab-bar {
+  display: none;
+}
+@media (max-width: 900px) {
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+  .main-nav,
+  .header-report,
+  .header-actions .account-button,
+  .site-footer,
+  .prototype-bar span + span {
+    display: none !important;
+  }
+  .site-header {
+    height: 64px;
+  }
+  .prototype-bar {
+    justify-content: center;
+  }
+  .tab-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    padding: 6px 6px calc(8px + env(safe-area-inset-bottom));
+    background: #fffffff5;
+    border-top: 1px solid var(--line);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 -6px 24px #183c370d;
+  }
+  .tab-bar button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-height: 54px;
+    justify-content: flex-end;
+    padding: 4px 0 2px;
+    background: none;
+    color: var(--muted);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .tab-bar button.active {
+    color: var(--teal);
+  }
+  .tab-bar button.active svg {
+    stroke-width: 2.4;
+  }
+  .tab-bar .tab-report {
+    color: var(--teal);
+  }
+  .tab-bar .tab-report span {
+    width: 54px;
+    height: 54px;
+    margin-top: -24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--teal);
+    color: white;
+    box-shadow: 0 8px 20px #16736540;
+    border: 4px solid white;
+  }
+}
+
+/* ---------- Sign-in ---------- */
+.signin-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow-y: auto;
+  background: radial-gradient(circle at 50% -10%, #d9ebe2 0, var(--sand) 55%);
+  color: var(--ink);
+}
+.signin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.signin-body {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 8px 16px 40px;
+}
+.signin-brand {
+  text-align: center;
+  margin: 18px 0 24px;
+}
+.signin-brand .brand {
+  font-size: 30px;
+  justify-content: center;
+}
+.signin-brand .brand-symbol {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+.signin-brand p {
+  margin: 12px 0 0;
+  font-size: 16px;
+  color: var(--muted);
+}
+.signin-card {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 26px 22px;
+  box-shadow: 0 18px 50px #183c3712;
+}
+.signin-card h1 {
+  font-size: 23px;
+  margin: 0 0 8px;
+}
+.signin-card > p {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin: 0 0 20px;
+}
+.digital-egypt-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #0f2f4a;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  box-shadow: 0 10px 24px #0f2f4a33;
+}
+.digital-egypt-button > span:nth-child(2) {
+  flex: 1;
+  text-align: start;
+  white-space: nowrap;
+  font-size: 15.5px;
+}
+.digital-egypt-button .de-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #ffffff1f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.digital-egypt-button .de-pill {
+  margin-inline-start: auto;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 99px;
+  background: #ffffff26;
+}
+.signin-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.signin-divider::before,
+.signin-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.signin-legal {
+  display: block;
+  margin: 16px 0 4px;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.signin-progress {
+  text-align: center;
+  padding: 44px 22px;
+}
+.signin-progress h1 {
+  margin-top: 16px;
+  font-size: 19px;
+}
+.signin-progress p {
+  margin: 0;
+}
+.signin-card .field-label {
+  font-size: 14px;
+  margin-top: 14px;
+}
+.input-with-icon {
+  position: relative;
+}
+.input-with-icon svg {
+  position: absolute;
+  inset-inline-start: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+}
+.input-with-icon input {
+  padding-inline-start: 40px;
+  font-size: 16px;
+}
+.signin-card .button.full {
+  margin-top: 14px;
+}
+.verified-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--mint);
+  color: var(--teal-dark);
+  font-size: 12.5px;
+  font-weight: 650;
+  margin-bottom: 10px;
+}
+
+/* ---------- Account tab ---------- */
+.account-view {
+  max-width: 620px;
+  margin: 0 auto;
+}
+.account-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 20px;
+}
+.account-card h2 {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+.account-card p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.account-card .button {
+  margin-top: 6px;
+}
+.account-avatar.large {
+  width: 62px;
+  height: 62px;
+  flex: none;
+  font-size: 24px;
+  color: var(--teal-dark);
+}
+.account-email {
+  text-align: start;
+}
+.account-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+.account-stats div {
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.account-stats strong {
+  display: block;
+  font-size: 22px;
+  color: var(--teal);
+}
+.account-stats span {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.settings-list {
+  margin-top: 14px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.settings-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 18px;
+  background: none;
+  font-size: 15px;
+  text-align: start;
+  border-bottom: 1px solid var(--line);
+}
+.settings-row:last-child {
+  border-bottom: 0;
+}
+.settings-row > span {
+  flex: 1;
+}
+.settings-row svg {
+  color: var(--muted);
+}
+.settings-row.danger,
+.settings-row.danger svg {
+  color: var(--red);
+}
+.account-privacy {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 16px 4px 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--muted);
+}
+.account-privacy svg {
+  flex: none;
+  margin-top: 4px;
+}
+.account-version {
+  text-align: center;
+  font-size: 12px;
+  color: #9aa59e;
+  margin: 18px 0 8px;
+}
+.outbox-audience {
+  display: block;
+  width: fit-content;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--mint);
+  color: var(--teal-dark);
+  font-size: 11px;
+  font-weight: 650;
+}

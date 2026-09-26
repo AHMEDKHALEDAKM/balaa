@@ -38,3 +38,14 @@ See [GitHub and phone installation](GITHUB-AND-PHONE.md) for the remaining accou
 ## Branding revert
 
 Restored the original web grille mark and native letter mark. Removed the supplied PNG from the application and reverted its Expo icon override. Arabic/English functionality remains in place.
+
+## Shared phone app, sign-in and tabs - 26 September 2026
+
+Ran and passed:
+
+- `npm run format:check` and `npm run check`: lint, TypeScript, **48 tests in 6 suites** (new `tests/apps-script.test.ts` runs the generated `apps-script/dist/Code.gs` against in-memory Drive, Sheets, lock and properties services), server build.
+- `npm run test:api` against an isolated `next start` server with its own empty data folder.
+- `npm run mobile:bundle`: Android and iOS Hermes exports.
+- Browser walkthrough at 375 x 812 of the Pages build pointed at `scripts/apps-script-emulator.mjs` (the real script file, local stand-ins for Google): first-launch sign-in with the Digital Egypt demo button, name and email; empty platform; report `BLAA-000001` with photo; a second, separate browser profile seeing the report, photo and history without the citizen's email; staff sign-in refused without a code and with a wrong code; district agent acknowledge, start, resolve with photo and note; before/after and full history visible back on the first profile; Downtown Cairo GPS routed to "District pending"; admin outbox listing district, routing-team and masked citizen messages marked not sent; English layout.
+
+Not verified: the script deployed on Google itself (Drive sharing, web app redirects and quotas), and physical phones.

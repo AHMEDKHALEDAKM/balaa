@@ -21,6 +21,9 @@ export interface User {
   verified: boolean;
   districtIds: string[];
   suspendedUntil?: string;
+  /** Citizen contact details, shown only to the citizen; never in public or district views. */
+  name?: string;
+  email?: string;
 }
 export interface Category {
   id: string;

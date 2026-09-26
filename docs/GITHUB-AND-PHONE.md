@@ -32,7 +32,12 @@ You can also choose **Code → Download ZIP** on GitHub. That downloads source, 
 
 ## 2. Phone demo on GitHub Pages (Android and iPhone, no app store)
 
-The quickest way to put Balaa on a phone. `npm run build:pages` builds the web app as plain files with a device-only backend (`apps/dashboard/src/components/localApi.ts`): it runs the same demo rules as the server, but keeps reports and photos in the phone's browser storage. Nothing is sent to any server, so each phone sees only the demo reports plus its own. Clearing the browser's site data resets it.
+The quickest way to put Balaa on a phone. `npm run build:pages` builds the web app as plain files. It has two data modes:
+
+- **Shared (recommended):** with `NEXT_PUBLIC_BALAA_BACKEND_URL` set to the Google Apps Script web app (see [apps-script/README.md](../apps-script/README.md)), every phone reads and writes the same reports, history and photos. The platform starts empty.
+- **On this device only:** without it, `apps/dashboard/src/components/localApi.ts` runs the same rules in the browser and keeps data in the phone's storage.
+
+On a phone the app uses a bottom tab bar (Home, Map, Report, My reports, Account) and opens on a sign-in screen with the demonstration Digital Egypt button, followed by name and email.
 
 1. Push to the `main` branch of a **public** GitHub repository (free Pages needs public).
 2. On GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**. Do this once.
@@ -43,7 +48,7 @@ The quickest way to put Balaa on a phone. `npm run build:pages` builds the web a
 
 To try the same build on your computer: `npm run build:pages`, then serve `apps/dashboard/out` under `/balaa/` (the repository name). A different repository name needs `BALAA_BASE_PATH=/name`; the workflow sets it automatically.
 
-The district dashboard is included and uses the same on-device data, so one person can play both citizen and district staff on the same phone. Camera and GPS work because Pages uses HTTPS; real GPS outside the two demo areas is still rejected, so use **موقع المعادي التجريبي** to try it anywhere.
+The district dashboard is under **Account → District team sign-in**. With the shared backend it needs the team code set in the script (`STAFF_CODE`). Camera and GPS work because Pages uses HTTPS. Cairo locations outside the two mapped demo districts go to a visible "District pending" queue for the platform admin; locations outside Cairo are refused. **Use a demo location** works anywhere.
 
 ## 3. Try the native app on both phones
 

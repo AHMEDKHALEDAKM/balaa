@@ -39,14 +39,21 @@ export interface Media {
   id: string;
   ownerId: string;
   kind: 'before' | 'resolution';
+  /** Base64 JPEG; emptied once the shared backend moves the photo to its own Drive file. */
   data: string;
+  driveId?: string;
   createdAt: string;
   reportId?: string;
 }
 export interface Outbox {
   id: string;
   reportId: string;
+  /** Where the message was actually captured (a reserved .invalid test inbox). */
   to: string;
+  /** Who would receive it once real delivery is switched on. */
+  intendedTo?: string;
+  from?: string;
+  audience?: 'district' | 'citizen' | 'operations';
   subject: string;
   body: string;
   createdAt: string;
@@ -73,7 +80,8 @@ export interface State {
   rateLimits: Record<string, { started: number; count: number }>;
   identityVerifications: { userId: string; provider: string; mode: string; verifiedAt: string }[];
 }
-export function seed(): State {
+/** `samples: false` starts an empty platform (the shared phone demo). */
+export function seed(samples = true): State {
   const now = Date.now();
   const reports: StoredReport[] = [];
   const fixtures: {
@@ -140,7 +148,7 @@ export function seed(): State {
       description: '[flag] بلاغ توضيحي ينتظر المراجعة',
     },
   ];
-  fixtures.forEach((f, i) => {
+  (samples ? fixtures : []).forEach((f, i) => {
     const createdAt = new Date(now - (i + 1) * 3600000).toISOString();
     const history: HistoryEntry[] = [{ status: 'submitted', createdAt }];
     if (f.status !== 'under_review') {
@@ -186,7 +194,7 @@ export function seed(): State {
   });
   return {
     version: 1,
-    sequence: 129,
+    sequence: samples ? 129 : 0,
     users: [
       { id: 'demo-citizen', role: 'citizen', verified: true, districtIds: [] },
       staff('district_agent'),
